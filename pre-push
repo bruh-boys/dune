@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Use this script as a git hook to run tests before pushing to master
+# chmod +x pre-push && ln -rs pre-push .git/hooks/
+
+# Check if we actually have commits to push
+commits=`git log @{u}..`
+if [ -z "$commits" ]; then
+    exit 0
+fi
+
+current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+
+# Only check master
+if [ $current_branch == 'master' ]; then
+    go test ./...
+
+    RESULT=$?
+    if [ $RESULT -ne 0 ]; then
+        echo "failed $CMD"
+        exit 1
+    fi
+fi
+exit 0
