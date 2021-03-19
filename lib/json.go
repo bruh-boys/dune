@@ -103,6 +103,10 @@ var JSON = []dune.NativeFunction{
 }
 
 func unmarshal(buf []byte) (dune.Value, error) {
+	if len(buf) == 0 {
+		return dune.NullValue, nil
+	}
+
 	var o interface{}
 	err := json.Unmarshal(buf, &o)
 	if err != nil {
