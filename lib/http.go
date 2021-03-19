@@ -981,21 +981,18 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if s.closureHandler != nil {
 		if _, err := vm.RunClosure(s.closureHandler, dune.NewObject(rr), dune.NewObject(req)); err != nil {
-			// the VM is paused at http.Listen so it has
-			// no effect to pass the error to sVM
-			fmt.Fprintln(s.vm.GetStderr(), err)
+			w.WriteHeader(500)
+			w.Write([]byte(err.Error()))
 		}
 	} else if s.methodHandler != nil {
 		if _, err := vm.RunMethod(s.methodHandler, dune.NewObject(rr), dune.NewObject(req)); err != nil {
-			// the VM is paused at http.Listen so it has
-			// no effect to pass the error to sVM
-			fmt.Fprintln(s.vm.GetStderr(), err)
+			w.WriteHeader(500)
+			w.Write([]byte(err.Error()))
 		}
 	} else if s.handler >= 0 {
 		if _, err := vm.RunFuncIndex(s.handler, dune.NewObject(rr), dune.NewObject(req)); err != nil {
-			// the VM is paused at http.Listen so it has
-			// no effect to pass the error to sVM
-			fmt.Fprintln(s.vm.GetStderr(), err)
+			w.WriteHeader(500)
+			w.Write([]byte(err.Error()))
 		}
 	} else {
 		fmt.Println("no handler")
