@@ -384,7 +384,7 @@ func TestDbExplicit2(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	w := NewWriter(q, "", "foo", "", "mysql")
+	w := NewWriter(q, "foo", "", "", "mysql")
 	w.EscapeIdents = true
 
 	s, _, err := w.Write()

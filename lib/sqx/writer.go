@@ -544,15 +544,15 @@ func (p *writer) writeShowDatabases(s *ShowQuery) error {
 
 func (p *writer) validateDatabase(name string) bool {
 	if p.Database != "" {
-		if name != "" && name != p.fullDatabase() {
+		if name != "" && name != p.Database {
 			return false
 		}
 	}
 	return true
 }
 
-func (p *writer) fullDatabase() string {
-	return p.Prefix + p.Database
+func (p *writer) writeDatabase(database string) error {
+	return p.writeIdentifier(p.Prefix + database)
 }
 
 func (p *writer) writeShowTables(s *ShowQuery) error {
@@ -562,7 +562,7 @@ func (p *writer) writeShowTables(s *ShowQuery) error {
 
 	database := s.Database
 	if database == "" {
-		database = p.fullDatabase()
+		database = s.Database
 	}
 
 	switch p.driver {
@@ -570,7 +570,7 @@ func (p *writer) writeShowTables(s *ShowQuery) error {
 		p.buf.WriteString("SHOW TABLES")
 		if database != "" {
 			p.buf.WriteString(" FROM ")
-			if err := p.writeIdentifier(database); err != nil {
+			if err := p.writeDatabase(database); err != nil {
 				return err
 			}
 		}
@@ -609,7 +609,7 @@ func (p *writer) writeCreateDatabase(s *CreateDatabaseQuery) error {
 		p.buf.WriteString("IF NOT EXISTS ")
 	}
 
-	if err := p.writeIdentifier(p.Prefix + s.Name); err != nil {
+	if err := p.writeDatabase(s.Name); err != nil {
 		return err
 	}
 	return nil
@@ -624,7 +624,7 @@ func (p *writer) writeCreateTable(s *CreateTableQuery) error {
 		p.buf.WriteString("IF NOT EXISTS ")
 	}
 
-	if err := p.writeTable(p.fullDatabase(), s.Name); err != nil {
+	if err := p.writeTable(p.Database, s.Name); err != nil {
 		return err
 	}
 
@@ -718,7 +718,7 @@ func (p *writer) writeFKConstraint(s *CreateTableQuery, c *ForeginKey) error {
 
 	p.buf.WriteString(") REFERENCES ")
 
-	if err := p.writeTable(p.fullDatabase(), c.RefTable); err != nil {
+	if err := p.writeTable(p.Database, c.RefTable); err != nil {
 		return err
 	}
 
@@ -1038,11 +1038,11 @@ func (p *writer) writeTable(database, table string) error {
 	}
 
 	if database == "" {
-		database = p.fullDatabase()
+		database = p.Database
 	}
 
 	if database != "" {
-		if err := p.writeIdentifier(database); err != nil {
+		if err := p.writeDatabase(database); err != nil {
 			return err
 		}
 		p.buf.WriteString(".")
