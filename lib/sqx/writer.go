@@ -562,7 +562,7 @@ func (p *writer) writeShowTables(s *ShowQuery) error {
 
 	database := s.Database
 	if database == "" {
-		database = s.Database
+		database = p.Database
 	}
 
 	switch p.driver {
