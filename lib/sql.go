@@ -1902,7 +1902,10 @@ func newColumn(c dbx.SchemaColumn) (schemaColumn, error) {
 	i := strings.IndexRune(t, '(')
 
 	if i != -1 {
-		parts := strings.Split(t[i+1:len(t)-1], ",")
+		sizePart := t[i+1:]
+		e := strings.IndexRune(sizePart, ')')
+		sizePart = sizePart[:e]
+		parts := strings.Split(sizePart, ",")
 		t = t[:i]
 
 		s, err := strconv.Atoi(parts[0])
