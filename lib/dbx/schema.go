@@ -18,15 +18,26 @@ func (db *DB) Databases() (*Table, error) {
 }
 
 func (db *DB) HasDatabase(name string) (bool, error) {
+	if db.Prefix != "" {
+		name = db.Prefix + name
+	}
+
 	switch db.Driver {
 	case "mysql":
 		return db.queryBoolean(`SELECT 1
-							FROM information_schema.tables
-							WHERE table_schema = ?`, name)
+								FROM INFORMATION_SCHEMA.SCHEMATA
+								WHERE SCHEMA_NAME = ?`, name)
 
 	default:
 		return false, fmt.Errorf("invalid driver: %s", db.Driver)
 	}
+}
+
+func (db *DB) fullDatabaseName() string {
+	if db.Prefix != "" {
+		return db.Prefix + db.Database
+	}
+	return db.Database
 }
 
 func (db *DB) HasTable(name string) (bool, error) {
@@ -39,7 +50,7 @@ func (db *DB) HasTable(name string) (bool, error) {
 		return db.queryBoolean(`SELECT 1
 							FROM information_schema.tables
 							WHERE table_schema = ?
-							AND table_name = ?`, db.Database, name)
+							AND table_name = ?`, db.fullDatabaseName(), name)
 
 	default:
 		return false, fmt.Errorf("invalid driver: %s", db.Driver)
@@ -53,7 +64,7 @@ func (db *DB) Tables() ([]string, error) {
 		q := `SHOW TABLES`
 		name := db.Database
 		if name != "" {
-			q += " FROM " + db.Database
+			q += " FROM " + db.fullDatabaseName()
 		}
 		return db.dbTables(q)
 
