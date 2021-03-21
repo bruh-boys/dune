@@ -120,6 +120,7 @@ declare namespace runtime {
 		readonly program: Program
 		context: any
 		language: string
+		location: time.Location
 		error: errors.Error
 		initialize(): any[]
 		run(...args: any[]): any
@@ -950,6 +951,8 @@ func (m *libVM) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 		return dune.NewString(m.vm.Language), nil
 	case "localizer":
 		return dune.NewObject(m.vm.Localizer), nil
+	case "location":
+		return dune.NewObject(location{l: m.vm.Location}), nil
 	case "maxAllocations":
 		return dune.NewInt64(m.vm.MaxAllocations), nil
 	case "maxFrames":
@@ -1013,6 +1016,14 @@ func (m *libVM) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 			return ErrInvalidType
 		}
 		m.vm.Localizer = loc
+		return nil
+
+	case "location":
+		loc, ok := v.ToObjectOrNil().(location)
+		if !ok {
+			return ErrInvalidType
+		}
+		m.vm.Location = loc.l
 		return nil
 
 	case "maxAllocations":
