@@ -884,10 +884,12 @@ func (f *FileSystemObj) readNames(args []dune.Value, vm *dune.VM) (dune.Value, e
 	}
 
 	if l == 2 {
-		if args[1].Type != dune.Bool {
-			return dune.NullValue, fmt.Errorf("expected argument 2 to be a boolean, got %v", args[0].TypeName())
+		switch args[1].Type {
+		case dune.Bool, dune.Undefined, dune.Null:
+			recursive = args[1].ToBool()
+		default:
+			return dune.NullValue, fmt.Errorf("expected argument 2 to be a boolean, got %v", args[1].TypeName())
 		}
-		recursive = args[1].ToBool()
 	}
 
 	fis, err := ReadNames(f.FS, name, recursive)
