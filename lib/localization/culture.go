@@ -38,6 +38,8 @@ func NewCulture(name string) *Culture {
 type Culture struct {
 	Name string
 
+	Language string
+
 	DecimalSeparator  rune
 	ThousandSeparator rune
 	NumberOfDecimals  int
@@ -55,6 +57,7 @@ type Culture struct {
 func (c *Culture) Clone() *Culture {
 	return &Culture{
 		Name:                c.Name,
+		Language:            c.Language,
 		DecimalSeparator:    c.DecimalSeparator,
 		ThousandSeparator:   c.ThousandSeparator,
 		NumberOfDecimals:    c.NumberOfDecimals,

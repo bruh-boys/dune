@@ -38,6 +38,7 @@ declare namespace locale {
 
 	export interface Culture {
 		name: string
+		language: string
 		locked: boolean
 		numberOfDecimals: number
 		decimalSeparator: string
@@ -167,7 +168,9 @@ var Locale = []dune.NativeFunction{
 		Name:      "locale.newLocalizer",
 		Arguments: 0,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			loc := &localizer{}
+			loc := &localizer{
+				translator: localization.DefaultTranslator,
+			}
 			lt := dune.NewObject(loc)
 			return lt, nil
 		},
@@ -408,6 +411,8 @@ func (c *culture) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 
 	case "name":
 		return dune.NewString(c.culture.Name), nil
+	case "language":
+		return dune.NewString(c.culture.Language), nil
 	case "currencySymbol":
 		return dune.NewString(c.culture.CurrencySymbol), nil
 	case "currencyPattern":
@@ -442,7 +447,6 @@ func (c *culture) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 			return fmt.Errorf("expected bool, got %s", v.TypeName())
 		}
 		c.readonly = v.ToBool()
-
 	case "name":
 		if v.Type != dune.String {
 			return ErrInvalidType
@@ -451,6 +455,14 @@ func (c *culture) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 			return fmt.Errorf("the object is readonly")
 		}
 		c.culture.Name = v.ToString()
+	case "language":
+		if v.Type != dune.String {
+			return ErrInvalidType
+		}
+		if c.readonly {
+			return fmt.Errorf("the object is readonly")
+		}
+		c.culture.Language = v.ToString()
 	case "currencySymbol":
 		if v.Type != dune.String {
 			return ErrInvalidType
