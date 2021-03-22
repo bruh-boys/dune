@@ -22,6 +22,13 @@ func NewTranslator() *Translator {
 	}
 }
 
+func (t *Translator) Language(name string) *Language {
+	t.Lock()
+	lan := t.languages[name]
+	t.Unlock()
+	return lan
+}
+
 func (t *Translator) Languages() []string {
 	t.Lock()
 
@@ -37,6 +44,18 @@ func (t *Translator) Languages() []string {
 	t.Unlock()
 
 	return values
+}
+
+func (t *Translator) AddLibrary(language, library, key, value string) {
+	t.Lock()
+	lan, ok := t.languages[language]
+	if !ok {
+		lan = NewLanguage()
+		t.languages[language] = lan
+	}
+	t.Unlock()
+
+	lan.AddLibrary(library, key, value)
 }
 
 func (t *Translator) Add(language, key, value string) {
@@ -69,6 +88,7 @@ func (t *Translator) Translate(language, key string) (string, bool) {
 
 type Language struct {
 	sync.RWMutex
+	Libraries    []string
 	Translations map[string]string
 }
 
@@ -78,11 +98,35 @@ func NewLanguage() *Language {
 	}
 }
 
+func (lan *Language) HasLibrary(name string) bool {
+	for _, s := range lan.Libraries {
+		if s == name {
+			return true
+		}
+	}
+	return false
+}
+
+func (lan *Language) AddLibrary(name string, key, value string) {
+	lan.Lock()
+	var found bool
+	for _, s := range lan.Libraries {
+		if s == name {
+			found = true
+			break
+		}
+	}
+	if !found {
+		lan.Libraries = append(lan.Libraries, name)
+	}
+	lan.Translations[key] = value
+	lan.Unlock()
+}
+
 func (lan *Language) AddTranslation(key, value string) {
 	lan.Lock()
 	lan.Translations[key] = value
 	lan.Unlock()
-
 }
 
 func (lan *Language) Translate(key string) (string, bool) {

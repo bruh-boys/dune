@@ -56,6 +56,8 @@ declare namespace locale {
 
 	export interface Translator {
 		add(language: string, key: string, translation: string): void
+		addLibrary(language: string, library: string, values: any): void
+		hasLibrary(name: string, language: string): boolean
 		languages(): string[]
 	}
 
@@ -318,6 +320,10 @@ func (t *translator) GetMethod(name string) dune.NativeMethod {
 	switch name {
 	case "add":
 		return t.add
+	case "addLibrary":
+		return t.addLibrary
+	case "hasLibrary":
+		return t.hasLibrary
 	case "languages":
 		return t.languages
 	}
@@ -335,6 +341,39 @@ func (t *translator) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	t.translator.Add(language, key, value)
 	return dune.NullValue, nil
+}
+
+func (t *translator) addLibrary(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	if err := ValidateArgs(args, dune.String, dune.String, dune.Map); err != nil {
+		return dune.NullValue, err
+	}
+
+	language := args[0].ToString()
+	library := args[1].ToString()
+	values := args[2].ToMap().Map
+
+	for k, v := range values {
+		t.translator.AddLibrary(language, library, k.ToString(), v.ToString())
+	}
+
+	return dune.NullValue, nil
+}
+
+func (t *translator) hasLibrary(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	if err := ValidateArgs(args, dune.String, dune.String); err != nil {
+		return dune.NullValue, err
+	}
+
+	language := args[0].ToString()
+	library := args[1].ToString()
+
+	lan := t.translator.Language(language)
+	if lan == nil {
+		return dune.FalseValue, nil
+	}
+
+	v := lan.HasLibrary(library)
+	return dune.NewBool(v), nil
 }
 
 func (t *translator) languages(args []dune.Value, vm *dune.VM) (dune.Value, error) {
