@@ -40,13 +40,7 @@ var Strconv = []dune.NativeFunction{
 			var size int
 			if len(args) > 1 {
 				size = int(args[1].ToInt())
-			} else {
-				size = 4
-			}
-
-			ln := len(s)
-			if ln < size {
-				s += customBase34Delimiter + RandomAlphanumeric(size-ln-1)
+				s += customBase34Delimiter + RandomAlphanumeric(size)
 			}
 
 			return dune.NewString(strings.ToUpper(s)), nil
