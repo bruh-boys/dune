@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -13,7 +14,7 @@ func init() {
 
 declare namespace assert {
     export function contains(search: string, value: string): void
-    export function equal(a: any, b: any): void
+    export function equal(a: any, b: any, errorMessage?: string): void
     export function isNull(a: any): void
 	export function isNotNull(a: any): void
 	export function exception(msg: string, func: Function): void
@@ -49,12 +50,30 @@ var Assert = []dune.NativeFunction{
 
 	{
 		Name:      "assert.equal",
-		Arguments: 2,
+		Arguments: -1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			var msg string
+			ln := len(args)
+			switch ln {
+			case 2:
+			case 3:
+				a3 := args[2]
+				if a3.Type != dune.String {
+					return dune.NullValue, fmt.Errorf("expected error message to be a string, got %v", a3.TypeName())
+				}
+				msg = a3.ToString()
+			default:
+				return dune.NullValue, fmt.Errorf("expected 2 or 3 args, got %d", ln)
+
+			}
+
 			a := args[0]
 			b := args[1]
 
 			if !areEqual(a, b) {
+				if msg != "" {
+					return dune.NullValue, errors.New(msg)
+				}
 				return dune.NullValue, fmt.Errorf("values are different: %v, %v", serializeOrErr(a), serializeOrErr(b))
 			}
 			return dune.NullValue, nil
