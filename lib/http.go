@@ -33,6 +33,11 @@ func init() {
 
 
 declare namespace http {
+	export const STATUS_OK: number
+	export const STATUS_BAD_REQUEST: number
+	export const STATUS_UNAUTHORIZED: number
+	export const STATUS_INTERNAL_ERROR: number
+
 	export type SameSite = number
 	export const SameSiteDefaultMode: SameSite
 	export const SameSiteLaxMode: SameSite
@@ -292,11 +297,42 @@ var cacheBreaker string
 
 var HTTP = []dune.NativeFunction{
 	{
+		Name: "->http.STATUS_OK",
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			return dune.NewInt(200), nil
+		},
+	},
+	{
+		Name: "->http.STATUS_BAD_REQUEST",
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			return dune.NewInt(400), nil
+		},
+	},
+	{
+		Name: "->http.STATUS_UNAUTHORIZED",
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			return dune.NewInt(401), nil
+		},
+	},
+	{
+		Name: "->http.STATUS_INTERNAL_ERROR",
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			return dune.NewInt(500), nil
+		},
+	},
+	{
 		Name: "->http.SameSiteDefaultMode",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			return dune.NewInt(int(http.SameSiteDefaultMode)), nil
 		},
 	},
+	{
+		Name: "->http.SameSiteDefaultMode",
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			return dune.NewInt(int(http.SameSiteDefaultMode)), nil
+		},
+	},
+
 	{
 		Name: "->http.SameSiteLaxMode",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
