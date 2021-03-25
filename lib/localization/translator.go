@@ -135,8 +135,9 @@ func (lan *Language) Translate(key string) (string, bool) {
 
 	translation, ok := lan.Translations[key]
 	if !ok {
-		translation = FormatKey(translation)
+		translation = FormatKey(key)
 	}
+
 	return translation, ok
 }
 
