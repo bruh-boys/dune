@@ -18,23 +18,24 @@ var ErrNoFileSystem = errors.New("there is no filesystem")
 func init() {
 	dune.RegisterLib(Errors, `
 
-	declare namespace errors {
-		export function newError(msg: string): Error
-		export function wrap(msg: string, inner: Error): Error
-		export function public(msg: string, inner?: Error | string): Error
-	
-		export function is(err: Error, msg: string): Error
-		export function rethrow(err: Error): void
+		declare namespace errors {
+			export function newError(msg: string): Error
+			export function wrap(msg: string, inner: Error): Error
+			export function public(code: number, msg: string, inner?: Error | string): Error
+		
+			export function is(err: Error, msg: string): Error
+			export function rethrow(err: Error): void
 
-		export interface Error {
-			public: boolean
-			message: string
-			pc: number
-			stackTrace: string
-			toString(): string
-			is(error: string): boolean
+			export interface Error {
+				code: number
+				public: boolean
+				message: string
+				pc: number
+				stackTrace: string
+				toString(): string
+				is(error: string): boolean
+			}
 		}
-	}
 `)
 }
 
@@ -85,19 +86,29 @@ var Errors = []dune.NativeFunction{
 		Name:      "errors.wrap",
 		Arguments: -1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			return wrap(false, args, vm)
+			return wrap(0, false, args, vm)
 		},
 	},
 	{
 		Name:      "errors.public",
 		Arguments: -1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			return wrap(true, args, vm)
+			ln := len(args)
+			if ln < 2 {
+				return dune.NullValue, fmt.Errorf("expected at least 2 parameters, got %d", ln)
+			}
+
+			cv := args[0]
+			if cv.Type != dune.Int {
+				return dune.NullValue, fmt.Errorf("expected code to be int, got %v", cv.TypeName())
+			}
+
+			return wrap(int(cv.ToInt()), true, args[1:], vm)
 		},
 	},
 }
 
-func wrap(public bool, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func wrap(code int, public bool, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	ln := len(args)
 	if ln < 1 || ln > 2 {
 		return dune.NullValue, fmt.Errorf("expected 1 or 2 parameters, got %d", ln)
@@ -109,6 +120,7 @@ func wrap(public bool, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	}
 
 	e := vm.NewPublicError(v.ToString())
+	e.Code = code
 
 	if ln > 1 {
 		innerObj := args[1]

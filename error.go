@@ -34,6 +34,7 @@ type Error struct {
 	goError     error
 	Wrapped     []*Error
 	IsRethrow   bool
+	Code        int
 }
 
 func (e *Error) Type() string {
@@ -130,6 +131,8 @@ func (e *Error) stackLines() []string {
 
 func (e *Error) GetProperty(name string, vm *VM) (Value, error) {
 	switch name {
+	case "code":
+		return NewInt(e.Code), nil
 	case "public":
 		return NewBool(e.public), nil
 	case "message":
