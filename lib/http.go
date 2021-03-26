@@ -33,10 +33,13 @@ func init() {
 
 
 declare namespace http {
-	export const STATUS_OK: number
-	export const STATUS_BAD_REQUEST: number
-	export const STATUS_UNAUTHORIZED: number
-	export const STATUS_INTERNAL_ERROR: number
+	export const OK: number
+	export const REDIRECT: number
+	export const BAD_REQUEST: number
+	export const UNAUTHORIZED: number
+	export const NOT_FOUND: number
+	export const INTERNAL_ERROR: number
+	export const UNAVAILABLE: number
 
 	export type SameSite = number
 	export const SameSiteDefaultMode: SameSite
@@ -297,27 +300,45 @@ var cacheBreaker string
 
 var HTTP = []dune.NativeFunction{
 	{
-		Name: "->http.STATUS_OK",
+		Name: "->http.OK",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			return dune.NewInt(200), nil
 		},
 	},
 	{
-		Name: "->http.STATUS_BAD_REQUEST",
+		Name: "->http.REDIRECT",
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			return dune.NewInt(302), nil
+		},
+	},
+	{
+		Name: "->http.BAD_REQUEST",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			return dune.NewInt(400), nil
 		},
 	},
 	{
-		Name: "->http.STATUS_UNAUTHORIZED",
+		Name: "->http.UNAUTHORIZED",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			return dune.NewInt(401), nil
 		},
 	},
 	{
-		Name: "->http.STATUS_INTERNAL_ERROR",
+		Name: "->http.NOT_FOUND",
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			return dune.NewInt(404), nil
+		},
+	},
+	{
+		Name: "->http.INTERNAL_ERROR",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			return dune.NewInt(500), nil
+		},
+	},
+	{
+		Name: "->http.UNAVAILABLE",
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			return dune.NewInt(503), nil
 		},
 	},
 	{
