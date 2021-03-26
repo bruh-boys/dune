@@ -2229,7 +2229,9 @@ func (p *Parser) parseFactor() (Expr, error) {
 		case "GROUP_CONCAT":
 			return p.parseGroupConcat()
 		case "INTERVAL":
-			return p.parseInterval()
+			if p.peekTwo().Type == INT {
+				return p.parseInterval()
+			}
 		}
 
 		if p.peekTwo().Type == LPAREN {
