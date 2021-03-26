@@ -133,7 +133,7 @@ func (c *cacheObj) get(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	key := args[0].ToString()
+	key := args[0].String()
 	if i, ok := c.cache.Get(key); ok {
 		return i.(dune.Value), nil
 	}
@@ -147,7 +147,7 @@ func (c *cacheObj) save(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if args[0].Type != dune.String {
 		return dune.NullValue, fmt.Errorf("invalid argument type, expected string, got %s", args[0].TypeName())
 	}
-	key := args[0].ToString()
+	key := args[0].String()
 	v := args[1]
 	c.cache.Set(key, v, cache.DefaultExpiration)
 	return dune.NullValue, nil
@@ -157,7 +157,7 @@ func (c *cacheObj) delete(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	key := args[0].ToString()
+	key := args[0].String()
 	c.cache.Delete(key)
 	return dune.NullValue, nil
 }

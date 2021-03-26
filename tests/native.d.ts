@@ -46,7 +46,7 @@ declare namespace errors {
         message: string
         pc: number
         stackTrace: string
-        toString(): string
+        string(): string
     }
 }
 
@@ -866,7 +866,7 @@ declare namespace io {
         cap: number
         read(b: byte[]): number
         write(v: any): void
-        toString(): string
+        string(): string
         toBytes(): byte[]
     }
 
@@ -1308,7 +1308,7 @@ declare namespace runtime {
          * Strip sources, not exported functions name and other info.
          */
         strip(): void
-        toString(): string
+        string(): string
         write(w: io.Writer): void
     }
 
@@ -1318,7 +1318,7 @@ declare namespace runtime {
         arguments: number
         exported: boolean
         func: Function
-        toString(): string
+        string(): string
     }
 
     export interface VirtualMachine {
@@ -1423,7 +1423,7 @@ declare namespace smtp {
         subject: string
         body: string
         html: boolean
-        toString(): string
+        string(): string
         attach(fileName: string, data: byte[], inline: boolean): void
     }
 }
@@ -2154,7 +2154,7 @@ declare namespace xml {
     export interface XMLDocument {
         createElement(name: string): XMLElement
         selectElement(name: string): XMLElement
-        toString(): string
+        string(): string
     }
 
     export interface XMLElement {

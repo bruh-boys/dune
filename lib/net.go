@@ -91,9 +91,9 @@ var Net = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			cidr := args[0].ToString()
+			cidr := args[0].String()
 
-			ip := net.ParseIP(args[1].ToString())
+			ip := net.ParseIP(args[1].String())
 
 			_, ipnet, err := net.ParseCIDR(cidr)
 			if err != nil {
@@ -117,7 +117,7 @@ var Net = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			listener, err := newNetListener(args[0].ToString(), args[1].ToString(), vm)
+			listener, err := newNetListener(args[0].String(), args[1].String(), vm)
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -142,7 +142,7 @@ var Net = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected param 2 to be TCPAddr, got %s", args[1].TypeName())
 			}
 
-			listener, err := newTCPListener(args[0].ToString(), addr.addr, vm)
+			listener, err := newTCPListener(args[0].String(), addr.addr, vm)
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -158,7 +158,7 @@ var Net = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			addr, err := net.ResolveTCPAddr(args[0].ToString(), args[1].ToString())
+			addr, err := net.ResolveTCPAddr(args[0].String(), args[1].String())
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -174,7 +174,7 @@ var Net = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			network := args[0].ToString()
+			network := args[0].String()
 
 			var localAddr *net.TCPAddr
 
@@ -209,7 +209,7 @@ var Net = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			conn, err := net.Dial(args[0].ToString(), args[1].ToString())
+			conn, err := net.Dial(args[0].String(), args[1].String())
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -233,7 +233,7 @@ var Net = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			conn, err := net.DialTimeout(args[0].ToString(), args[1].ToString(), d)
+			conn, err := net.DialTimeout(args[0].String(), args[1].String(), d)
 			if err != nil {
 				return dune.NullValue, err
 			}

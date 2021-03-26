@@ -101,7 +101,7 @@ func (c *websocketConn) SetProperty(name string, v dune.Value, vm *dune.VM) erro
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		c.guid = v.ToString()
+		c.guid = v.String()
 		return nil
 	}
 	return ErrReadOnlyOrUndefined

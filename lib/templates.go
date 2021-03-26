@@ -139,10 +139,10 @@ var Templates = []dune.NativeFunction{
 			l := len(args)
 			switch l {
 			case 1:
-				path = args[0].ToString()
+				path = args[0].String()
 				fs = vm.FileSystem
 			case 2:
-				path = args[0].ToString()
+				path = args[0].String()
 				fo, ok := args[1].ToObjectOrNil().(*FileSystemObj)
 				if !ok {
 					return dune.NullValue, fmt.Errorf("expected a fileSystem, got %s", args[0].TypeName())
@@ -207,7 +207,7 @@ func compileTemplate(html bool, this dune.Value, args []dune.Value, vm *dune.VM)
 	l := len(args)
 	switch l {
 	case 1:
-		code = args[0].ToString()
+		code = args[0].String()
 	default:
 		return dune.NullValue, fmt.Errorf("expected one or two arguments, got %d", l)
 	}
@@ -265,7 +265,7 @@ func writeHTML(html bool, this dune.Value, args []dune.Value, vm *dune.VM) (dune
 		return dune.NullValue, fmt.Errorf("there is no filesystem")
 	}
 
-	src, err := filesystem.ReadAll(fs, vPath.ToString())
+	src, err := filesystem.ReadAll(fs, vPath.String())
 	if err != nil {
 		return dune.NullValue, err
 	}
@@ -310,9 +310,9 @@ func writeHTMLTemplate(html bool, this dune.Value, args []dune.Value, vm *dune.V
 	var b []byte
 	var err error
 	if html {
-		b, sourceMap, err = templates.CompileHtml(template.ToString())
+		b, sourceMap, err = templates.CompileHtml(template.String())
 	} else {
-		b, sourceMap, err = templates.Compile(template.ToString())
+		b, sourceMap, err = templates.Compile(template.String())
 	}
 
 	if err != nil {
@@ -354,9 +354,9 @@ func render(html bool, this dune.Value, args []dune.Value, vm *dune.VM) (dune.Va
 	var err error
 
 	if html {
-		b, sourceMap, err = templates.CompileHtml(template.ToString())
+		b, sourceMap, err = templates.CompileHtml(template.String())
 	} else {
-		b, sourceMap, err = templates.Compile(template.ToString())
+		b, sourceMap, err = templates.Compile(template.String())
 	}
 
 	if err != nil {
@@ -504,7 +504,7 @@ func (b buffer) write(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	case dune.Null, dune.Undefined:
 		return dune.NullValue, nil
 	case dune.String:
-		b.buf.WriteString(v.ToString())
+		b.buf.WriteString(v.String())
 	case dune.Bytes:
 		b.buf.Write(v.ToBytes())
 	case dune.Int:

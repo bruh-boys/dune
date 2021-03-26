@@ -173,7 +173,7 @@ var Sync = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("key must be a string, got %s", keyVal.TypeName())
 			}
 
-			m := globalKeyMutex.getMutex(keyVal.ToString())
+			m := globalKeyMutex.getMutex(keyVal.String())
 
 			m.Lock()
 			defer m.Unlock()

@@ -87,7 +87,7 @@ func (r httpRouter) match(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	url := args[0].ToString()
+	url := args[0].String()
 	m, ok := r.Match(url)
 	if ok {
 		return dune.NewObject(m), nil
@@ -128,9 +128,9 @@ func (r httpRouter) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		defer mo.RUnlock()
 
 		for k, mv := range mo.Map {
-			s := k.ToString()
+			s := k.String()
 			if s == "url" {
-				url = mv.ToString()
+				url = mv.String()
 			} else {
 				values[s] = mv
 			}
@@ -390,7 +390,7 @@ func (r routeMatch) int(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	name := args[0].ToString()
+	name := args[0].String()
 	for i, k := range r.Route.Params {
 		if k == name {
 			s := r.Params[i]
@@ -413,7 +413,7 @@ func (r routeMatch) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	name := args[0].ToString()
+	name := args[0].String()
 	for i, k := range r.Route.Params {
 		if k == name {
 			return dune.NewString(r.Params[i]), nil
@@ -474,7 +474,7 @@ func (r *httpRoute) SetProperty(name string, v dune.Value) error {
 	switch name {
 
 	case "url":
-		r.URL = v.ToString()
+		r.URL = v.String()
 		return nil
 
 	case "params":

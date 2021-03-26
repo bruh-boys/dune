@@ -190,7 +190,7 @@ func TestConstants(t *testing.T) {
 	}
 
 	a := v.ToArray()
-	if a[0].ToString() != "aaa" {
+	if a[0].String() != "aaa" {
 		t.Fail()
 	}
 	if a[1].ToInt() != 1 {

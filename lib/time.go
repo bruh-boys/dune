@@ -356,7 +356,7 @@ var Time = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			s := args[0].ToString()
+			s := args[0].String()
 			ln := len(s)
 			if ln < 2 {
 				return dune.NullValue, vm.NewPublicError("invalid duration. Format is for example: 1s or 2d")
@@ -479,7 +479,7 @@ var Time = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			name := args[0].ToString()
+			name := args[0].String()
 
 			l, err := time.LoadLocation(name)
 			if err != nil {
@@ -503,7 +503,7 @@ var Time = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			name := args[0].ToString()
+			name := args[0].String()
 
 			l, err := time.LoadLocation(name)
 			if err != nil {
@@ -616,7 +616,7 @@ var Time = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			l, err := time.LoadLocation(args[0].ToString())
+			l, err := time.LoadLocation(args[0].String())
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -635,13 +635,13 @@ var Time = []dune.NativeFunction{
 				if err := ValidateArgs(args, dune.String); err != nil {
 					return dune.NullValue, err
 				}
-				value = args[0].ToString()
+				value = args[0].String()
 			case 2:
 				if err := ValidateArgs(args, dune.String, dune.String); err != nil {
 					return dune.NullValue, err
 				}
-				value = args[0].ToString()
-				format = args[1].ToString()
+				value = args[0].String()
+				format = args[1].String()
 			default:
 				return dune.NullValue, fmt.Errorf("expected 1 or 2 params, got %d", len(args))
 			}
@@ -932,7 +932,7 @@ func parseInLocation(l *time.Location, this dune.Value, args []dune.Value, vm *d
 		return dune.NullValue, err
 	}
 
-	value := args[0].ToString()
+	value := args[0].String()
 
 	var format string
 
@@ -940,7 +940,7 @@ func parseInLocation(l *time.Location, this dune.Value, args []dune.Value, vm *d
 		farg := args[1]
 		switch farg.Type {
 		case dune.String:
-			format = farg.ToString()
+			format = farg.String()
 		case dune.Null:
 		default:
 			return dune.NullValue, ErrInvalidType
@@ -1610,7 +1610,7 @@ func (t TimeObj) format(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	format := args[0].ToString()
+	format := args[0].String()
 	s := time.Time(t)
 
 	loc := vm.Localizer

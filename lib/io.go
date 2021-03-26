@@ -57,7 +57,7 @@ declare namespace io {
         cap: number
         read(b: byte[]): number
         write(v: any): void
-        toString(): string
+        string(): string
         toBytes(): byte[]
 	}
 
@@ -151,7 +151,7 @@ var IO = []dune.NativeFunction{
 			if !ok {
 				return dune.NullValue, fmt.Errorf("invalid filesystem argument, got %v", args[1])
 			}
-			root := args[0].ToString()
+			root := args[0].String()
 			rFS, err := filesystem.NewRootedFS(root, fs.FS)
 			if err != nil {
 				return dune.NullValue, err
@@ -360,8 +360,8 @@ func (b Buffer) GetMethod(name string) dune.NativeMethod {
 	switch name {
 	case "write":
 		return b.write
-	case "toString":
-		return b.toString
+	case "string":
+		return b.string
 	case "toBytes":
 		return b.toBytes
 	}
@@ -477,7 +477,7 @@ func Write(w io.Writer, v dune.Value, vm *dune.VM) error {
 	return err
 }
 
-func (b Buffer) toString(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func (b Buffer) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if len(args) != 0 {
 		return dune.NullValue, fmt.Errorf("expected 0 argument, got %d", len(args))
 	}
@@ -575,7 +575,7 @@ func (f *FileSystemObj) addToBlacklist(args []dune.Value, vm *dune.VM) (dune.Val
 		return dune.NullValue, fmt.Errorf("invalid method")
 	}
 
-	path := args[0].ToString()
+	path := args[0].String()
 
 	if err := fs.AddToBlacklist(path); err != nil {
 		return dune.NullValue, err
@@ -594,7 +594,7 @@ func (f *FileSystemObj) addToWhitelist(args []dune.Value, vm *dune.VM) (dune.Val
 		return dune.NullValue, fmt.Errorf("invalid method")
 	}
 
-	path := args[0].ToString()
+	path := args[0].String()
 
 	if err := fs.AddToWhitelist(path); err != nil {
 		return dune.NullValue, err
@@ -608,8 +608,8 @@ func (f *FileSystemObj) rename(args []dune.Value, vm *dune.VM) (dune.Value, erro
 		return dune.NullValue, err
 	}
 
-	source := args[0].ToString()
-	dest := args[1].ToString()
+	source := args[0].String()
+	dest := args[1].String()
 
 	if err := f.FS.Rename(source, dest); err != nil {
 		if os.IsNotExist(err) {
@@ -626,7 +626,7 @@ func (f *FileSystemObj) removeAll(args []dune.Value, vm *dune.VM) (dune.Value, e
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	if err := f.FS.RemoveAll(name); err != nil {
 		return dune.NullValue, err
@@ -640,7 +640,7 @@ func (f *FileSystemObj) openIfExists(args []dune.Value, vm *dune.VM) (dune.Value
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	fi, err := f.FS.Open(name)
 	if err != nil {
@@ -658,7 +658,7 @@ func (f *FileSystemObj) open(args []dune.Value, vm *dune.VM) (dune.Value, error)
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	fi, err := f.FS.Open(name)
 	if err != nil {
@@ -676,7 +676,7 @@ func (f *FileSystemObj) openForWrite(args []dune.Value, vm *dune.VM) (dune.Value
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	fi, err := f.FS.OpenForWrite(name)
 	if err != nil {
@@ -691,7 +691,7 @@ func (f *FileSystemObj) openForAppend(args []dune.Value, vm *dune.VM) (dune.Valu
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	fi, err := f.FS.OpenForAppend(name)
 	if err != nil {
@@ -823,7 +823,7 @@ func (f *FileSystemObj) abs(args []dune.Value, vm *dune.VM) (dune.Value, error) 
 		return dune.NullValue, err
 	}
 
-	path := args[0].ToString()
+	path := args[0].String()
 	abs, err := f.FS.Abs(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -840,7 +840,7 @@ func (f *FileSystemObj) chdir(args []dune.Value, vm *dune.VM) (dune.Value, error
 		return dune.NullValue, err
 	}
 
-	dir := args[0].ToString()
+	dir := args[0].String()
 	if err := f.FS.Chdir(dir); err != nil {
 		if os.IsNotExist(err) {
 			return dune.NullValue, fmt.Errorf("error opening '%v': %w", dir, err)
@@ -856,7 +856,7 @@ func (f *FileSystemObj) exists(args []dune.Value, vm *dune.VM) (dune.Value, erro
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	if _, err := f.FS.Stat(name); err != nil {
 		return dune.FalseValue, nil
@@ -872,7 +872,7 @@ func (f *FileSystemObj) readNames(args []dune.Value, vm *dune.VM) (dune.Value, e
 	if l == 0 {
 		name = "."
 	} else {
-		name = args[0].ToString()
+		name = args[0].String()
 	}
 
 	if l > 2 {
@@ -962,7 +962,7 @@ func (f *FileSystemObj) stat(args []dune.Value, vm *dune.VM) (dune.Value, error)
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	fi, err := f.FS.Stat(name)
 	if err != nil {
@@ -978,7 +978,7 @@ func (f *FileSystemObj) readDir(args []dune.Value, vm *dune.VM) (dune.Value, err
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	file, err := f.FS.Open(name)
 	if err != nil {
@@ -1007,7 +1007,7 @@ func (f *FileSystemObj) mkdir(args []dune.Value, vm *dune.VM) (dune.Value, error
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	name := args[0].ToString()
+	name := args[0].String()
 
 	if err := f.FS.MkdirAll(name); err != nil {
 		return dune.NullValue, err
@@ -1023,7 +1023,7 @@ func (f *FileSystemObj) write(args []dune.Value, vm *dune.VM) (dune.Value, error
 	if args[0].Type != dune.String {
 		return dune.NullValue, fmt.Errorf("expected argument 1 to be a string, got %d", args[0].Type)
 	}
-	name := args[0].ToString()
+	name := args[0].String()
 
 	file, err := f.FS.OpenForWrite(name)
 	if err != nil {
@@ -1044,7 +1044,7 @@ func (f *FileSystemObj) append(args []dune.Value, vm *dune.VM) (dune.Value, erro
 	if args[0].Type != dune.String {
 		return dune.NullValue, fmt.Errorf("expected argument 1 to be a string, got %s", args[0].TypeName())
 	}
-	name := args[0].ToString()
+	name := args[0].String()
 
 	b := args[1]
 	switch b.Type {
@@ -1108,7 +1108,7 @@ func (f *FileSystemObj) read(ifExists bool, args []dune.Value, vm *dune.VM) ([]b
 	if args[0].Type != dune.String {
 		return nil, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
-	name := args[0].ToString()
+	name := args[0].String()
 
 	file, err := f.FS.Open(name)
 	if err != nil {

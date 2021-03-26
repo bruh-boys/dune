@@ -253,8 +253,8 @@ var SQL = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("argument 2 must be a string, got %s", args[1].TypeName())
 			}
 
-			driver := args[0].ToString()
-			connString := args[1].ToString()
+			driver := args[0].String()
+			connString := args[1].String()
 
 			db, err := dbx.Open(driver, connString)
 			if err != nil {
@@ -269,7 +269,7 @@ var SQL = []dune.NativeFunction{
 				if args[2].Type != dune.String {
 					return dune.NullValue, fmt.Errorf("argument 3 must be a string, got %s", args[2].TypeName())
 				}
-				name := args[2].ToString()
+				name := args[2].String()
 				if err := validateDatabaseName(name); err != nil {
 					return dune.NullValue, err
 				}
@@ -301,7 +301,7 @@ var SQL = []dune.NativeFunction{
 				if v.Type != dune.String {
 					return dune.NullValue, fmt.Errorf("invalid value at index %d. It's a %s", i, v.TypeName())
 				}
-				sqx.WhitelistFuncs[i] = v.ToString()
+				sqx.WhitelistFuncs[i] = v.String()
 			}
 
 			return dune.NullValue, nil
@@ -432,11 +432,11 @@ var SQL = []dune.NativeFunction{
 					if c.Type != dune.String {
 						return dune.NullValue, fmt.Errorf("invalid column value for %s: %v", k, c)
 					}
-					cols[i] = c.ToString()
+					cols[i] = c.String()
 				}
 
 				opt.Tables = append(opt.Tables, &sqx.ValidateTable{
-					Name:    k.ToString(),
+					Name:    k.String(),
 					Columns: cols,
 				})
 			}
@@ -467,7 +467,7 @@ var SQL = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 			}
 
-			v := args[0].ToString()
+			v := args[0].String()
 
 			var params []interface{}
 			if l > 1 {
@@ -500,7 +500,7 @@ var SQL = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 			}
 
-			v := args[0].ToString()
+			v := args[0].String()
 			var params []interface{}
 			if l > 1 {
 				params = getSqlParams(args[1:])
@@ -530,7 +530,7 @@ var SQL = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 			}
 
-			v := args[0].ToString()
+			v := args[0].String()
 
 			var params []interface{}
 			if l > 1 {
@@ -606,7 +606,7 @@ func (t sqlResult) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 func getRawQuery(driver string, v dune.Value) (string, []interface{}, error) {
 	switch v.Type {
 	case dune.String:
-		return v.ToString(), nil, nil
+		return v.String(), nil, nil
 	case dune.Object:
 		q, ok := v.ToObject().(selectQuery)
 		if !ok {
@@ -684,7 +684,7 @@ func getQueryObject(q sqx.Query) (dune.Value, error) {
 func getQuery(v dune.Value, params []dune.Value) (sqx.Query, error) {
 	switch v.Type {
 	case dune.String:
-		return sqx.Parse(v.ToString(), getSqlParams(params)...)
+		return sqx.Parse(v.String(), getSqlParams(params)...)
 	case dune.Object:
 		if len(params) > 0 {
 			return nil, fmt.Errorf("can't set params with a query object")
@@ -964,7 +964,7 @@ func (s *libDB) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 			s.db.Database = ""
 
 		case dune.String:
-			name := v.ToString()
+			name := v.String()
 			if err := validateDatabaseName(name); err != nil {
 				return err
 			}
@@ -985,7 +985,7 @@ func (s *libDB) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return fmt.Errorf("expected string, got %s", v.TypeName())
 		}
-		name := v.ToString()
+		name := v.String()
 		if !IsIdent(name) {
 			return fmt.Errorf("invalid name. It can only contain alphanumeric values")
 		}
@@ -1002,7 +1002,7 @@ func (s *libDB) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return fmt.Errorf("expected string, got %s", v.TypeName())
 		}
-		name := v.ToString()
+		name := v.String()
 		if !IsIdent(name) {
 			return fmt.Errorf("invalid name. It can only contain alphanumeric values")
 		}
@@ -1165,7 +1165,7 @@ func (s *libDB) open(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	if err := validateDatabaseName(name); err != nil {
 		return dune.NullValue, err
@@ -1174,7 +1174,7 @@ func (s *libDB) open(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	db := s.db.Open(name)
 
 	if len(args) == 2 {
-		db.Namespace = args[1].ToString()
+		db.Namespace = args[1].String()
 	}
 
 	ldb := newDB(db)
@@ -1226,7 +1226,7 @@ func (s *libDB) toSQL(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		}
 	case dune.String:
 		var err error
-		q, err = sqx.Parse(a.ToString())
+		q, err = sqx.Parse(a.String())
 		if err != nil {
 			return dune.NullValue, err
 		}
@@ -1292,7 +1292,7 @@ func (s *libDB) execRaw(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if a.Type != dune.String {
 		return dune.NullValue, fmt.Errorf("invalid query, got %v", a)
 	}
-	query = a.ToString()
+	query = a.String()
 
 	if l > 1 {
 		params = getSqlParams(args[1:])
@@ -1320,7 +1320,7 @@ func getExecQuery(args []dune.Value, vm *dune.VM) (sqx.Query, error) {
 	switch a.Type {
 	case dune.String:
 		var err error
-		q, err = sqx.Parse(a.ToString(), getSqlParams(args[1:])...)
+		q, err = sqx.Parse(a.String(), getSqlParams(args[1:])...)
 		if err != nil {
 			return nil, err
 		}
@@ -1672,7 +1672,7 @@ func (s *libDB) hasDatabase(args []dune.Value, vm *dune.VM) (dune.Value, error) 
 		return dune.NullValue, err
 	}
 
-	exists, err := s.db.HasDatabase(args[0].ToString())
+	exists, err := s.db.HasDatabase(args[0].String())
 	if err != nil {
 		return dune.NullValue, err
 	}
@@ -1685,7 +1685,7 @@ func (s *libDB) hasTable(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	exists, err := s.db.HasTable(args[0].ToString())
+	exists, err := s.db.HasTable(args[0].String())
 	if err != nil {
 		return dune.NullValue, err
 	}
@@ -1732,7 +1732,7 @@ func (s *libDB) columns(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	var dbName, table string
 
-	parts := Split(args[0].ToString(), ".")
+	parts := Split(args[0].String(), ".")
 
 	switch len(parts) {
 	case 1:
@@ -2171,7 +2171,7 @@ func (s query) String() string {
 	if err != nil {
 		return err.Error()
 	}
-	return v.ToString()
+	return v.String()
 }
 
 func (s query) GetMethod(name string) dune.NativeMethod {
@@ -2210,7 +2210,7 @@ func toSQL(query sqx.Query, args []dune.Value) (dune.Value, error) {
 		if args[1].Type != dune.String {
 			return dune.NullValue, fmt.Errorf("expected argument 2 to be a string, got %s", args[1].TypeName())
 		}
-		driver = args[1].ToString()
+		driver = args[1].String()
 	}
 
 	if l > 2 {
@@ -2248,7 +2248,7 @@ func (s showQuery) String() string {
 	if err != nil {
 		return err.Error()
 	}
-	return v.ToString()
+	return v.String()
 }
 
 func (s showQuery) GetMethod(name string) dune.NativeMethod {
@@ -2356,7 +2356,7 @@ func (s dropTableQuery) String() string {
 	if err != nil {
 		return err.Error()
 	}
-	return v.ToString()
+	return v.String()
 }
 
 func (s dropTableQuery) GetMethod(name string) dune.NativeMethod {
@@ -2384,7 +2384,7 @@ func (s renameColumnQuery) String() string {
 	if err != nil {
 		return err.Error()
 	}
-	return v.ToString()
+	return v.String()
 }
 
 func (s renameColumnQuery) GetMethod(name string) dune.NativeMethod {
@@ -2432,7 +2432,7 @@ func (s dropDatabaseQuery) String() string {
 	if err != nil {
 		return err.Error()
 	}
-	return v.ToString()
+	return v.String()
 }
 
 func (s dropDatabaseQuery) GetMethod(name string) dune.NativeMethod {
@@ -2480,7 +2480,7 @@ func (s addFKQuery) String() string {
 	if err != nil {
 		return err.Error()
 	}
-	return v.ToString()
+	return v.String()
 }
 
 func (s addFKQuery) GetMethod(name string) dune.NativeMethod {
@@ -2508,7 +2508,7 @@ func (s deleteQuery) String() string {
 	if err != nil {
 		return err.Error()
 	}
-	return v.ToString()
+	return v.String()
 }
 
 func (s deleteQuery) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
@@ -2550,7 +2550,7 @@ func (s deleteQuery) or(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
 
-	v := args[0].ToString()
+	v := args[0].String()
 
 	var params []interface{}
 	if l > 1 {
@@ -2602,7 +2602,7 @@ func (s deleteQuery) and(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		}
 	}
 
-	v := filter.ToString()
+	v := filter.String()
 
 	if err := s.query.And(v, params...); err != nil {
 		return dune.NullValue, err
@@ -2619,7 +2619,7 @@ func (s deleteQuery) where(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
 
-	v := args[0].ToString()
+	v := args[0].String()
 
 	var params []interface{}
 	if l > 1 {
@@ -2677,7 +2677,7 @@ func (s deleteQuery) join(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if args[0].Type != dune.String {
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
-	v := args[0].ToString()
+	v := args[0].String()
 
 	var params []interface{}
 	if l > 1 {
@@ -2707,7 +2707,7 @@ func (s insertQuery) String() string {
 	if err != nil {
 		return err.Error()
 	}
-	return v.ToString()
+	return v.String()
 }
 
 func (s insertQuery) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
@@ -2738,7 +2738,7 @@ func (s insertQuery) addColumn(args []dune.Value, vm *dune.VM) (dune.Value, erro
 		return dune.NullValue, fmt.Errorf("expected argument 1 to be a string, got %v", args[0].Type)
 	}
 
-	err := s.query.AddColumn(args[0].ToString(), args[1].Export(0))
+	err := s.query.AddColumn(args[0].String(), args[1].Export(0))
 	if err != nil {
 		return dune.NullValue, err
 	}
@@ -2763,7 +2763,7 @@ func (s updateQuery) String() string {
 	if err != nil {
 		return err.Error()
 	}
-	return v.ToString()
+	return v.String()
 }
 
 func (s updateQuery) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
@@ -2847,7 +2847,7 @@ func (s updateQuery) or(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
 
-	v := args[0].ToString()
+	v := args[0].String()
 
 	var params []interface{}
 	if l > 1 {
@@ -2899,7 +2899,7 @@ func (s updateQuery) and(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		}
 	}
 
-	v := filter.ToString()
+	v := filter.String()
 
 	if err := s.query.And(v, params...); err != nil {
 		return dune.NullValue, err
@@ -2916,7 +2916,7 @@ func (s updateQuery) where(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
 
-	v := args[0].ToString()
+	v := args[0].String()
 
 	var params []interface{}
 	if l > 1 {
@@ -2983,7 +2983,7 @@ func (s updateQuery) addColumns(args []dune.Value, vm *dune.VM) (dune.Value, err
 		}
 	}
 
-	if err := s.query.AddColumns(args[0].ToString(), params...); err != nil {
+	if err := s.query.AddColumns(args[0].String(), params...); err != nil {
 		return dune.NullValue, err
 	}
 
@@ -3011,7 +3011,7 @@ func (s updateQuery) setColumns(args []dune.Value, vm *dune.VM) (dune.Value, err
 				params[i] = v.Export(0)
 			}
 		}
-		if err := s.query.SetColumns(a.ToString(), params...); err != nil {
+		if err := s.query.SetColumns(a.String(), params...); err != nil {
 			return dune.NullValue, err
 		}
 	case dune.Null:
@@ -3031,7 +3031,7 @@ func (s updateQuery) join(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if args[0].Type != dune.String {
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
-	v := args[0].ToString()
+	v := args[0].String()
 
 	var params []interface{}
 	if l > 1 {
@@ -3061,7 +3061,7 @@ func (s selectQuery) String() string {
 	if err != nil {
 		return err.Error()
 	}
-	return v.ToString()
+	return v.String()
 }
 
 func (s selectQuery) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
@@ -3219,7 +3219,7 @@ func (s selectQuery) groupBy(args []dune.Value, vm *dune.VM) (dune.Value, error)
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
 
-	v := a.ToString()
+	v := a.String()
 
 	if err := s.query.GroupBy(v); err != nil {
 		return dune.NullValue, err
@@ -3235,7 +3235,7 @@ func (s selectQuery) join(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if args[0].Type != dune.String {
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
-	v := args[0].ToString()
+	v := args[0].String()
 
 	var params []interface{}
 	if l > 1 {
@@ -3261,7 +3261,7 @@ func (s selectQuery) or(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
 
-	v := args[0].ToString()
+	v := args[0].String()
 
 	var params []interface{}
 	if l > 1 {
@@ -3313,7 +3313,7 @@ func (s selectQuery) and(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		}
 	}
 
-	v := filter.ToString()
+	v := filter.String()
 
 	if err := s.query.And(v, params...); err != nil {
 		return dune.NullValue, err
@@ -3330,7 +3330,7 @@ func (s selectQuery) where(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
 
-	v := args[0].ToString()
+	v := args[0].String()
 
 	var params []interface{}
 	if l > 1 {
@@ -3361,7 +3361,7 @@ func (s selectQuery) orderBy(args []dune.Value, vm *dune.VM) (dune.Value, error)
 	if a.Type != dune.String {
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
-	v := a.ToString()
+	v := a.String()
 
 	if err := s.query.OrderBy(v); err != nil {
 		return dune.NullValue, err
@@ -3378,7 +3378,7 @@ func (s selectQuery) having(args []dune.Value, vm *dune.VM) (dune.Value, error) 
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
 
-	v := args[0].ToString()
+	v := args[0].String()
 
 	var params []interface{}
 	if l > 1 {
@@ -3405,7 +3405,7 @@ func (s selectQuery) fromExpr(args []dune.Value, vm *dune.VM) (dune.Value, error
 		return dune.NullValue, fmt.Errorf("expected select expression, got %T", args[0].ToObjectOrNil())
 	}
 
-	alias := args[1].ToString()
+	alias := args[1].String()
 
 	parenExp := &sqx.ParenExpr{X: sel.query}
 
@@ -3425,7 +3425,7 @@ func (s selectQuery) from(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
 
-	v := "from " + args[0].ToString()
+	v := "from " + args[0].String()
 
 	if err := s.query.SetFrom(v); err != nil {
 		return dune.NullValue, err
@@ -3440,7 +3440,7 @@ func (s selectQuery) addColumns(args []dune.Value, vm *dune.VM) (dune.Value, err
 	if args[0].Type != dune.String {
 		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
 	}
-	v := args[0].ToString()
+	v := args[0].String()
 
 	if err := s.query.AddColumns(v); err != nil {
 		return dune.NullValue, err
@@ -3457,7 +3457,7 @@ func (s selectQuery) setColumns(args []dune.Value, vm *dune.VM) (dune.Value, err
 
 	switch a.Type {
 	case dune.String:
-		if err := s.query.SetColumns(a.ToString()); err != nil {
+		if err := s.query.SetColumns(a.String()); err != nil {
 			return dune.NullValue, err
 		}
 	case dune.Null:

@@ -139,7 +139,7 @@ var XLSX = []dune.NativeFunction{
 				size = st.Size()
 
 			case dune.String:
-				f, err := vm.FileSystem.Open(a.ToString())
+				f, err := vm.FileSystem.Open(a.String())
 				if err != nil {
 					return dune.NullValue, err
 				}
@@ -159,7 +159,7 @@ var XLSX = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			return dune.NewObject(&xlsxFile{obj: reader, path: a.ToString()}), nil
+			return dune.NewObject(&xlsxFile{obj: reader, path: a.String()}), nil
 		},
 	},
 	{
@@ -227,7 +227,7 @@ func (x *xlsxFile) addSheet(args []dune.Value, vm *dune.VM) (dune.Value, error) 
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 	xSheet, err := x.obj.AddSheet(name)
 	if err != nil {
 		return dune.NullValue, err
@@ -242,7 +242,7 @@ func (x *xlsxFile) save(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	var path string
 	if len(args) == 1 {
-		path = args[0].ToString()
+		path = args[0].String()
 	} else {
 		path = x.path
 	}
@@ -514,7 +514,7 @@ func (x *xlsxCell) setValue(v dune.Value, vm *dune.VM) error {
 	case dune.Bool:
 		x.obj.SetInt64(v.ToInt())
 	case dune.String, dune.Rune, dune.Bytes:
-		x.obj.SetString(v.ToString())
+		x.obj.SetString(v.String())
 	case dune.Object:
 		switch t := v.ToObject().(type) {
 		case TimeObj:
@@ -643,13 +643,13 @@ func (x *xlsxAlignment) SetProperty(name string, v dune.Value, vm *dune.VM) erro
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		x.obj.Horizontal = v.ToString()
+		x.obj.Horizontal = v.String()
 		return nil
 	case "vertical":
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		x.obj.Vertical = v.ToString()
+		x.obj.Vertical = v.String()
 		return nil
 	}
 

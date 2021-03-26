@@ -117,7 +117,7 @@ var Log = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected parameter 1 to be a string, got %s", name.Type)
 			}
 
-			err := writeLog(name.ToString(), args[1:])
+			err := writeLog(name.String(), args[1:])
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -154,7 +154,7 @@ var Log = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected 1 or 2 arguments, got %d", ln)
 			}
 
-			path := args[0].ToString()
+			path := args[0].String()
 
 			var fs filesystem.FS
 
@@ -183,7 +183,7 @@ func toStringLog(v dune.Value) string {
 		return "null"
 	case dune.String:
 		// need to escape the % to prevent interfering with fmt
-		return strings.Replace(v.ToString(), "%", "%%", -1)
+		return strings.Replace(v.String(), "%", "%%", -1)
 	}
 
 	return v.String()
@@ -275,7 +275,7 @@ func (t *logger) save(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	err := t.db.Save(args[0].ToString(), args[1].ToString())
+	err := t.db.Save(args[0].String(), args[1].String())
 	return dune.NullValue, err
 }
 
@@ -294,7 +294,7 @@ func (t *logger) query(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, fmt.Errorf("expected the table")
 	}
 
-	table = args[0].ToString()
+	table = args[0].String()
 
 	if l == 1 {
 		now := time.Now()
@@ -362,7 +362,7 @@ func (s *logScanner) setFilter(args []dune.Value, vm *dune.VM) (dune.Value, erro
 		return dune.NullValue, fmt.Errorf("expected a string arg")
 	}
 
-	s.s.SetFilter(a.ToString())
+	s.s.SetFilter(a.String())
 	return dune.NullValue, nil
 }
 

@@ -75,7 +75,7 @@ var JSON = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected argument to be string or byte[], got %v", args[0].Type)
 			}
 
-			if a.ToString() == "" {
+			if a.String() == "" {
 				return dune.NullValue, nil
 			}
 
@@ -94,7 +94,7 @@ var JSON = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			s := args[0].ToString()
+			s := args[0].String()
 			r := strings.NewReplacer("\\", "\\\\", "\n", "\\n", "\r", "", "\"", "\\\"", "'", "\\'")
 			s = r.Replace(s)
 			return dune.NewString(s), nil

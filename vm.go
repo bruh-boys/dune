@@ -1163,12 +1163,12 @@ func (vm *VM) setToObject(instr *Instruction) error {
 			if !ok {
 				return vm.NewError("Readonly property or not a PropertySetter: %T", av.TypeName())
 			}
-			if err := i.SetProperty(bv.ToString(), cv, vm); err != nil {
+			if err := i.SetProperty(bv.String(), cv, vm); err != nil {
 				return vm.WrapError(err)
 			}
 
 		case Null:
-			return vm.NewError("Can't set %s of null", bv.ToString())
+			return vm.NewError("Can't set %s of null", bv.String())
 		default:
 			return vm.NewError("Readonly property or not Map or PropertySetter: %v", av.TypeName())
 		}
@@ -1188,9 +1188,9 @@ func (vm *VM) getFromObject(instr *Instruction, errIfNullOrUndefined bool) (bool
 		if errIfNullOrUndefined {
 			switch cv.Type {
 			case Int:
-				return false, vm.NewError("Cant read index %s of %s", cv.ToString(), bv.ToString())
+				return false, vm.NewError("Cant read index %s of %s", cv.String(), bv.String())
 			default:
-				return false, vm.NewError("Cant read property %s of %s", cv.ToString(), bv.ToString())
+				return false, vm.NewError("Cant read property %s of %s", cv.String(), bv.String())
 			}
 		} else {
 			return false, nil
@@ -1246,7 +1246,7 @@ func (vm *VM) getFromObject(instr *Instruction, errIfNullOrUndefined bool) (bool
 			if i < 0 {
 				return false, vm.NewError("Index out of range in string")
 			}
-			vm.set(instr.A, NewRune(rune(bv.ToString()[i])))
+			vm.set(instr.A, NewRune(rune(bv.String()[i])))
 
 		case Bytes:
 			i := cv.ToInt()
@@ -1303,7 +1303,7 @@ func (vm *VM) getFromObject(instr *Instruction, errIfNullOrUndefined bool) (bool
 
 	// If is string is a property or method.
 	case String:
-		key := cv.ToString()
+		key := cv.String()
 
 		switch bv.Type {
 
@@ -1379,10 +1379,10 @@ func (vm *VM) getFromObject(instr *Instruction, errIfNullOrUndefined bool) (bool
 		case String:
 			switch key {
 			case "length":
-				vm.set(instr.A, NewInt(len(bv.ToString())))
+				vm.set(instr.A, NewInt(len(bv.String())))
 				return true, nil
 			case "runeCount":
-				vm.set(instr.A, NewInt(utf8.RuneCountInString(bv.ToString())))
+				vm.set(instr.A, NewInt(utf8.RuneCountInString(bv.String())))
 				return true, nil
 			default:
 				if !vm.setPrototype("String.prototype."+key, bv, instr.A) {
@@ -1394,7 +1394,7 @@ func (vm *VM) getFromObject(instr *Instruction, errIfNullOrUndefined bool) (bool
 
 		case Undefined, Null:
 			if errIfNullOrUndefined {
-				return false, vm.NewError("Cant read property of %s", bv.ToString())
+				return false, vm.NewError("Cant read property of %s", bv.String())
 			}
 			return false, nil
 
@@ -1414,7 +1414,7 @@ func (vm *VM) getFromObject(instr *Instruction, errIfNullOrUndefined bool) (bool
 			}
 
 		case Int, Float, Bool:
-			return false, vm.NewError("Can't read '%s' from %s (%s)", cv.ToString(), bv.ToString(), bv.TypeName())
+			return false, vm.NewError("Can't read '%s' from %s (%s)", cv.String(), bv.String(), bv.TypeName())
 
 		default:
 			vm.set(instr.A, UndefinedValue)

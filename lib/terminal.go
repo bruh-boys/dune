@@ -315,7 +315,7 @@ var Terminal = []dune.NativeFunction{
 			case dune.Rune, dune.Int:
 				r = args[2].ToRune()
 			case dune.String:
-				s := args[2].ToString()
+				s := args[2].String()
 				if len(s) != 1 {
 					return dune.NullValue, fmt.Errorf("invalid rune: %s", args[2].Type)
 				}

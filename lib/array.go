@@ -1494,7 +1494,7 @@ var libArray = []dune.NativeFunction{
 				if args[0].Type != dune.String {
 					return dune.NullValue, fmt.Errorf("expected string, got %s", args[0].TypeName())
 				}
-				sep = args[0].ToString()
+				sep = args[0].String()
 
 			default:
 				return dune.NullValue, fmt.Errorf("expected 0 or 1 args, got %d", len(args))
@@ -1505,7 +1505,7 @@ var libArray = []dune.NativeFunction{
 				switch v.Type {
 				case dune.String, dune.Rune, dune.Int, dune.Float,
 					dune.Bool, dune.Null, dune.Undefined:
-					s[i] = v.ToString()
+					s[i] = v.String()
 
 				default:
 					return dune.NullValue, fmt.Errorf("invalid type at index %d, expected string, got %s", i, v.TypeName())

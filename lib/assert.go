@@ -38,8 +38,8 @@ var Assert = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			a := args[0].ToString()
-			b := args[1].ToString()
+			a := args[0].String()
+			b := args[1].String()
 
 			if !strings.Contains(b, a) {
 				return dune.NullValue, fmt.Errorf("'%s' not contained in '%s'", a, b)
@@ -61,7 +61,7 @@ var Assert = []dune.NativeFunction{
 				if a3.Type != dune.String {
 					return dune.NullValue, fmt.Errorf("expected error message to be a string, got %v", a3.TypeName())
 				}
-				msg = a3.ToString()
+				msg = a3.String()
 			default:
 				return dune.NullValue, fmt.Errorf("expected 2 or 3 args, got %d", ln)
 
@@ -118,7 +118,7 @@ var Assert = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected argument 1 to be a string, got %s", a.TypeName())
 			}
 
-			expected := a.ToString()
+			expected := a.String()
 
 			v := args[1]
 			err := runFuncOrClosure(vm, v)
@@ -145,7 +145,7 @@ var Assert = []dune.NativeFunction{
 			}
 
 			a := args[0]
-			msg := args[1].ToString()
+			msg := args[1].String()
 
 			var v int64
 			var err error
@@ -154,7 +154,7 @@ var Assert = []dune.NativeFunction{
 			case dune.Int:
 				v = a.ToInt()
 			case dune.String:
-				v, err = strconv.ParseInt(a.ToString(), 0, 64)
+				v, err = strconv.ParseInt(a.String(), 0, 64)
 				if err != nil {
 					return dune.NullValue, fmt.Errorf(msg, showAssertMessage("%v is not int", a.TypeName()))
 				}
@@ -174,7 +174,7 @@ var Assert = []dune.NativeFunction{
 			}
 
 			a := args[0]
-			msg := args[1].ToString()
+			msg := args[1].String()
 
 			var v int64
 			var err error
@@ -183,7 +183,7 @@ var Assert = []dune.NativeFunction{
 			case dune.Int:
 				v = a.ToInt()
 			case dune.String:
-				v, err = strconv.ParseInt(a.ToString(), 0, 64)
+				v, err = strconv.ParseInt(a.String(), 0, 64)
 				if err != nil {
 					return dune.NullValue, fmt.Errorf(msg, showAssertMessage("%v is not float", a.TypeName()))
 				}
@@ -203,13 +203,13 @@ var Assert = []dune.NativeFunction{
 			}
 
 			a := args[0]
-			msg := args[1].ToString()
+			msg := args[1].String()
 
 			var v string
 
 			switch a.Type {
 			case dune.Int, dune.Float, dune.Bool, dune.String:
-				v = a.ToString()
+				v = a.String()
 			default:
 				return dune.NullValue, fmt.Errorf(msg, showAssertMessage("%v is not a string", a.TypeName()))
 			}
@@ -226,7 +226,7 @@ var Assert = []dune.NativeFunction{
 			}
 
 			a := args[0]
-			msg := args[1].ToString()
+			msg := args[1].String()
 			var v dune.Value
 
 			switch a.Type {
@@ -245,7 +245,7 @@ var Assert = []dune.NativeFunction{
 				}
 
 			case dune.String:
-				s := a.ToString()
+				s := a.String()
 				s = strings.Trim(s, " ")
 				switch s {
 				case "true", "1":
@@ -273,7 +273,7 @@ var Assert = []dune.NativeFunction{
 			}
 
 			a := args[0]
-			msg := args[1].ToString()
+			msg := args[1].String()
 
 			switch a.Type {
 			case dune.Map:

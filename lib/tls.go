@@ -81,7 +81,7 @@ var TLS = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("invalid cache directory: %s", args[0].TypeName())
 			}
 
-			cacheDir := args[0].ToString()
+			cacheDir := args[0].String()
 
 			var hostPolicy autocert.HostPolicy
 			switch args[1].Type {
@@ -89,7 +89,7 @@ var TLS = []dune.NativeFunction{
 				domainValues := args[1].ToArray()
 				domains := make([]string, len(domainValues))
 				for i, v := range domainValues {
-					domains[i] = v.ToString()
+					domains[i] = v.String()
 				}
 				hostPolicy = autocert.HostWhitelist(domains...)
 
@@ -385,8 +385,8 @@ func (t *tlsConfig) loadCertificate(args []dune.Value, vm *dune.VM) (dune.Value,
 		return dune.NullValue, fmt.Errorf("there is no filesystem set")
 	}
 
-	certPath := args[0].ToString()
-	keyPath := args[1].ToString()
+	certPath := args[0].String()
+	keyPath := args[1].String()
 
 	certPEMBlock, err := filesystem.ReadAll(fs, certPath)
 	if err != nil {

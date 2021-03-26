@@ -26,8 +26,8 @@ var FileUtil = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			src := args[0].ToString()
-			dst := args[1].ToString()
+			src := args[0].String()
+			dst := args[1].String()
 
 			fs := vm.FileSystem
 			if fs == nil {

@@ -37,7 +37,7 @@ var Convert = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("can't convert %v to byte", a.Type)
 			}
 
-			s := a.ToString()
+			s := a.String()
 			if len(s) != 1 {
 				return dune.NullValue, fmt.Errorf("can't convert %v to int", a.Type)
 			}
@@ -53,7 +53,7 @@ var Convert = []dune.NativeFunction{
 
 			switch a.Type {
 			case dune.String:
-				s := a.ToString()
+				s := a.String()
 				if len(s) != 1 {
 					return dune.NullValue, fmt.Errorf("can't convert %v to rune", s)
 				}
@@ -84,7 +84,7 @@ var Convert = []dune.NativeFunction{
 			case dune.Rune:
 				r = dune.NewInt64(a.ToInt())
 			case dune.String:
-				s := strings.Trim(a.ToString(), " ")
+				s := strings.Trim(a.String(), " ")
 				i, err := strconv.ParseInt(s, 0, 64)
 				if err != nil {
 					return dune.NullValue, err
@@ -108,7 +108,7 @@ var Convert = []dune.NativeFunction{
 			case dune.Float:
 				return a, nil
 			case dune.String:
-				s := strings.Trim(a.ToString(), " ")
+				s := strings.Trim(a.String(), " ")
 				f, err := strconv.ParseFloat(s, 64)
 				if err != nil {
 					return dune.NullValue, err
@@ -142,7 +142,7 @@ var Convert = []dune.NativeFunction{
 				}
 
 			case dune.String:
-				s := a.ToString()
+				s := a.String()
 				s = strings.Trim(s, " ")
 				switch s {
 				case "true", "1":
@@ -169,7 +169,7 @@ var Convert = []dune.NativeFunction{
 			var r dune.Value
 			switch a.Type {
 			case dune.Int, dune.Float, dune.Bool, dune.Bytes, dune.Rune:
-				r = dune.NewString(a.ToString())
+				r = dune.NewString(a.String())
 			case dune.String:
 				r = a
 			case dune.Object:

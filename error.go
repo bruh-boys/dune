@@ -150,8 +150,8 @@ func (e *Error) GetMethod(name string) NativeMethod {
 	switch name {
 	case "is":
 		return e.is
-	case "toString":
-		return e.toString
+	case "string":
+		return e.string
 	}
 	return nil
 }
@@ -163,11 +163,11 @@ func (e *Error) is(args []Value, vm *VM) (Value, error) {
 	if args[0].Type != String {
 		return NullValue, fmt.Errorf("expected a string, got %s", args[0].TypeName())
 	}
-	v := e.Is(args[0].ToString())
+	v := e.Is(args[0].String())
 	return NewBool(v), nil
 }
 
-func (e *Error) toString(args []Value, vm *VM) (Value, error) {
+func (e *Error) string(args []Value, vm *VM) (Value, error) {
 	return NewString(e.Error()), nil
 }
 

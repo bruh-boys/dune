@@ -168,7 +168,7 @@ var OS = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			p := args[0].ToString()
+			p := args[0].String()
 
 			if len(p) > 0 && p[0] == '~' {
 				usr, err := user.Current()
@@ -216,7 +216,7 @@ var OS = []dune.NativeFunction{
 
 			values := make([]string, l)
 			for i, v := range args {
-				values[i] = v.ToString()
+				values[i] = v.String()
 			}
 
 			cmd := exec.Command(values[0], values[1:]...)
@@ -245,7 +245,7 @@ var OS = []dune.NativeFunction{
 
 			values := make([]string, l)
 			for i, v := range args {
-				values[i] = v.ToString()
+				values[i] = v.String()
 			}
 
 			cmd := newCommand(values[0], values[1:]...)
@@ -523,7 +523,7 @@ var OS = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			s := os.Getenv(args[0].ToString())
+			s := os.Getenv(args[0].String())
 			return dune.NewString(s), nil
 		},
 	},
@@ -538,7 +538,7 @@ var OS = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			if err := os.Setenv(args[0].ToString(), args[1].ToString()); err != nil {
+			if err := os.Setenv(args[0].String(), args[1].String()); err != nil {
 				return dune.NullValue, err
 			}
 			return dune.NullValue, nil
@@ -634,7 +634,7 @@ func (c *command) SetProperty(key string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		c.command.Dir = v.ToString()
+		c.command.Dir = v.String()
 		return nil
 
 	case "env":
@@ -644,7 +644,7 @@ func (c *command) SetProperty(key string, v dune.Value, vm *dune.VM) error {
 		a := v.ToArray()
 		b := make([]string, len(a))
 		for i, v := range a {
-			b[i] = v.ToString()
+			b[i] = v.String()
 		}
 		c.command.Env = b
 		return nil

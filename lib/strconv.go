@@ -54,7 +54,7 @@ var Strconv = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			s := args[0].ToString()
+			s := args[0].String()
 
 			i := strings.IndexRune(s, 'L')
 			if i != -1 {
@@ -83,7 +83,7 @@ var Strconv = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String, dune.Int, dune.Int); err != nil {
 				return dune.NullValue, err
 			}
-			v, err := strconv.ParseInt(args[0].ToString(), int(args[1].ToInt()), int(args[2].ToInt()))
+			v, err := strconv.ParseInt(args[0].String(), int(args[1].ToInt()), int(args[2].ToInt()))
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -108,7 +108,7 @@ var Strconv = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			v := DecodeCustomBase34(args[0].ToString())
+			v := DecodeCustomBase34(args[0].String())
 			return dune.NewInt64(int64(v)), nil
 		},
 	},

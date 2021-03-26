@@ -29,7 +29,7 @@ var Console = []dune.NativeFunction{
 					if i > 0 {
 						fmt.Fprint(vm.GetStdout(), " ")
 					}
-					s = v.ToString()
+					s = v.String()
 					fmt.Fprint(vm.GetStdout(), s)
 					lastInline = true
 				default:

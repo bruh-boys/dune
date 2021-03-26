@@ -92,7 +92,7 @@ declare namespace runtime {
          * Strip sources, not exported functions name and other info.
          */
         strip(): void
-        toString(): string
+        string(): string
         write(w: io.Writer): void
 	}
 	
@@ -106,7 +106,7 @@ declare namespace runtime {
 		attributes(): string[]
 		attribute(name: string): string
 		hasAttribute(name: string): boolean
-        toString(): string
+        string(): string
     }
 
     export interface VirtualMachine {
@@ -151,7 +151,7 @@ var Runtime = []dune.NativeFunction{
 				return dune.NullValue, ErrUnauthorized
 			}
 
-			panic(args[0].ToString())
+			panic(args[0].String())
 		},
 	},
 	{
@@ -187,7 +187,7 @@ var Runtime = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("function name must be a string, got %v", a.Type)
 			}
 
-			funcName := a.ToString()
+			funcName := a.String()
 
 			return vm.RunFunc(funcName, args[1:]...)
 		},
@@ -216,7 +216,7 @@ var Runtime = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			return programAttribute(vm.Program, args[0].ToString()), nil
+			return programAttribute(vm.Program, args[0].String()), nil
 		},
 	},
 	{
@@ -246,7 +246,7 @@ var Runtime = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			name := args[0].ToString()
+			name := args[0].String()
 
 			res := vm.Program.Resources
 			if res == nil {
@@ -549,8 +549,8 @@ func (p *program) GetMethod(name string) dune.NativeMethod {
 		return p.functions
 	case "functionInfo":
 		return p.functionInfo
-	case "toString":
-		return p.toString
+	case "string":
+		return p.string
 	case "toBytes":
 		return p.toBytes
 	case "resources":
@@ -586,7 +586,7 @@ func (p *program) hasPermission(args []dune.Value, vm *dune.VM) (dune.Value, err
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	v := p.prog.HasPermission(name)
 
@@ -602,7 +602,7 @@ func (p *program) addPermission(args []dune.Value, vm *dune.VM) (dune.Value, err
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 	p.prog.AddPermission(name)
 
 	return dune.NullValue, nil
@@ -613,7 +613,7 @@ func (p *program) hasAttribute(args []dune.Value, vm *dune.VM) (dune.Value, erro
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	var found bool
 
@@ -642,7 +642,7 @@ func (p *program) attribute(args []dune.Value, vm *dune.VM) (dune.Value, error) 
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	return programAttribute(p.prog, args[0].ToString()), nil
+	return programAttribute(p.prog, args[0].String()), nil
 }
 
 func programAttribute(p *dune.Program, name string) dune.Value {
@@ -664,8 +664,8 @@ func (p *program) setAttribute(args []dune.Value, vm *dune.VM) (dune.Value, erro
 		return dune.NullValue, err
 	}
 
-	key := args[0].ToString() + " "
-	value := args[1].ToString()
+	key := args[0].String() + " "
+	value := args[1].String()
 
 	for i, attribute := range p.prog.Attributes {
 		if strings.HasPrefix(attribute, key) {
@@ -741,7 +741,7 @@ func (p *program) setResource(args []dune.Value, vm *dune.VM) (dune.Value, error
 		p.prog.Resources = make(map[string][]byte)
 	}
 
-	p.prog.Resources[args[0].ToString()] = args[1].ToBytes()
+	p.prog.Resources[args[0].String()] = args[1].ToBytes()
 	return dune.NullValue, nil
 }
 
@@ -772,7 +772,7 @@ func (p *program) resource(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	if p.prog.Resources == nil {
 		return dune.NullValue, nil
@@ -804,7 +804,7 @@ func (p *program) functionInfo(args []dune.Value, vm *dune.VM) (dune.Value, erro
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	f, ok := p.prog.Function(name)
 	if !ok {
@@ -828,7 +828,7 @@ func (p *program) toBytes(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	return dune.NullValue, err
 }
 
-func (p *program) toString(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func (p *program) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	var b bytes.Buffer
 	dune.Fprint(&b, p.prog)
 	return dune.NewString(b.String()), nil
@@ -851,8 +851,8 @@ func (f functionInfo) GetMethod(name string) dune.NativeMethod {
 		return f.attribute
 	case "hasAttribute":
 		return f.hasAttribute
-	case "toString":
-		return f.toString
+	case "string":
+		return f.string
 	}
 	return nil
 }
@@ -862,7 +862,7 @@ func (f functionInfo) hasAttribute(args []dune.Value, vm *dune.VM) (dune.Value, 
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	var found bool
 
@@ -892,7 +892,7 @@ func (f functionInfo) attribute(args []dune.Value, vm *dune.VM) (dune.Value, err
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString() + " "
+	name := args[0].String() + " "
 
 	for _, attribute := range f.fn.Attributes {
 		if strings.HasPrefix(attribute, name) {
@@ -902,7 +902,7 @@ func (f functionInfo) attribute(args []dune.Value, vm *dune.VM) (dune.Value, err
 	return dune.NullValue, nil
 }
 
-func (f functionInfo) toString(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func (f functionInfo) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	var b bytes.Buffer
 	dune.FprintFunction(&b, f.fn, f.p.prog)
 	return dune.NewString(b.String()), nil
@@ -1007,7 +1007,7 @@ func (m *libVM) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		m.vm.Language = v.ToString()
+		m.vm.Language = v.String()
 		return nil
 
 	case "localizer":
@@ -1151,7 +1151,7 @@ func (m *libVM) runFunc(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	switch args[0].Type {
 	case dune.String:
-		name := args[0].ToString()
+		name := args[0].String()
 		f, ok := m.vm.Program.Function(name)
 		if !ok {
 			return dune.NullValue, fmt.Errorf("%s: %w", name, dune.ErrFunctionNotExist)
@@ -1202,7 +1202,7 @@ func (m *libVM) getValue(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, fmt.Errorf("argument 1 must be a string (var name), got %s", args[0].TypeName())
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 	v, _ := m.vm.RegisterValue(name)
 	return v, nil
 }

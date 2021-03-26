@@ -30,7 +30,7 @@ var Regex = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			ok, err := regexp.MatchString(args[0].ToString(), args[1].ToString())
+			ok, err := regexp.MatchString(args[0].String(), args[1].String())
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -45,12 +45,12 @@ var Regex = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			r, err := regexp.Compile(args[0].ToString())
+			r, err := regexp.Compile(args[0].String())
 			if err != nil {
 				return dune.NullValue, err
 			}
 
-			matches := r.Split(args[1].ToString(), -1)
+			matches := r.Split(args[1].String(), -1)
 
 			ln := len(matches)
 			result := make([]dune.Value, ln)
@@ -72,7 +72,7 @@ var Regex = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			r, err := regexp.Compile(args[0].ToString())
+			r, err := regexp.Compile(args[0].String())
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -84,7 +84,7 @@ var Regex = []dune.NativeFunction{
 				i = -1
 			}
 
-			matches := r.FindAllStringSubmatchIndex(args[1].ToString(), i)
+			matches := r.FindAllStringSubmatchIndex(args[1].String(), i)
 
 			var result []dune.Value
 			for _, v := range matches {
@@ -106,7 +106,7 @@ var Regex = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			r, err := regexp.Compile(args[0].ToString())
+			r, err := regexp.Compile(args[0].String())
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -118,7 +118,7 @@ var Regex = []dune.NativeFunction{
 				i = -1
 			}
 
-			matches := r.FindAllString(args[1].ToString(), i)
+			matches := r.FindAllString(args[1].String(), i)
 
 			var result []dune.Value
 
@@ -140,7 +140,7 @@ var Regex = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			r, err := regexp.Compile(args[0].ToString())
+			r, err := regexp.Compile(args[0].String())
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -152,7 +152,7 @@ var Regex = []dune.NativeFunction{
 				i = -1
 			}
 
-			matches := r.FindAllStringSubmatch(args[1].ToString(), i)
+			matches := r.FindAllStringSubmatch(args[1].String(), i)
 
 			var result []dune.Value
 
@@ -175,12 +175,12 @@ var Regex = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			r, err := regexp.Compile(args[0].ToString())
+			r, err := regexp.Compile(args[0].String())
 			if err != nil {
 				return dune.NullValue, err
 			}
 
-			result := r.ReplaceAllString(args[1].ToString(), args[2].ToString())
+			result := r.ReplaceAllString(args[1].String(), args[2].String())
 
 			return dune.NewString(result), nil
 		},

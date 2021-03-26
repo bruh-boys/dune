@@ -138,7 +138,7 @@ func (d *encoder) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	s, err := d.d.String(args[0].ToString())
+	s, err := d.d.String(args[0].String())
 	if err != nil {
 		return dune.NullValue, err
 	}

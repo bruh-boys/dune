@@ -1546,7 +1546,7 @@ func TestOptionalChaining6(t *testing.T) {
 		{
 			Name: "String.prototype.toUpper",
 			Function: func(this Value, args []Value, vm *VM) (Value, error) {
-				s := strings.ToUpper(this.ToString())
+				s := strings.ToUpper(this.String())
 				return NewString(s), nil
 			},
 		},
@@ -1563,7 +1563,7 @@ func TestOptionalChaining7(t *testing.T) {
 		{
 			Name: "String.prototype.toUpper",
 			Function: func(this Value, args []Value, vm *VM) (Value, error) {
-				s := strings.ToUpper(this.ToString())
+				s := strings.ToUpper(this.String())
 				return NewString(s), nil
 			},
 		},
@@ -2811,7 +2811,7 @@ func (d obj) GetMethod(name string) NativeMethod {
 }
 
 func (d obj) sayHI(args []Value, vm *VM) (Value, error) {
-	return NewString("Hi " + args[0].ToString()), nil
+	return NewString("Hi " + args[0].String()), nil
 }
 
 // func addPrintFunc() {
@@ -2926,7 +2926,7 @@ func assertInlineValue(t *testing.T, expected interface{}, code string) {
 	}
 
 	if ret != NewValue(expected) {
-		t.Fatalf("Expected %v %T, got %v", expected, expected, ret.ToString())
+		t.Fatalf("Expected %v %T, got %v", expected, expected, ret.String())
 	}
 }
 
@@ -2973,7 +2973,7 @@ func assertValue(t *testing.T, expected interface{}, code string) {
 	}
 
 	if ret != NewValue(expected) {
-		t.Fatalf("Expected %v %T, got %v", expected, expected, ret.ToString())
+		t.Fatalf("Expected %v %T, got %v", expected, expected, ret.String())
 	}
 }
 

@@ -65,7 +65,7 @@ var Base64 = []dune.NativeFunction{
 				return dune.NullValue, nil
 			case dune.String:
 				encoder := base64.RawStdEncoding
-				encoded, err := encoder.DecodeString(a.ToString())
+				encoded, err := encoder.DecodeString(a.String())
 				if err != nil {
 					return dune.NullValue, err
 				}
@@ -85,7 +85,7 @@ var Base64 = []dune.NativeFunction{
 				return dune.NullValue, nil
 			case dune.String:
 				encoder := base64.StdEncoding.WithPadding(base64.StdPadding)
-				encoded, err := encoder.DecodeString(a.ToString())
+				encoded, err := encoder.DecodeString(a.String())
 				if err != nil {
 					return dune.NullValue, err
 				}

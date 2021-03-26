@@ -11,7 +11,7 @@ func TestMarkdown(t *testing.T) {
 		}
 	`)
 
-	if v.ToString() != "<h1>Hello world!</h1>\n" {
-		t.Fatal(v.ToString())
+	if v.String() != "<h1>Hello world!</h1>\n" {
+		t.Fatal(v.String())
 	}
 }

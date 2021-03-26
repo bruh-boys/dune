@@ -139,7 +139,7 @@ var Locale = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			vm.Language = args[0].ToString()
+			vm.Language = args[0].String()
 			return dune.NullValue, nil
 		},
 	},
@@ -150,7 +150,7 @@ var Locale = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			name := args[0].ToString()
+			name := args[0].String()
 			c := dune.NewObject(&culture{culture: localization.NewCulture(name)})
 			return c, nil
 		},
@@ -188,7 +188,7 @@ var Locale = []dune.NativeFunction{
 				loc = defaultLocalizer
 			}
 
-			v, err := loc.ParseNumber(args[0].ToString())
+			v, err := loc.ParseNumber(args[0].String())
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -213,7 +213,7 @@ var Locale = []dune.NativeFunction{
 
 			var format string
 			if len(args) == 2 {
-				format = args[1].ToString()
+				format = args[1].String()
 			} else {
 				format = ""
 			}
@@ -223,7 +223,7 @@ var Locale = []dune.NativeFunction{
 				loc = defaultLocalizer
 			}
 
-			v, err := loc.ParseDate(args[0].ToString(), format, vm.Location)
+			v, err := loc.ParseDate(args[0].String(), format, vm.Location)
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -250,7 +250,7 @@ var Locale = []dune.NativeFunction{
 			}
 
 			b := args[1].Export(0)
-			s := loc.Format(vm.Language, a.ToString(), b)
+			s := loc.Format(vm.Language, a.String(), b)
 			return dune.NewString(s), nil
 		},
 	},
@@ -268,7 +268,7 @@ var Locale = []dune.NativeFunction{
 				return dune.NullValue, nil
 			}
 
-			value := a.ToString()
+			value := a.String()
 			if value == "" {
 				return a, nil
 			}
@@ -338,9 +338,9 @@ func (t *translator) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	language := args[0].ToString()
-	key := args[1].ToString()
-	value := args[2].ToString()
+	language := args[0].String()
+	key := args[1].String()
+	value := args[2].String()
 
 	t.translator.Add(language, key, value)
 	return dune.NullValue, nil
@@ -351,12 +351,12 @@ func (t *translator) addLibrary(args []dune.Value, vm *dune.VM) (dune.Value, err
 		return dune.NullValue, err
 	}
 
-	language := args[0].ToString()
-	library := args[1].ToString()
+	language := args[0].String()
+	library := args[1].String()
 	values := args[2].ToMap().Map
 
 	for k, v := range values {
-		t.translator.AddLibrary(language, library, k.ToString(), v.ToString())
+		t.translator.AddLibrary(language, library, k.String(), v.String())
 	}
 
 	return dune.NullValue, nil
@@ -367,8 +367,8 @@ func (t *translator) hasLibrary(args []dune.Value, vm *dune.VM) (dune.Value, err
 		return dune.NullValue, err
 	}
 
-	language := args[0].ToString()
-	library := args[1].ToString()
+	language := args[0].String()
+	library := args[1].String()
 
 	lan := t.translator.Language(language)
 	if lan == nil {
@@ -454,7 +454,7 @@ func (c *culture) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if c.readonly {
 			return fmt.Errorf("the object is readonly")
 		}
-		c.culture.Name = v.ToString()
+		c.culture.Name = v.String()
 	case "language":
 		if v.Type != dune.String {
 			return ErrInvalidType
@@ -462,7 +462,7 @@ func (c *culture) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if c.readonly {
 			return fmt.Errorf("the object is readonly")
 		}
-		c.culture.Language = v.ToString()
+		c.culture.Language = v.String()
 	case "currencySymbol":
 		if v.Type != dune.String {
 			return ErrInvalidType
@@ -470,7 +470,7 @@ func (c *culture) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if c.readonly {
 			return fmt.Errorf("the object is readonly")
 		}
-		c.culture.CurrencySymbol = v.ToString()
+		c.culture.CurrencySymbol = v.String()
 	case "currencyPattern":
 		if v.Type != dune.String {
 			return ErrInvalidType
@@ -478,7 +478,7 @@ func (c *culture) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if c.readonly {
 			return fmt.Errorf("the object is readonly")
 		}
-		c.culture.CurrencyPattern = v.ToString()
+		c.culture.CurrencyPattern = v.String()
 	case "numberOfDecimals":
 		if v.Type != dune.Int {
 			return ErrInvalidType
@@ -510,7 +510,7 @@ func (c *culture) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if c.readonly {
 			return fmt.Errorf("the object is readonly")
 		}
-		c.culture.ShortDatePattern = v.ToString()
+		c.culture.ShortDatePattern = v.String()
 	case "longDatePattern":
 		if v.Type != dune.String {
 			return ErrInvalidType
@@ -518,7 +518,7 @@ func (c *culture) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if c.readonly {
 			return fmt.Errorf("the object is readonly")
 		}
-		c.culture.LongDatePattern = v.ToString()
+		c.culture.LongDatePattern = v.String()
 	case "dateTimePattern":
 		if v.Type != dune.String {
 			return ErrInvalidType
@@ -526,7 +526,7 @@ func (c *culture) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if c.readonly {
 			return fmt.Errorf("the object is readonly")
 		}
-		c.culture.DateTimePattern = v.ToString()
+		c.culture.DateTimePattern = v.String()
 	case "shortTimePattern":
 		if v.Type != dune.String {
 			return ErrInvalidType
@@ -534,7 +534,7 @@ func (c *culture) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if c.readonly {
 			return fmt.Errorf("the object is readonly")
 		}
-		c.culture.ShortTimePattern = v.ToString()
+		c.culture.ShortTimePattern = v.String()
 	case "firstDayOfWeek":
 		if v.Type != dune.Int {
 			return ErrInvalidType
@@ -646,7 +646,7 @@ func (l *localizer) translate(args []dune.Value, vm *dune.VM) (dune.Value, error
 		}
 	}
 
-	s := l.Translate(lang.ToString(), a.ToString())
+	s := l.Translate(lang.String(), a.String())
 
 	s = FormatTemplate(s, params...)
 
@@ -671,10 +671,10 @@ func (l *localizer) format(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		if c.Type != dune.String {
 			return dune.NullValue, fmt.Errorf("expected argument 3 to be a string, got %v", c.TypeName())
 		}
-		lang = c.ToString()
+		lang = c.String()
 	}
 
-	s := l.Format(lang, a.ToString(), b)
+	s := l.Format(lang, a.String(), b)
 	return dune.NewString(s), nil
 }
 
@@ -683,7 +683,7 @@ func (l *localizer) parseNumber(args []dune.Value, vm *dune.VM) (dune.Value, err
 		return dune.NullValue, err
 	}
 
-	v, err := l.ParseNumber(args[0].ToString())
+	v, err := l.ParseNumber(args[0].String())
 	if err != nil {
 		return dune.NullValue, err
 	}
@@ -702,12 +702,12 @@ func (l *localizer) parseDate(args []dune.Value, vm *dune.VM) (dune.Value, error
 
 	var format string
 	if len(args) == 2 {
-		format = args[1].ToString()
+		format = args[1].String()
 	} else {
 		format = ""
 	}
 
-	v, err := l.ParseDate(args[0].ToString(), format, vm.Location)
+	v, err := l.ParseDate(args[0].String(), format, vm.Location)
 	if err != nil {
 		return dune.NullValue, err
 	}

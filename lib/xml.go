@@ -17,7 +17,7 @@ declare namespace xml {
     export interface XMLDocument {
         createElement(name: string): XMLElement
         selectElement(name: string): XMLElement
-        toString(): string
+        string(): string
     }
 
     export interface XMLElement {
@@ -52,7 +52,7 @@ var XML = []dune.NativeFunction{
 			}
 
 			xml := etree.NewDocument()
-			if err := xml.ReadFromString(args[0].ToString()); err != nil {
+			if err := xml.ReadFromString(args[0].String()); err != nil {
 				return dune.NullValue, err
 			}
 			return dune.NewObject(&xmlDoc{xml: xml}), nil
@@ -82,8 +82,8 @@ func (t *xmlDoc) GetMethod(name string) dune.NativeMethod {
 	switch name {
 	case "createElement":
 		return t.createElement
-	case "toString":
-		return t.toString
+	case "string":
+		return t.string
 	case "selectElement":
 		return t.selectElement
 	}
@@ -95,14 +95,14 @@ func (t *xmlDoc) selectElement(args []dune.Value, vm *dune.VM) (dune.Value, erro
 		return dune.NullValue, err
 	}
 
-	e := t.xml.SelectElement(args[0].ToString())
+	e := t.xml.SelectElement(args[0].String())
 	if e == nil {
 		return dune.NullValue, nil
 	}
 	return dune.NewObject(&xmlElement{e}), nil
 }
 
-func (t *xmlDoc) toString(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func (t *xmlDoc) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgRange(args, 0, 0); err != nil {
 		return dune.NullValue, err
 	}
@@ -122,7 +122,7 @@ func (t *xmlDoc) createElement(args []dune.Value, vm *dune.VM) (dune.Value, erro
 		return dune.NullValue, err
 	}
 
-	e := t.xml.CreateElement(args[0].ToString())
+	e := t.xml.CreateElement(args[0].String())
 
 	return dune.NewObject(&xmlElement{e}), nil
 }
@@ -178,7 +178,7 @@ func (t *xmlElement) selectElement(args []dune.Value, vm *dune.VM) (dune.Value, 
 		return dune.NullValue, err
 	}
 
-	e := t.element.SelectElement(args[0].ToString())
+	e := t.element.SelectElement(args[0].String())
 	if e == nil {
 		return dune.NullValue, nil
 	}
@@ -190,7 +190,7 @@ func (t *xmlElement) selectElements(args []dune.Value, vm *dune.VM) (dune.Value,
 		return dune.NullValue, err
 	}
 
-	elements := t.element.SelectElements(args[0].ToString())
+	elements := t.element.SelectElements(args[0].String())
 
 	items := make([]dune.Value, len(elements))
 
@@ -216,7 +216,7 @@ func (t *xmlElement) getAttribute(args []dune.Value, vm *dune.VM) (dune.Value, e
 	}
 
 	a := args[0]
-	v := t.element.SelectAttrValue(a.ToString(), "")
+	v := t.element.SelectAttrValue(a.String(), "")
 	return dune.NewString(v), nil
 }
 
@@ -233,7 +233,7 @@ func (t *xmlElement) setValue(args []dune.Value, vm *dune.VM) (dune.Value, error
 		return dune.NullValue, ErrInvalidType
 	}
 
-	t.element.SetText(a.ToString())
+	t.element.SetText(a.String())
 	return dune.NewObject(t), nil
 }
 
@@ -242,7 +242,7 @@ func (t *xmlElement) createElement(args []dune.Value, vm *dune.VM) (dune.Value, 
 		return dune.NullValue, err
 	}
 
-	e := t.element.CreateElement(args[0].ToString())
+	e := t.element.CreateElement(args[0].String())
 
 	return dune.NewObject(&xmlElement{e}), nil
 }
@@ -252,6 +252,6 @@ func (t *xmlElement) createAttribute(args []dune.Value, vm *dune.VM) (dune.Value
 		return dune.NullValue, err
 	}
 
-	t.element.CreateAttr(args[0].ToString(), args[1].ToString())
+	t.element.CreateAttr(args[0].String(), args[1].String())
 	return dune.NewObject(t), nil
 }

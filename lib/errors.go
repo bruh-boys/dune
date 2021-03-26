@@ -32,7 +32,7 @@ func init() {
 				message: string
 				pc: number
 				stackTrace: string
-				toString(): string
+				string(): string
 				is(error: string): boolean
 			}
 		}
@@ -51,7 +51,7 @@ var Errors = []dune.NativeFunction{
 			if !ok {
 				return dune.FalseValue, nil
 			}
-			return dune.NewBool(e.Is(args[1].ToString())), nil
+			return dune.NewBool(e.Is(args[1].String())), nil
 		},
 	},
 	{
@@ -64,7 +64,7 @@ var Errors = []dune.NativeFunction{
 
 			e, ok := args[0].ToObjectOrNil().(*dune.Error)
 			if !ok {
-				return dune.NullValue, fmt.Errorf("expected error, got %s", args[0].ToString())
+				return dune.NullValue, fmt.Errorf("expected error, got %s", args[0].String())
 			}
 
 			e.IsRethrow = true
@@ -79,7 +79,7 @@ var Errors = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			return dune.NewObject(vm.NewError(args[0].ToString())), nil
+			return dune.NewObject(vm.NewError(args[0].String())), nil
 		},
 	},
 	{
@@ -119,7 +119,7 @@ func wrap(code int, public bool, args []dune.Value, vm *dune.VM) (dune.Value, er
 		return dune.NullValue, fmt.Errorf("expected parameter 1 to be a string, got %s", v.Type)
 	}
 
-	e := vm.NewPublicError(v.ToString())
+	e := vm.NewPublicError(v.String())
 	e.Code = code
 
 	if ln > 1 {
@@ -129,7 +129,7 @@ func wrap(code int, public bool, args []dune.Value, vm *dune.VM) (dune.Value, er
 		case dune.Null, dune.Undefined:
 
 		case dune.String:
-			innerEx := vm.NewError(innerObj.ToString())
+			innerEx := vm.NewError(innerObj.String())
 			e.Wrap(innerEx)
 
 		case dune.Object:

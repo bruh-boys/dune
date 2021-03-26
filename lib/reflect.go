@@ -50,7 +50,7 @@ var Reflect = []dune.NativeFunction{
 			if b.Type != dune.String {
 				return dune.NullValue, fmt.Errorf("argument 2 must be a string, got %s", b.TypeName())
 			}
-			return dune.NewBool(a == b.ToString()), nil
+			return dune.NewBool(a == b.String()), nil
 		},
 	},
 	{
@@ -104,14 +104,14 @@ var Reflect = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected the function name")
 			}
 
-			return vm.RunFunc(args[0].ToString(), args[1:]...)
+			return vm.RunFunc(args[0].String(), args[1:]...)
 		},
 	},
 	{
 		Name:      "reflect.getFunction",
 		Arguments: 1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			name := args[0].ToString()
+			name := args[0].String()
 			fn, ok := vm.Program.Function(name)
 			if !ok {
 				return dune.NullValue, nil
@@ -134,7 +134,7 @@ var Reflect = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("argument must be a string, got %s", args[0].TypeName())
 			}
 
-			name := args[0].ToString()
+			name := args[0].String()
 
 			v, err := vm.RunFunc(name, args[1:]...)
 			if err != nil {

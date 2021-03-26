@@ -185,11 +185,6 @@ func NewNativeFunction(v int) Value {
 	return Value{Type: NativeFunc, object: int64(v)}
 }
 
-// Convert the object to a string
-func (v Value) ToString() string {
-	return v.String()
-}
-
 func (v Value) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.Export(0))
 }
@@ -481,7 +476,7 @@ func (v Value) Export(recursionLevel int) interface{} {
 	case Bool:
 		return v.ToBool()
 	case String:
-		return v.ToString()
+		return v.String()
 	case Bytes:
 		return v.ToBytes()
 	case Array:
@@ -497,7 +492,7 @@ func (v Value) Export(recursionLevel int) interface{} {
 		o := om.Map
 		m := make(map[string]interface{}, len(o))
 		for k, v := range o {
-			m[k.ToString()] = v.Export(recursionLevel)
+			m[k.String()] = v.Export(recursionLevel)
 		}
 		om.RUnlock()
 		return m
@@ -569,7 +564,7 @@ func (v Value) StrictEquals(other Value) bool {
 	case NativeFunc:
 		return v.ToNativeFunction() == other.ToNativeFunction()
 	case String:
-		return v.ToString() == other.ToString()
+		return v.String() == other.String()
 	case Object:
 		return v.object == other.object
 	case Null, Undefined:
@@ -652,18 +647,18 @@ func (v Value) Equals(other Value) bool {
 
 		case String:
 			if t2 == Rune {
-				s1 := v.ToString()
+				s1 := v.String()
 				if utf8.RuneCountInString(s1) == 1 {
-					return s1 == other.ToString()
+					return s1 == other.String()
 				}
 			}
 			return false
 
 		case Rune:
 			if t2 == String {
-				s2 := other.ToString()
+				s2 := other.String()
 				if utf8.RuneCountInString(s2) == 1 {
-					return s2 == v.ToString()
+					return s2 == v.String()
 				}
 			}
 			return false
@@ -681,7 +676,7 @@ func (v Value) Equals(other Value) bool {
 	case Rune:
 		return v.ToRune() == other.ToRune()
 	case String:
-		return v.ToString() == other.ToString()
+		return v.String() == other.String()
 	case Object:
 		if eq1, ok := v.object.(Equatable); ok {
 			if eq2, ok := other.object.(Equatable); ok {

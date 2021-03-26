@@ -132,7 +132,7 @@ func (w *bufioWriter) writeString(args []dune.Value, vm *dune.VM) (dune.Value, e
 		return dune.NullValue, err
 	}
 
-	n, err := w.w.WriteString(args[0].ToString())
+	n, err := w.w.WriteString(args[0].String())
 	if err != nil {
 		return dune.NullValue, err
 	}
@@ -258,7 +258,7 @@ func (s *bufioReader) readBytes(args []dune.Value, vm *dune.VM) (dune.Value, err
 		return dune.NullValue, err
 	}
 
-	delim := args[0].ToString()
+	delim := args[0].String()
 	if len(delim) != 1 {
 		return dune.NullValue, fmt.Errorf("invalid delimiter lenght. Must be a byte: %v", delim)
 	}
@@ -280,7 +280,7 @@ func (s *bufioReader) readString(args []dune.Value, vm *dune.VM) (dune.Value, er
 		return dune.NullValue, err
 	}
 
-	delim := args[0].ToString()
+	delim := args[0].String()
 	if len(delim) != 1 {
 		return dune.NullValue, fmt.Errorf("invalid delimiter lenght. Must be a byte: %v", delim)
 	}

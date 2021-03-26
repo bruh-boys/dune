@@ -58,7 +58,7 @@ var FilePath = []dune.NativeFunction{
 				if v.Type != dune.String {
 					return dune.NullValue, fmt.Errorf("argument %d is not a string (%s)", i, v.TypeName())
 				}
-				parts[i] = v.ToString()
+				parts[i] = v.String()
 			}
 
 			path := filepath.Join(parts...)
@@ -74,7 +74,7 @@ var FilePath = []dune.NativeFunction{
 				if v.Type != dune.String {
 					return dune.NullValue, fmt.Errorf("argument %d is not a string (%s)", i, v.TypeName())
 				}
-				s := v.ToString()
+				s := v.String()
 				if strings.HasPrefix(s, "/") {
 					parts = nil
 				}
@@ -98,9 +98,9 @@ var FilePath = []dune.NativeFunction{
 				return dune.NullValue, ErrNoFileSystem
 			}
 
-			path, err := fs.Abs(args[0].ToString())
+			path, err := fs.Abs(args[0].String())
 			if err != nil {
-				return dune.NullValue, fmt.Errorf("abs %s: %w", args[0].ToString(), err)
+				return dune.NullValue, fmt.Errorf("abs %s: %w", args[0].String(), err)
 			}
 
 			return dune.NewString(path), nil
@@ -114,7 +114,7 @@ var FilePath = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			path := args[0].ToString()
+			path := args[0].String()
 			ext := filepath.Ext(path)
 			return dune.NewString(ext), nil
 		},
@@ -127,7 +127,7 @@ var FilePath = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			path := args[0].ToString()
+			path := args[0].String()
 			name := filepath.Base(path)
 			return dune.NewString(name), nil
 		},
@@ -140,7 +140,7 @@ var FilePath = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			path := args[0].ToString()
+			path := args[0].String()
 			name := filepath.Base(path)
 			if i := strings.LastIndexByte(name, '.'); i != -1 {
 				name = name[:i]
@@ -156,7 +156,7 @@ var FilePath = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			path := args[0].ToString()
+			path := args[0].String()
 			name := filepath.Dir(path)
 			return dune.NewString(name), nil
 		},

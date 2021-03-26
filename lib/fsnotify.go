@@ -141,7 +141,7 @@ func (w *fsWatcher) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	dir := args[0].ToString()
+	dir := args[0].String()
 
 	fi, err := os.Stat(dir)
 	if err != nil {

@@ -107,7 +107,7 @@ var Strings = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			r := strings.NewReader(args[0].ToString())
+			r := strings.NewReader(args[0].String())
 
 			return dune.NewObject(&reader{r}), nil
 		},
@@ -128,7 +128,7 @@ var Strings = []dune.NativeFunction{
 			}
 
 			// TODO: prevent this in every call
-			v := utf8string.NewString(this.ToString())
+			v := utf8string.NewString(this.String())
 
 			if int(i) >= v.RuneCount() {
 				return dune.NullValue, vm.NewError("Index out of range in string")
@@ -168,7 +168,7 @@ var Strings = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected argument 2 to be string got %v", b.Type)
 			}
 
-			eq := strings.EqualFold(a.ToString(), b.ToString())
+			eq := strings.EqualFold(a.String(), b.String())
 			return dune.NewBool(eq), nil
 		},
 	},
@@ -183,7 +183,7 @@ var Strings = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", v.TypeName())
 			}
 
-			b := IsIdent(v.ToString())
+			b := IsIdent(v.String())
 			return dune.NewBool(b), nil
 		},
 	},
@@ -197,7 +197,7 @@ var Strings = []dune.NativeFunction{
 			default:
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", v.TypeName())
 			}
-			b := IsAlphanumeric(v.ToString())
+			b := IsAlphanumeric(v.String())
 			return dune.NewBool(b), nil
 		},
 	},
@@ -211,7 +211,7 @@ var Strings = []dune.NativeFunction{
 			default:
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", v.TypeName())
 			}
-			b := IsAlphanumericIdent(v.ToString())
+			b := IsAlphanumericIdent(v.String())
 			return dune.NewBool(b), nil
 		},
 	},
@@ -243,7 +243,7 @@ var Strings = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", args[0].TypeName())
 			}
 
-			s := v.ToString()
+			s := v.String()
 			if len(s) != 1 {
 				return dune.FalseValue, nil
 			}
@@ -267,7 +267,7 @@ var Strings = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", args[0].TypeName())
 			}
 
-			s := v.ToString()
+			s := v.String()
 			if len(s) != 1 {
 				return dune.FalseValue, nil
 			}
@@ -293,7 +293,7 @@ var Strings = []dune.NativeFunction{
 			s := make([]string, len(a))
 
 			for i, v := range a {
-				s[i] = v.ToString()
+				s[i] = v.String()
 			}
 
 			sort.Strings(s)
@@ -313,7 +313,7 @@ var Strings = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			a := args[0].ToString()
+			a := args[0].String()
 			b := int(args[1].ToInt())
 
 			values := make([]string, b)
@@ -330,9 +330,9 @@ var Strings = []dune.NativeFunction{
 		Name:      "String.prototype.replaceRegex",
 		Arguments: 2,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			exp := args[0].ToString()
-			repl := args[1].ToString()
-			s := this.ToString()
+			exp := args[0].String()
+			repl := args[1].String()
+			s := this.String()
 			r, err := regexp.Compile(exp)
 			if err != nil {
 				return dune.NullValue, err
@@ -343,21 +343,21 @@ var Strings = []dune.NativeFunction{
 	{
 		Name: "String.prototype.toLower",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			s := this.ToString()
+			s := this.String()
 			return dune.NewString(strings.ToLower(s)), nil
 		},
 	},
 	{
 		Name: "String.prototype.toUpper",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			s := this.ToString()
+			s := this.String()
 			return dune.NewString(strings.ToUpper(s)), nil
 		},
 	},
 	{
 		Name: "String.prototype.toTitle",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			s := this.ToString()
+			s := this.String()
 			if len(s) > 0 {
 				s = strings.ToUpper(s[:1]) + s[1:]
 			}
@@ -367,7 +367,7 @@ var Strings = []dune.NativeFunction{
 	{
 		Name: "String.prototype.toUntitle",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			s := this.ToString()
+			s := this.String()
 			if len(s) > 0 {
 				s = strings.ToLower(s[:1]) + s[1:]
 			}
@@ -383,15 +383,15 @@ var Strings = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected 2 or 3 arguments, got %d", len(args))
 			}
 
-			oldStr := args[0].ToString()
-			newStr := args[1].ToString()
+			oldStr := args[0].String()
+			newStr := args[1].String()
 
 			times := -1
 			if l > 2 {
 				times = int(args[2].ToInt())
 			}
 
-			s := this.ToString()
+			s := this.String()
 			return dune.NewString(strings.Replace(s, oldStr, newStr, times)), nil
 		},
 	},
@@ -399,9 +399,9 @@ var Strings = []dune.NativeFunction{
 		Name:      "String.prototype.split",
 		Arguments: 1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			sep := args[0].ToString()
+			sep := args[0].String()
 
-			s := this.ToString()
+			s := this.String()
 
 			parts := Split(s, sep)
 			res := make([]dune.Value, len(parts))
@@ -416,9 +416,9 @@ var Strings = []dune.NativeFunction{
 		Name:      "String.prototype.splitEx",
 		Arguments: 1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			sep := args[0].ToString()
+			sep := args[0].String()
 
-			s := this.ToString()
+			s := this.String()
 
 			parts := strings.Split(s, sep)
 			res := make([]dune.Value, len(parts))
@@ -438,11 +438,11 @@ var Strings = []dune.NativeFunction{
 			case 0:
 				cutset = " \t\r\n"
 			case 1:
-				cutset = args[0].ToString()
+				cutset = args[0].String()
 			default:
 				return dune.NullValue, fmt.Errorf("expected 0 or 1 arguments, got %d", len(args))
 			}
-			s := this.ToString()
+			s := this.String()
 			return dune.NewString(strings.Trim(s, cutset)), nil
 		},
 	},
@@ -455,11 +455,11 @@ var Strings = []dune.NativeFunction{
 			case 0:
 				cutset = " \t\r\n"
 			case 1:
-				cutset = args[0].ToString()
+				cutset = args[0].String()
 			default:
 				return dune.NullValue, fmt.Errorf("expected 0 or 1 arguments, got %d", len(args))
 			}
-			s := this.ToString()
+			s := this.String()
 			return dune.NewString(strings.TrimLeft(s, cutset)), nil
 		},
 	},
@@ -472,11 +472,11 @@ var Strings = []dune.NativeFunction{
 			case 0:
 				cutset = " \t\r\n"
 			case 1:
-				cutset = args[0].ToString()
+				cutset = args[0].String()
 			default:
 				return dune.NullValue, fmt.Errorf("expected 0 or 1 arguments, got %d", len(args))
 			}
-			s := this.ToString()
+			s := this.String()
 			return dune.NewString(strings.TrimRight(s, cutset)), nil
 		},
 	},
@@ -487,8 +487,8 @@ var Strings = []dune.NativeFunction{
 			if args[0].Type != dune.String {
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", args[0].TypeName())
 			}
-			s := this.ToString()
-			prefix := args[0].ToString()
+			s := this.String()
+			prefix := args[0].String()
 			s = strings.TrimPrefix(s, prefix)
 			return dune.NewString(s), nil
 		},
@@ -500,8 +500,8 @@ var Strings = []dune.NativeFunction{
 			if args[0].Type != dune.String {
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", args[0].TypeName())
 			}
-			s := this.ToString()
-			prefix := args[0].ToString()
+			s := this.String()
+			prefix := args[0].String()
 			s = strings.TrimSuffix(s, prefix)
 			return dune.NewString(s), nil
 		},
@@ -510,7 +510,7 @@ var Strings = []dune.NativeFunction{
 		Name:      "String.prototype.substring",
 		Arguments: -1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			s := this.ToString()
+			s := this.String()
 
 			switch len(args) {
 			case 1:
@@ -548,7 +548,7 @@ var Strings = []dune.NativeFunction{
 		Name:      "String.prototype.runeSubstring",
 		Arguments: -1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			s := this.ToString()
+			s := this.String()
 
 			switch len(args) {
 			case 1:
@@ -590,7 +590,7 @@ var Strings = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be int, got %s", args[0].TypeName())
 			}
 
-			s := this.ToString()
+			s := this.String()
 			i := int(args[0].ToInt())
 
 			if len(s) > i {
@@ -606,8 +606,8 @@ var Strings = []dune.NativeFunction{
 			if args[0].Type != dune.String {
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", args[0].TypeName())
 			}
-			v := args[0].ToString()
-			s := this.ToString()
+			v := args[0].String()
+			s := this.String()
 			return dune.NewBool(strings.HasPrefix(s, v)), nil
 		},
 	},
@@ -618,8 +618,8 @@ var Strings = []dune.NativeFunction{
 			if args[0].Type != dune.String {
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", args[0].TypeName())
 			}
-			v := args[0].ToString()
-			s := this.ToString()
+			v := args[0].String()
+			s := this.String()
 			return dune.NewBool(strings.HasSuffix(s, v)), nil
 		},
 	},
@@ -641,8 +641,8 @@ var Strings = []dune.NativeFunction{
 				}
 			}
 
-			sep := args[0].ToString()
-			s := this.ToString()
+			sep := args[0].String()
+			s := this.String()
 
 			var i int
 			if len(args) > 1 {
@@ -673,8 +673,8 @@ var Strings = []dune.NativeFunction{
 				}
 			}
 
-			sep := args[0].ToString()
-			s := this.ToString()
+			sep := args[0].String()
+			s := this.String()
 
 			if len(args) > 1 {
 				i := int(args[1].ToInt())
@@ -694,8 +694,8 @@ var Strings = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", args[0].TypeName())
 			}
 
-			sep := args[0].ToString()
-			s := this.ToString()
+			sep := args[0].String()
+			s := this.String()
 			return dune.NewBool(strings.Contains(s, sep)), nil
 		},
 	},
@@ -709,12 +709,12 @@ var Strings = []dune.NativeFunction{
 			if args[1].Type != dune.Int {
 				return dune.NullValue, fmt.Errorf("expected arg 2 to be int, got %s", args[1].TypeName())
 			}
-			pad := args[0].ToString()
+			pad := args[0].String()
 			if len(pad) != 1 {
 				return dune.NullValue, fmt.Errorf("invalid pad size. Must be one character")
 			}
 			total := int(args[1].ToInt())
-			s := this.ToString()
+			s := this.String()
 			return dune.NewString(rightPad(s, rune(pad[0]), total)), nil
 		},
 	},
@@ -729,12 +729,12 @@ var Strings = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected arg 2 to be int, got %s", args[1].TypeName())
 			}
 
-			pad := args[0].ToString()
+			pad := args[0].String()
 			if len(pad) != 1 {
 				return dune.NullValue, fmt.Errorf("invalid pad size. Must be one character")
 			}
 			total := int(args[1].ToInt())
-			s := this.ToString()
+			s := this.String()
 			return dune.NewString(leftPad(s, rune(pad[0]), total)), nil
 		},
 	},
@@ -745,7 +745,7 @@ var Strings = []dune.NativeFunction{
 			if args[0].Type != dune.String {
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", args[0].TypeName())
 			}
-			eq := strings.EqualFold(this.ToString(), args[0].ToString())
+			eq := strings.EqualFold(this.String(), args[0].String())
 			return dune.NewBool(eq), nil
 		},
 	},

@@ -46,7 +46,7 @@ var libFmt = []dune.NativeFunction{
 				values[i] = v
 			}
 
-			key := Translate(v.ToString(), vm)
+			key := Translate(v.String(), vm)
 
 			tokens, s := FormatTemplateTokens(key, values...)
 
@@ -76,7 +76,7 @@ var libFmt = []dune.NativeFunction{
 		Arguments: -1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			for _, v := range args {
-				fmt.Fprint(vm.GetStdout(), v.Export(0))
+				fmt.Fprint(vm.GetStdout(), fmtValue(v))
 			}
 			return dune.NullValue, nil
 		},
@@ -89,7 +89,7 @@ var libFmt = []dune.NativeFunction{
 				if i > 0 {
 					fmt.Fprint(vm.GetStdout(), " ")
 				}
-				fmt.Fprint(vm.GetStdout(), v.Export(0))
+				fmt.Fprint(vm.GetStdout(), fmtValue(v))
 			}
 			fmt.Fprint(vm.GetStdout(), "\n")
 			return dune.NullValue, nil
@@ -110,10 +110,10 @@ var libFmt = []dune.NativeFunction{
 
 			values := make([]interface{}, l-1)
 			for i, v := range args[1:] {
-				values[i] = v.Export(0)
+				values[i] = fmtValue(v)
 			}
 
-			fmt.Fprintf(vm.GetStdout(), v.ToString(), values...)
+			fmt.Fprintf(vm.GetStdout(), v.String(), values...)
 			return dune.NullValue, nil
 		},
 	},
@@ -138,10 +138,10 @@ var libFmt = []dune.NativeFunction{
 
 			values := make([]interface{}, l-2)
 			for i, v := range args[2:] {
-				values[i] = v.Export(0)
+				values[i] = fmtValue(v)
 			}
 
-			fmt.Fprintf(w, v.ToString(), values...)
+			fmt.Fprintf(w, v.String(), values...)
 			return dune.NullValue, nil
 		},
 	},
@@ -160,13 +160,22 @@ var libFmt = []dune.NativeFunction{
 
 			values := make([]interface{}, l-1)
 			for i, v := range args[1:] {
-				values[i] = v.Export(0)
+				values[i] = fmtValue(v)
 			}
 
-			s := fmt.Sprintf(v.ToString(), values...)
+			s := fmt.Sprintf(v.String(), values...)
 			return dune.NewString(s), nil
 		},
 	},
+}
+
+func fmtValue(v dune.Value) interface{} {
+	switch v.Type {
+	case dune.Object:
+		return v.String()
+	default:
+		return v.Export(0)
+	}
 }
 
 const (

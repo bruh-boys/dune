@@ -588,7 +588,7 @@ func Fprint(w io.Writer, p *Program) {
 			fmt.Fprintf(w, "\n%dE %s", i, enum.Name)
 			for ii, v := range enum.Values {
 				k := p.Constants[v.KIndex]
-				fmt.Fprintf(w, "\n  %-5d %s=%v", ii, v.Name, k.ToString())
+				fmt.Fprintf(w, "\n  %-5d %s=%v", ii, v.Name, k.String())
 			}
 		}
 		fmt.Fprint(w, "\n")
@@ -660,14 +660,14 @@ func FprintConstants(w io.Writer, p *Program) {
 	for i, k := range p.Constants {
 		switch k.Type {
 		case String:
-			s := k.ToString()
+			s := k.String()
 			if len(s) > 50 {
 				s = s[:50]
 			}
 			s = strings.Replace(s, "\n", "\\n", -1)
 			fmt.Fprintf(w, "%dK string %v\n", i, s)
 		default:
-			fmt.Fprintf(w, "%dK %v %v\n", i, k.Type, k.ToString())
+			fmt.Fprintf(w, "%dK %v %v\n", i, k.Type, k.String())
 		}
 	}
 }

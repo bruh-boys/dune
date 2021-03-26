@@ -103,7 +103,7 @@ var ZIP = []dune.NativeFunction{
 				fs = vm.FileSystem
 			}
 
-			f, err := fs.Open(args[0].ToString())
+			f, err := fs.Open(args[0].String())
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -163,7 +163,7 @@ func (w *zipWriter) create(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	f, err := w.w.Create(name)
 	if err != nil {

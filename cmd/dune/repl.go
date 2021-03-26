@@ -47,7 +47,7 @@ func startREPL() error {
 				var text string
 				switch v.Type {
 				case dune.String, dune.Int, dune.Float, dune.Bool:
-					text = v.ToString()
+					text = v.String()
 				default:
 					b, err := json.MarshalIndent(v.Export(0), "", "    ")
 					if err != nil {

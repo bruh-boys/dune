@@ -199,7 +199,7 @@ declare namespace http {
         query: string
 		pathAndQuery: string
 		
-		toString(): string
+		string(): string
     }
 
     // interface FormValues {
@@ -437,7 +437,7 @@ var HTTP = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			v := args[0].ToString()
+			v := args[0].String()
 			u := url.QueryEscape(v)
 			return dune.NewString(u), nil
 		},
@@ -449,7 +449,7 @@ var HTTP = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			v := args[0].ToString()
+			v := args[0].String()
 			u, err := url.QueryUnescape(v)
 			if err != nil {
 				return dune.NullValue, err
@@ -485,11 +485,11 @@ var HTTP = []dune.NativeFunction{
 
 			switch len(args) {
 			case 2:
-				method = args[0].ToString()
-				urlStr = args[1].ToString()
+				method = args[0].String()
+				urlStr = args[1].String()
 			case 3:
-				method = args[0].ToString()
-				urlStr = args[1].ToString()
+				method = args[0].String()
+				urlStr = args[1].String()
 				form := url.Values{}
 
 				v := args[2]
@@ -500,7 +500,7 @@ var HTTP = []dune.NativeFunction{
 					if method != "POST" {
 						return dune.NullValue, fmt.Errorf("can only pass a data string with POST")
 					}
-					reader = strings.NewReader(v.ToString())
+					reader = strings.NewReader(v.String())
 					contentType = "application/json; charset=UTF-8"
 				case dune.Map:
 					m := v.ToMap()
@@ -516,7 +516,7 @@ var HTTP = []dune.NativeFunction{
 							if err != nil {
 								return dune.NullValue, fmt.Errorf("error serializign parameter: %v", v.Type)
 							}
-							form.Add(k.ToString(), vs)
+							form.Add(k.String(), vs)
 						}
 						m.RUnlock()
 						reader = strings.NewReader(form.Encode())
@@ -544,7 +544,7 @@ var HTTP = []dune.NativeFunction{
 					if err != nil {
 						return dune.NullValue, fmt.Errorf("error serializign parameter: %v", v.Type)
 					}
-					q.Add(k.ToString(), vs)
+					q.Add(k.String(), vs)
 				}
 				r.URL.RawQuery = q.Encode()
 			}
@@ -573,7 +573,7 @@ var HTTP = []dune.NativeFunction{
 			if a.Type != dune.String {
 				return dune.NullValue, fmt.Errorf("expected argument 0 to be string, got %s", a.TypeName())
 			}
-			url := a.ToString()
+			url := a.String()
 
 			if ln == 0 {
 			} else if ln > 1 {
@@ -637,14 +637,14 @@ var HTTP = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String, dune.Map); err != nil {
 				return dune.NullValue, err
 			}
-			u := args[0].ToString()
+			u := args[0].String()
 
 			data := url.Values{}
 
 			m := args[1].ToMap()
 			m.RLock()
 			for k, v := range m.Map {
-				data.Add(k.ToString(), v.ToString())
+				data.Add(k.String(), v.String())
 			}
 			m.RUnlock()
 
@@ -672,7 +672,7 @@ var HTTP = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			url := args[0].ToString()
+			url := args[0].String()
 
 			resp, err := http.Get(url)
 			if err != nil {
@@ -706,7 +706,7 @@ var HTTP = []dune.NativeFunction{
 				return dune.NewObject(&URL{url: u}), nil
 			}
 
-			rawURL := args[0].ToString()
+			rawURL := args[0].String()
 			u, err := url.Parse(rawURL)
 			if err != nil {
 				return dune.NullValue, err
@@ -740,7 +740,7 @@ func isHTTPSuccess(httpCode int) bool {
 func serialize(v dune.Value) (string, error) {
 	switch v.Type {
 	case dune.Int, dune.Float, dune.String, dune.Bool, dune.Rune:
-		return v.ToString(), nil
+		return v.String(), nil
 	}
 
 	b, err := json.Marshal(v.Export(0))
@@ -812,14 +812,14 @@ func (s *server) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return fmt.Errorf("invalid type, expected string")
 		}
-		s.address = v.ToString()
+		s.address = v.String()
 		return nil
 
 	case "addressTLS":
 		if v.Type != dune.String {
 			return fmt.Errorf("invalid type, expected string")
 		}
-		s.addressTLS = v.ToString()
+		s.addressTLS = v.String()
 		return nil
 
 	case "handler":
@@ -1103,13 +1103,13 @@ func (c *cookie) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		c.domain = v.ToString()
+		c.domain = v.String()
 		return nil
 	case "path":
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		c.path = v.ToString()
+		c.path = v.String()
 		return nil
 	case "expires":
 		if v.Type != dune.Object {
@@ -1125,13 +1125,13 @@ func (c *cookie) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		c.name = v.ToString()
+		c.name = v.String()
 		return nil
 	case "value":
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		c.value = v.ToString()
+		c.value = v.String()
 		return nil
 	case "secure":
 		if v.Type != dune.Bool {
@@ -1268,7 +1268,7 @@ func (r *response) header(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	headers := r.r.Header[name]
 
@@ -1397,13 +1397,13 @@ func (r *request) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return fmt.Errorf("invalid type. Expected string")
 		}
-		r.request.Method = v.ToString()
+		r.request.Method = v.String()
 		return nil
 	case "host":
 		if v.Type != dune.String {
 			return fmt.Errorf("invalid type. Expected string")
 		}
-		r.request.Host = v.ToString()
+		r.request.Host = v.String()
 		return nil
 	case "tls":
 		if v.Type != dune.Bool {
@@ -1591,8 +1591,8 @@ func (r *request) setBasicAuth(args []dune.Value, vm *dune.VM) (dune.Value, erro
 		return dune.NullValue, err
 	}
 
-	user := args[0].ToString()
-	pwd := args[1].ToString()
+	user := args[0].String()
+	pwd := args[1].String()
 	r.request.SetBasicAuth(user, pwd)
 
 	return dune.NullValue, nil
@@ -1761,7 +1761,7 @@ func (r *request) header(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	key := args[0].ToString()
+	key := args[0].String()
 	v := r.request.Header.Get(key)
 	return dune.NewString(v), nil
 }
@@ -1771,8 +1771,8 @@ func (r *request) setHeader(args []dune.Value, vm *dune.VM) (dune.Value, error) 
 		return dune.NullValue, err
 	}
 
-	key := args[0].ToString()
-	value := args[1].ToString()
+	key := args[0].String()
+	value := args[1].String()
 	r.request.Header.Set(key, value)
 
 	return dune.NullValue, nil
@@ -1782,7 +1782,7 @@ func (r *request) file(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	key := args[0].ToString()
+	key := args[0].String()
 
 	req := r.request
 
@@ -1900,7 +1900,7 @@ func (r *request) cookie(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	k, err := r.request.Cookie(name)
 	if err != nil {
@@ -1928,7 +1928,7 @@ func (r *request) value(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	name := args[0].ToString()
+	name := args[0].String()
 
 	req := r.request
 	if req.Method == "GET" {
@@ -1946,7 +1946,7 @@ func (r *request) formInt(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	name := args[0].ToString()
+	name := args[0].String()
 
 	var s string
 	req := r.request
@@ -1976,7 +1976,7 @@ func (r *request) formFloat(args []dune.Value, vm *dune.VM) (dune.Value, error) 
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	name := args[0].ToString()
+	name := args[0].String()
 
 	var s string
 	req := r.request
@@ -2007,7 +2007,7 @@ func (r *request) formDate(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	name := args[0].ToString()
+	name := args[0].String()
 
 	var value string
 	req := r.request
@@ -2038,7 +2038,7 @@ func (r *request) formBool(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	name := args[0].ToString()
+	name := args[0].String()
 
 	var s string
 	req := r.request
@@ -2060,7 +2060,7 @@ func (r *request) formJSON(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
-	name := args[0].ToString()
+	name := args[0].String()
 
 	var s string
 	req := r.request
@@ -2099,19 +2099,19 @@ func (u *URL) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return fmt.Errorf("invalid type. Expected string")
 		}
-		u.url.Path = v.ToString()
+		u.url.Path = v.String()
 		return nil
 	case "scheme":
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		u.url.Scheme = v.ToString()
+		u.url.Scheme = v.String()
 		return nil
 	case "host":
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		u.url.Host = v.ToString()
+		u.url.Host = v.String()
 		return nil
 	}
 	return ErrReadOnlyOrUndefined
@@ -2157,13 +2157,13 @@ func (u *URL) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 }
 func (u *URL) GetMethod(name string) dune.NativeMethod {
 	switch name {
-	case "toString":
-		return u.toString
+	case "string":
+		return u.string
 	}
 	return nil
 }
 
-func (u *URL) toString(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func (u *URL) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	s := u.String()
 	return dune.NewString(s), nil
 }
@@ -2325,7 +2325,7 @@ func (r *responseWriter) cookie(args []dune.Value, vm *dune.VM) (dune.Value, err
 
 	request := &http.Request{Header: http.Header{"Cookie": rc.Header()["Set-Cookie"]}}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	// Extract the dropped cookie from the request.
 	k, err := request.Cookie(name)
@@ -2402,7 +2402,7 @@ func (r *responseWriter) header(args []dune.Value, vm *dune.VM) (dune.Value, err
 		return dune.NullValue, err
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	rc := r.writer.(*httptest.ResponseRecorder)
 
@@ -2474,10 +2474,10 @@ func (r *responseWriter) redirect(args []dune.Value, vm *dune.VM) (dune.Value, e
 	case 0:
 		return dune.NullValue, fmt.Errorf("expected at least 1 argument, got 0")
 	case 1:
-		url = args[0].ToString()
+		url = args[0].String()
 		status = http.StatusFound
 	case 2:
-		url = args[0].ToString()
+		url = args[0].String()
 		status = int(args[1].ToInt())
 	default:
 		return dune.NullValue, fmt.Errorf("expected at least 1 argument, got 0")
@@ -2692,7 +2692,7 @@ func (r *responseWriter) writeFile(args []dune.Value, vm *dune.VM) (dune.Value, 
 		r.status = 200
 	}
 
-	name := args[0].ToString()
+	name := args[0].String()
 
 	var reader io.ReadSeeker
 
@@ -2774,7 +2774,7 @@ func (r *responseWriter) setContentType(args []dune.Value, vm *dune.VM) (dune.Va
 		return dune.NullValue, fmt.Errorf("expected a string, %s", a.TypeName())
 	}
 
-	r.writer.Header().Set("Content-Type", a.ToString())
+	r.writer.Header().Set("Content-Type", a.String())
 	return dune.NullValue, nil
 }
 
@@ -2793,7 +2793,7 @@ func (r *responseWriter) setHeader(args []dune.Value, vm *dune.VM) (dune.Value, 
 		return dune.NullValue, fmt.Errorf("expected a string, %s", a.TypeName())
 	}
 
-	r.writer.Header().Set(a.ToString(), b.ToString())
+	r.writer.Header().Set(a.String(), b.String())
 	return dune.NullValue, nil
 }
 

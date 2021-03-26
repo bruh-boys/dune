@@ -12,7 +12,7 @@ func TestXMLWrite(t *testing.T) {
 		let person = people.createElement("Person")
 		person.createAttribute("age", "33");
 		person.setValue("John")
-		let x = doc.toString()
+		let x = doc.string()
 	`)
 	if err != nil {
 		t.Fatal(err)
@@ -23,7 +23,7 @@ func TestXMLWrite(t *testing.T) {
   <Person age="33">John</Person>
 </People>`
 
-	if !strings.Contains(v.ToString(), expected) {
+	if !strings.Contains(v.String(), expected) {
 		t.Fatalf("Unexpected XML:\n%v", v)
 	}
 }

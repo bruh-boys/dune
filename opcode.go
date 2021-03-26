@@ -320,7 +320,7 @@ func exec_add(instr *Instruction, vm *VM) int {
 					return vm_exit
 				}
 			}
-			vm.set(instr.A, NewString(lh.ToString()+rh.ToString()))
+			vm.set(instr.A, NewString(lh.String()+rh.String()))
 		case Null, Undefined:
 			vm.set(instr.A, lh)
 		default:
@@ -348,7 +348,7 @@ func exec_add(instr *Instruction, vm *VM) int {
 					return vm_exit
 				}
 			}
-			vm.set(instr.A, NewString(lh.ToString()+rh.ToString()))
+			vm.set(instr.A, NewString(lh.String()+rh.String()))
 		case Null, Undefined:
 			vm.set(instr.A, lh)
 		default:
@@ -374,7 +374,7 @@ func exec_add(instr *Instruction, vm *VM) int {
 					return vm_exit
 				}
 			}
-			vm.set(instr.A, NewString(lh.ToString()+rh.ToString()))
+			vm.set(instr.A, NewString(lh.String()+rh.String()))
 		case Null, Undefined:
 			vm.set(instr.A, lh)
 		default:
@@ -387,7 +387,7 @@ func exec_add(instr *Instruction, vm *VM) int {
 	case Bool:
 		switch rh.Type {
 		case String:
-			vm.set(instr.A, NewString(lh.ToString()+rh.ToString()))
+			vm.set(instr.A, NewString(lh.String()+rh.String()))
 		default:
 			if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 				return vm_continue
@@ -409,7 +409,7 @@ func exec_add(instr *Instruction, vm *VM) int {
 					return vm_exit
 				}
 			}
-			vm.set(instr.A, NewString(lh.ToString()+rh.ToString()))
+			vm.set(instr.A, NewString(lh.String()+rh.String()))
 		case Null, Undefined:
 			vm.set(instr.A, lh)
 		default:
@@ -478,7 +478,7 @@ func exec_subtract(instr *Instruction, vm *VM) int {
 		case Rune, Int:
 			vm.set(instr.A, NewRune(lh.ToRune()-rh.ToRune()))
 		case String:
-			rs := rh.ToString()
+			rs := rh.String()
 			if len(rs) != 1 {
 				if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 					return vm_continue
@@ -497,7 +497,7 @@ func exec_subtract(instr *Instruction, vm *VM) int {
 			}
 		}
 	case String:
-		ls := lh.ToString()
+		ls := lh.String()
 		if len(ls) != 1 {
 			if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 				return vm_continue
@@ -510,7 +510,7 @@ func exec_subtract(instr *Instruction, vm *VM) int {
 		case Rune, Int:
 			vm.set(instr.A, NewRune(lr-rh.ToRune()))
 		case String:
-			rs := rh.ToString()
+			rs := rh.String()
 			if len(rs) != 1 {
 				if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 					return vm_continue
@@ -1038,7 +1038,7 @@ func exec_less(instr *Instruction, vm *VM) int {
 		case Rune, Int:
 			vm.set(instr.A, NewBool(lh.ToRune() < rh.ToRune()))
 		case String:
-			rs := rh.ToString()
+			rs := rh.String()
 			if len(rs) != 1 {
 				if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 					return vm_continue
@@ -1058,9 +1058,9 @@ func exec_less(instr *Instruction, vm *VM) int {
 	case String:
 		switch rh.Type {
 		case String:
-			vm.set(instr.A, NewBool(lh.ToString() < rh.ToString()))
+			vm.set(instr.A, NewBool(lh.String() < rh.String()))
 		case Rune:
-			ls := lh.ToString()
+			ls := lh.String()
 			if len(ls) != 1 {
 				if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 					return vm_continue
@@ -1155,7 +1155,7 @@ func exec_lessOrEqual(instr *Instruction, vm *VM) int {
 		case Rune, Int:
 			vm.set(instr.A, NewBool(lh.ToRune() <= rh.ToRune()))
 		case String:
-			rs := rh.ToString()
+			rs := rh.String()
 			if len(rs) != 1 {
 				if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 					return vm_continue
@@ -1175,9 +1175,9 @@ func exec_lessOrEqual(instr *Instruction, vm *VM) int {
 	case String:
 		switch rh.Type {
 		case String:
-			vm.set(instr.A, NewBool(lh.ToString() <= rh.ToString()))
+			vm.set(instr.A, NewBool(lh.String() <= rh.String()))
 		case Rune:
-			ls := lh.ToString()
+			ls := lh.String()
 			if len(ls) != 1 {
 				if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 					return vm_continue

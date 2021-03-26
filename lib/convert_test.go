@@ -11,8 +11,8 @@ func TestRuneToInt(t *testing.T) {
 		return convert.toString(r)
 	`)
 
-	if v.ToString() != "L" {
-		t.Fatal(v.ToString())
+	if v.String() != "L" {
+		t.Fatal(v.String())
 	}
 }
 
@@ -23,7 +23,7 @@ func TestRuneToInt2(t *testing.T) {
 		return convert.toString(r)
 	`)
 
-	if v.ToString() != "会" {
-		t.Fatal(v.ToString())
+	if v.String() != "会" {
+		t.Fatal(v.String())
 	}
 }

@@ -38,7 +38,7 @@ declare namespace smtp {
         subject: string
         body: string
         html: boolean
-        toString(): string
+        string(): string
         attach(fileName: string, data: byte[], inline: boolean): void
     }
 }
@@ -75,15 +75,15 @@ var STMP = []dune.NativeFunction{
 
 			switch len(args) {
 			case 5:
-				user = args[1].ToString()
-				smtPasswd = args[2].ToString()
-				host = args[3].ToString()
+				user = args[1].String()
+				smtPasswd = args[2].String()
+				host = args[3].String()
 				port = int(args[4].ToInt())
 
 			case 6:
-				user = args[1].ToString()
-				smtPasswd = args[2].ToString()
-				host = args[3].ToString()
+				user = args[1].String()
+				smtPasswd = args[2].String()
+				host = args[3].String()
 				port = int(args[4].ToInt())
 				skipVerify = args[5].ToBool()
 			default:
@@ -152,14 +152,14 @@ func (m *SmtMessage) SetProperty(key string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		m.From.Address = v.ToString()
+		m.From.Address = v.String()
 		return nil
 	case "fromName":
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
 
-		m.From.Name = v.ToString()
+		m.From.Name = v.String()
 		return nil
 	case "to":
 		if v.Type != dune.Array {
@@ -183,19 +183,19 @@ func (m *SmtMessage) SetProperty(key string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		m.ReplyTo = v.ToString()
+		m.ReplyTo = v.String()
 		return nil
 	case "subject":
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		m.Subject = v.ToString()
+		m.Subject = v.String()
 		return nil
 	case "body":
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		m.Body = v.ToString()
+		m.Body = v.String()
 		return nil
 	case "html":
 		if v.Type != dune.Bool {
@@ -212,13 +212,13 @@ func (m *SmtMessage) GetMethod(name string) dune.NativeMethod {
 	switch name {
 	case "attach":
 		return m.attachData
-	case "toString":
-		return m.toString
+	case "string":
+		return m.string
 	}
 	return nil
 }
 
-func (m *SmtMessage) toString(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func (m *SmtMessage) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgRange(args, 0, 0); err != nil {
 		return dune.NullValue, err
 	}
@@ -237,7 +237,7 @@ func (m *SmtMessage) attachData(args []dune.Value, vm *dune.VM) (dune.Value, err
 	a := args[0]
 	switch a.Type {
 	case dune.String:
-		fileName = a.ToString()
+		fileName = a.String()
 	default:
 		return dune.NullValue, fmt.Errorf("invalid argument 1 type: %v", a)
 	}
@@ -307,7 +307,7 @@ func (m *SmtMessage) ToList() []string {
 	a := m.To.ToArray()
 	dirs := make([]string, len(a))
 	for i, v := range a {
-		dirs[i] = v.ToString()
+		dirs[i] = v.String()
 	}
 	return dirs
 }
@@ -320,7 +320,7 @@ func (m *SmtMessage) CcList() []string {
 	a := m.Cc.ToArray()
 	dirs := make([]string, len(a))
 	for i, v := range a {
-		dirs[i] = v.ToString()
+		dirs[i] = v.String()
 	}
 	return dirs
 }
@@ -333,7 +333,7 @@ func (m *SmtMessage) BccList() []string {
 	a := m.Bcc.ToArray()
 	dirs := make([]string, len(a))
 	for i, v := range a {
-		dirs[i] = v.ToString()
+		dirs[i] = v.String()
 	}
 	return dirs
 }

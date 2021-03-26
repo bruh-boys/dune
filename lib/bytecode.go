@@ -67,7 +67,7 @@ var Bytecode = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			path := args[0].ToString()
+			path := args[0].String()
 
 			var fs filesystem.FS
 
@@ -103,7 +103,7 @@ var Bytecode = []dune.NativeFunction{
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
-			code := args[0].ToString()
+			code := args[0].String()
 
 			p, err := dune.CompileStr(code)
 			if err != nil {
@@ -146,7 +146,7 @@ var Bytecode = []dune.NativeFunction{
 			}
 
 			l := len(args)
-			path := args[0].ToString()
+			path := args[0].String()
 			var fs filesystem.FS
 
 			if l > 1 {
@@ -234,7 +234,7 @@ func compile(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	path := args[0].ToString()
+	path := args[0].String()
 
 	var fs filesystem.FS
 

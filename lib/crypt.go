@@ -90,7 +90,7 @@ var Crypt = []dune.NativeFunction{
 			}
 
 			key := args[0].ToBytes()
-			text := args[1].ToString()
+			text := args[1].String()
 
 			h := sha1.New()
 			h.Write([]byte(text))
@@ -122,7 +122,7 @@ var Crypt = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			s := args[0].ToString() + getGlobalPassword()
+			s := args[0].String() + getGlobalPassword()
 			h := sha1.New()
 			h.Write([]byte(s))
 			hash := hex.EncodeToString(h.Sum(nil))
@@ -137,11 +137,11 @@ var Crypt = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			s := args[0].ToString() + getGlobalPassword()
+			s := args[0].String() + getGlobalPassword()
 			h := sha1.New()
 			h.Write([]byte(s))
 			hash := hex.EncodeToString(h.Sum(nil))
-			ok := hash == args[1].ToString()
+			ok := hash == args[1].String()
 
 			return dune.NewBool(ok), nil
 		},
@@ -160,7 +160,7 @@ var Crypt = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			s := args[0].ToString() + tempSignKey
+			s := args[0].String() + tempSignKey
 			h := sha1.New()
 			h.Write([]byte(s))
 			hash := hex.EncodeToString(h.Sum(nil))
@@ -177,12 +177,12 @@ var Crypt = []dune.NativeFunction{
 
 			// untrusted users can check but not sign
 
-			s := args[0].ToString() + tempSignKey
+			s := args[0].String() + tempSignKey
 			h := sha1.New()
 			h.Write([]byte(s))
 			hash := hex.EncodeToString(h.Sum(nil))
 
-			ok := hash == args[1].ToString()
+			ok := hash == args[1].String()
 			return dune.NewBool(ok), nil
 		},
 	},
@@ -197,7 +197,7 @@ var Crypt = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			setGlobalPassword(args[0].ToString())
+			setGlobalPassword(args[0].String())
 			return dune.NullValue, nil
 		},
 	},
@@ -246,7 +246,7 @@ var Crypt = []dune.NativeFunction{
 			}
 
 			h := sha1.New()
-			h.Write([]byte(args[0].ToString()))
+			h.Write([]byte(args[0].String()))
 			hash := hex.EncodeToString(h.Sum(nil))
 			return dune.NewString(hash), nil
 		},
@@ -260,7 +260,7 @@ var Crypt = []dune.NativeFunction{
 			}
 
 			h := sha256.New()
-			h.Write([]byte(args[0].ToString()))
+			h.Write([]byte(args[0].String()))
 			hash := hex.EncodeToString(h.Sum(nil))
 			return dune.NewString(hash), nil
 		},
@@ -274,7 +274,7 @@ var Crypt = []dune.NativeFunction{
 			}
 
 			h := sha512.New()
-			h.Write([]byte(args[0].ToString()))
+			h.Write([]byte(args[0].String()))
 			hash := hex.EncodeToString(h.Sum(nil))
 			return dune.NewString(hash), nil
 		},
@@ -297,10 +297,10 @@ var Crypt = []dune.NativeFunction{
 					return dune.NullValue, fmt.Errorf("no password configured")
 				}
 			case 2:
-				pwd = args[1].ToString()
+				pwd = args[1].String()
 			}
 
-			s, err := Encrypts(args[0].ToString(), pwd)
+			s, err := Encrypts(args[0].String(), pwd)
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -325,10 +325,10 @@ var Crypt = []dune.NativeFunction{
 					return dune.NullValue, fmt.Errorf("no password configured")
 				}
 			case 2:
-				pwd = args[1].ToString()
+				pwd = args[1].String()
 			}
 
-			s, err := Decrypts(args[0].ToString(), pwd)
+			s, err := Decrypts(args[0].String(), pwd)
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -354,7 +354,7 @@ var Crypt = []dune.NativeFunction{
 				}
 
 			case 2:
-				pwd = args[1].ToString()
+				pwd = args[1].String()
 			}
 
 			b, err := Encrypt(args[0].ToBytes(), []byte(pwd))
@@ -383,7 +383,7 @@ var Crypt = []dune.NativeFunction{
 				}
 
 			case 2:
-				pwd = args[1].ToString()
+				pwd = args[1].String()
 			}
 
 			b, err := Decrypt(args[0].ToBytes(), []byte(pwd))
@@ -429,7 +429,7 @@ var Crypt = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			s := HashPassword(args[0].ToString())
+			s := HashPassword(args[0].String())
 			return dune.NewString(s), nil
 		},
 	},
@@ -441,7 +441,7 @@ var Crypt = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
-			ok := CheckHashPasword(args[0].ToString(), args[1].ToString())
+			ok := CheckHashPasword(args[0].String(), args[1].String())
 			return dune.NewBool(ok), nil
 		},
 	},

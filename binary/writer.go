@@ -116,7 +116,7 @@ func writeConstants(w io.Writer, constants []dune.Value, key byte) error {
 			}
 
 		case dune.String:
-			b := []byte(k.ToString())
+			b := []byte(k.String())
 			xor(b, key)
 			if err := writeSection(w, section_kString, len(b)); err != nil {
 				return err

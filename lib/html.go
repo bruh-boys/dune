@@ -29,7 +29,7 @@ var HTML = []dune.NativeFunction{
 			case dune.Null, dune.Undefined:
 				return dune.NullValue, nil
 			case dune.String:
-				return dune.NewString(html.EscapeString(a.ToString())), nil
+				return dune.NewString(html.EscapeString(a.String())), nil
 			default:
 				return dune.NewString(a.String()), nil
 			}
@@ -44,7 +44,7 @@ var HTML = []dune.NativeFunction{
 			case dune.Null, dune.Undefined:
 				return dune.NullValue, nil
 			case dune.String:
-				return dune.NewString(html.UnescapeString(a.ToString())), nil
+				return dune.NewString(html.UnescapeString(a.String())), nil
 			default:
 				return dune.NullValue, fmt.Errorf("expected string, got %v", a.Type)
 			}

@@ -92,7 +92,7 @@ func (r *csvReader) SetProperty(key string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		s := v.ToString()
+		s := v.String()
 		if len(s) != 1 {
 			return fmt.Errorf("invalid comma: %s", s)
 		}
@@ -155,7 +155,7 @@ func (w *csvWriter) SetProperty(key string, v dune.Value, vm *dune.VM) error {
 		if v.Type != dune.String {
 			return ErrInvalidType
 		}
-		s := v.ToString()
+		s := v.String()
 		if len(s) != 1 {
 			return fmt.Errorf("invalid comma: %s", s)
 		}
@@ -185,7 +185,7 @@ func (w *csvWriter) write(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	values := make([]string, len(a))
 
 	for i, v := range a {
-		values[i] = v.ToString()
+		values[i] = v.String()
 	}
 
 	if err := w.w.Write(values); err != nil {

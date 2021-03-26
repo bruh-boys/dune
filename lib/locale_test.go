@@ -8,8 +8,8 @@ func TestTranslate1(t *testing.T) {
 		
 	`)
 
-	if v.ToString() != "Hello Bill!" {
-		t.Fatal(v.ToString())
+	if v.String() != "Hello Bill!" {
+		t.Fatal(v.String())
 	}
 }
 
@@ -21,8 +21,8 @@ func TestTranslate2(t *testing.T) {
 		
 	`)
 
-	if v.ToString() != "Hola Bill!" {
-		t.Fatal(v.ToString())
+	if v.String() != "Hola Bill!" {
+		t.Fatal(v.String())
 	}
 }
 
@@ -34,8 +34,8 @@ func TestTranslate3(t *testing.T) {
 		
 	`)
 
-	if v.ToString() != "Hola" {
-		t.Fatal(v.ToString())
+	if v.String() != "Hola" {
+		t.Fatal(v.String())
 	}
 }
 
@@ -79,8 +79,8 @@ func TestFormatInt2(t *testing.T) {
 		
 	`)
 
-	if v.ToString() != "1.000" {
-		t.Fatal(v.ToString())
+	if v.String() != "1.000" {
+		t.Fatal(v.String())
 	}
 }
 
@@ -129,8 +129,8 @@ func TestFormatFloat2(t *testing.T) {
 		
 	`)
 
-	if v.ToString() != "1.000,33000" {
-		t.Fatal(v.ToString())
+	if v.String() != "1.000,33000" {
+		t.Fatal(v.String())
 	}
 }
 
@@ -180,8 +180,8 @@ func TestFormatCurrency2(t *testing.T) {
 		
 	`)
 
-	if v.ToString() != "1.000,33€" {
-		t.Fatal(v.ToString())
+	if v.String() != "1.000,33€" {
+		t.Fatal(v.String())
 	}
 }
 func TestFormatCurrency3(t *testing.T) {
@@ -196,8 +196,8 @@ func TestFormatCurrency3(t *testing.T) {
 		
 	`)
 
-	if v.ToString() != "-1.000,33€" {
-		t.Fatal(v.ToString())
+	if v.String() != "-1.000,33€" {
+		t.Fatal(v.String())
 	}
 }
 
