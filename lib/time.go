@@ -132,6 +132,7 @@ declare namespace time {
         addMilliseconds(t: number): Time
 
         setDate(year?: number, month?: number, day?: number): Time
+        addDate(year: number, month: number, day: number): Time
         setTime(hour?: number, minute?: number, second?: number, millisecond?: number): Time
         setTimeMillis(millis: number): Time
 
@@ -1042,6 +1043,8 @@ func (t TimeObj) GetMethod(name string) dune.NativeMethod {
 		return t.add
 	case "setDate":
 		return t.setDate
+	case "addDate":
+		return t.addDateValues
 	case "setTime":
 		return t.setTime
 	case "setTimeMillis":
@@ -1097,21 +1100,22 @@ func (t TimeObj) GetMethod(name string) dune.NativeMethod {
 }
 
 func (t TimeObj) setDate(args []dune.Value, vm *dune.VM) (dune.Value, error) {
-	l := len(args)
-	if l > 3 {
-		return dune.NullValue, fmt.Errorf("expected max 3 arguments, got %d", l)
+	ln := len(args)
+	if ln > 3 {
+		return dune.NullValue, fmt.Errorf("expected max 3 arguments, got %d", ln)
 	}
 
 	tt := time.Time(t)
-	year := tt.Year()
-	month := tt.Month()
-	day := tt.Day()
-	dur := tt.Sub(time.Date(year, month, day, 0, 0, 0, 0, tt.Location()))
 
-	if l >= 1 {
+	var year int
+	var month time.Month
+	var day int
+
+	if ln >= 1 {
 		a := args[0]
 		switch a.Type {
 		case dune.Null, dune.Undefined:
+			year = tt.Year()
 		case dune.Int:
 			year = int(a.ToInt())
 		default:
@@ -1119,10 +1123,11 @@ func (t TimeObj) setDate(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		}
 	}
 
-	if l >= 2 {
+	if ln >= 2 {
 		a := args[1]
 		switch a.Type {
 		case dune.Null, dune.Undefined:
+			month = tt.Month()
 		case dune.Int:
 			month = time.Month(a.ToInt())
 		default:
@@ -1130,10 +1135,11 @@ func (t TimeObj) setDate(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		}
 	}
 
-	if l >= 3 {
+	if ln >= 3 {
 		a := args[2]
 		switch a.Type {
 		case dune.Null, dune.Undefined:
+			day = tt.Day()
 		case dune.Int:
 			day = int(a.ToInt())
 		default:
@@ -1141,10 +1147,17 @@ func (t TimeObj) setDate(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		}
 	}
 
-	date := time.Date(year, month, day, 0, 0, 0, 0, tt.Location())
-	date = date.Add(dur)
-
+	date := time.Date(year, month, day, tt.Hour(), tt.Minute(), tt.Second(), tt.Nanosecond(), tt.Location())
 	return dune.NewObject(TimeObj(date)), nil
+}
+
+func (t TimeObj) addDateValues(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	if err := ValidateArgs(args, dune.Int, dune.Int, dune.Int); err != nil {
+		return dune.NullValue, err
+	}
+
+	tt := time.Time(t).AddDate(int(args[0].ToInt()), int(args[1].ToInt()), int(args[2].ToInt()))
+	return dune.NewObject(TimeObj(tt)), nil
 }
 
 func (t TimeObj) setTimeMillis(args []dune.Value, vm *dune.VM) (dune.Value, error) {
