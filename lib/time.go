@@ -176,7 +176,6 @@ declare namespace time {
     export function sleep(millis: number): void
     export function sleep(d: Duration): void
     export function parse(value: any, format?: string): Time
-    export function parseLocal(value: any, format?: string): Time
     export function parseInLocation(value: any, format: string, location: Location): Time
 	
 	
@@ -618,37 +617,6 @@ var Time = []dune.NativeFunction{
 		Name:      "time.parse",
 		Arguments: -1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			var value string
-			var format string
-
-			switch len(args) {
-			case 1:
-				if err := ValidateArgs(args, dune.String); err != nil {
-					return dune.NullValue, err
-				}
-				value = args[0].String()
-			case 2:
-				if err := ValidateArgs(args, dune.String, dune.String); err != nil {
-					return dune.NullValue, err
-				}
-				value = args[0].String()
-				format = args[1].String()
-			default:
-				return dune.NullValue, fmt.Errorf("expected 1 or 2 params, got %d", len(args))
-			}
-
-			t, err := parseDate(value, format, time.UTC)
-			if err != nil {
-				return dune.NullValue, err
-			}
-
-			return dune.NewObject(TimeObj(t)), nil
-		},
-	},
-	{
-		Name:      "time.parseLocal",
-		Arguments: -1,
-		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			l := GetLocation(vm)
 			return parseInLocation(l, this, args, vm)
 		},
@@ -811,34 +779,6 @@ func GetLocation(vm *dune.VM) *time.Location {
 	return time.Local
 }
 
-func parseDate(value, format string, loc *time.Location) (time.Time, error) {
-	var formats []string
-
-	if format != "" {
-		formats = []string{format}
-	} else {
-		formats = []string{
-			"2006-01-02",
-			"2006-01-02T15:04",
-			"2006-01-02T15:04:05",
-			"2006-01-02T15:04:05Z07:00",
-		}
-	}
-
-	for _, f := range formats {
-		t, err := time.ParseInLocation(f, value, loc)
-		if err == nil {
-			// GO BUG?? Sometimes it creates a timezone without name!!
-			if t.Location().String() == "" {
-				t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), loc)
-			}
-			return t, nil
-		}
-	}
-
-	return time.Time{}, dune.NewPublicError(fmt.Sprintf("Error parsing date: %s", value))
-}
-
 func getDate(args []dune.Value, vm *dune.VM, defaultLoc *time.Location) (dune.Value, error) {
 	if err := ValidateOptionalArgs(args, dune.Int, dune.Int,
 		dune.Int, dune.Int, dune.Int, dune.Int, dune.Object); err != nil {
@@ -943,6 +883,34 @@ func parseInLocation(l *time.Location, this dune.Value, args []dune.Value, vm *d
 		return dune.NullValue, err
 	}
 	return dune.NewObject(TimeObj(t)), nil
+}
+
+func parseDate(value, format string, loc *time.Location) (time.Time, error) {
+	var formats []string
+
+	if format != "" {
+		formats = []string{format}
+	} else {
+		formats = []string{
+			"2006-01-02",
+			"2006-01-02T15:04",
+			"2006-01-02T15:04:05",
+			"2006-01-02T15:04:05Z07:00",
+		}
+	}
+
+	for _, f := range formats {
+		t, err := time.ParseInLocation(f, value, loc)
+		if err == nil {
+			// GO BUG?? Sometimes it creates a timezone without name!!
+			if t.Location().String() == "" {
+				t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), loc)
+			}
+			return t, nil
+		}
+	}
+
+	return time.Time{}, dune.NewPublicError(fmt.Sprintf("Error parsing date: %s", value))
 }
 
 type TimeObj time.Time
