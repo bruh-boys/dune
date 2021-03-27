@@ -1002,8 +1002,8 @@ func exec_dec(instr *Instruction, vm *VM) int {
 
 func exec_less(instr *Instruction, vm *VM) int {
 	lh := vm.get(instr.B)
-
 	rh := vm.get(instr.C)
+
 	switch lh.Type {
 	case Int:
 		switch rh.Type {
@@ -1011,7 +1011,7 @@ func exec_less(instr *Instruction, vm *VM) int {
 			vm.set(instr.A, NewBool(lh.ToFloat() < rh.ToFloat()))
 		case Int:
 			vm.set(instr.A, NewBool(lh.ToInt() < rh.ToInt()))
-		case Null:
+		case Null, Undefined:
 			vm.set(instr.A, NewBool(0 < rh.ToInt()))
 		default:
 			if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
@@ -1024,7 +1024,7 @@ func exec_less(instr *Instruction, vm *VM) int {
 		switch rh.Type {
 		case Int, Float:
 			vm.set(instr.A, NewBool(lh.ToFloat() < rh.ToFloat()))
-		case Null:
+		case Null, Undefined:
 			vm.set(instr.A, NewBool(0 < rh.ToInt()))
 		default:
 			if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
@@ -1079,7 +1079,7 @@ func exec_less(instr *Instruction, vm *VM) int {
 				return vm_exit
 			}
 		}
-	case Null:
+	case Null, Undefined:
 		switch rh.Type {
 		case Int, Float:
 			vm.set(instr.A, NewBool(0 < rh.ToFloat()))
@@ -1125,6 +1125,7 @@ func exec_less(instr *Instruction, vm *VM) int {
 func exec_lessOrEqual(instr *Instruction, vm *VM) int {
 	lh := vm.get(instr.B)
 	rh := vm.get(instr.C)
+
 	switch lh.Type {
 	case Int:
 		switch rh.Type {
@@ -1132,6 +1133,8 @@ func exec_lessOrEqual(instr *Instruction, vm *VM) int {
 			vm.set(instr.A, NewBool(lh.ToFloat() <= rh.ToFloat()))
 		case Int:
 			vm.set(instr.A, NewBool(lh.ToInt() <= rh.ToInt()))
+		case Null, Undefined:
+			vm.set(instr.A, NewBool(0 <= rh.ToInt()))
 		default:
 			if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 				return vm_continue
@@ -1143,6 +1146,8 @@ func exec_lessOrEqual(instr *Instruction, vm *VM) int {
 		switch rh.Type {
 		case Int, Float:
 			vm.set(instr.A, NewBool(lh.ToFloat() <= rh.ToFloat()))
+		case Null, Undefined:
+			vm.set(instr.A, NewBool(0 <= rh.ToInt()))
 		default:
 			if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 				return vm_continue
@@ -1192,6 +1197,18 @@ func exec_lessOrEqual(instr *Instruction, vm *VM) int {
 				return vm_continue
 			} else {
 				return vm_exit
+			}
+		}
+
+	case Null, Undefined:
+		switch rh.Type {
+		case Int, Float:
+			vm.set(instr.A, NewBool(0 < rh.ToFloat()))
+		case String, Rune:
+			vm.set(instr.A, FalseValue)
+		default:
+			if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
+				return vm_continue
 			}
 		}
 
