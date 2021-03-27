@@ -1471,8 +1471,9 @@ func (r *request) values(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	var form url.Values
 	req := r.request
 
-	ct := req.Header.Get("Content-Type")
-	if ct == "application/json" {
+	contentType := req.Header.Get("Content-Type")
+
+	if strings.Contains(contentType, "application/json") {
 		buf, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			return dune.NullValue, err
