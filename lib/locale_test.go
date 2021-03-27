@@ -204,15 +204,15 @@ func TestFormatCurrency3(t *testing.T) {
 func TestFormatDate(t *testing.T) {
 	runTest(t, `
 		let tests = [
-			[time.localDate(2020, 12, 10), "yy-MM-dd", "20-12-10"],
-			[time.localDate(2020, 12, 10), "yyyy-MM-dd", "2020-12-10"],
-			[time.localDate(2021, 1, 1), "yyyy-M-d", "2021-1-1"],
-			[time.localDate(2021, 1, 1), "ddd", "Friday"],
-			[time.localDate(2021, 1, 1), "MMM", "January"],
-			[time.localDate(2021, 1, 1, 7, 8, 9), "h:m:s a", "7:8:9 AM"],
-			[time.localDate(2021, 1, 1, 7, 8, 9), "hh:mm:ss a", "07:08:09 AM"],
-			[time.localDate(2021, 1, 1, 18), "hh a", "06 PM"],
-			[time.localDate(2021, 1, 1, 18), "HH a", "18 PM"],
+			[time.date(2020, 12, 10), "yy-MM-dd", "20-12-10"],
+			[time.date(2020, 12, 10), "yyyy-MM-dd", "2020-12-10"],
+			[time.date(2021, 1, 1), "yyyy-M-d", "2021-1-1"],
+			[time.date(2021, 1, 1), "ddd", "Friday"],
+			[time.date(2021, 1, 1), "MMM", "January"],
+			[time.date(2021, 1, 1, 7, 8, 9), "h:m:s a", "7:8:9 AM"],
+			[time.date(2021, 1, 1, 7, 8, 9), "hh:mm:ss a", "07:08:09 AM"],
+			[time.date(2021, 1, 1, 18), "hh a", "06 PM"],
+			[time.date(2021, 1, 1, 18), "HH a", "18 PM"],
 		]
 
 		for(let t of tests) {
@@ -295,9 +295,9 @@ func TestParseNumber2(t *testing.T) {
 func TestParseDate(t *testing.T) {
 	runTest(t, `
 	let tests = [
-		[time.localDate(2020, 12, 10), "yy-MM-dd", "20-12-10"],
-		[time.localDate(2020, 12, 10), "yyyy-MM-dd", "2020-12-10"],
-		[time.localDate(2021, 1, 1), "yyyy-M-d", "2021-1-1"],
+		[time.date(2020, 12, 10), "yy-MM-dd", "20-12-10"],
+		[time.date(2020, 12, 10), "yyyy-MM-dd", "2020-12-10"],
+		[time.date(2021, 1, 1), "yyyy-M-d", "2021-1-1"],
 	]
 
 	for(let t of tests) {

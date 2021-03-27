@@ -80,8 +80,6 @@ declare namespace time {
     export function unix(seconds: number): Time
 
     export function date(year?: number, month?: number, day?: number, hour?: number, min?: number, sec?: number, loc?: Location): Time
-    export function localDate(year?: number, month?: number, day?: number, hour?: number, min?: number, sec?: number): Time
-
 
 	export function parseDuration(s: string): Duration
 	
@@ -335,13 +333,6 @@ var Time = []dune.NativeFunction{
 	},
 	{
 		Name:      "time.date",
-		Arguments: -1,
-		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			return getDate(args, vm, time.UTC)
-		},
-	},
-	{
-		Name:      "time.localDate",
 		Arguments: -1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			loc := GetLocation(vm)
