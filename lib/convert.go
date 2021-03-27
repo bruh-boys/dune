@@ -166,25 +166,7 @@ var Convert = []dune.NativeFunction{
 		Arguments: 1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			a := args[0]
-			var r dune.Value
-			switch a.Type {
-			case dune.Int, dune.Float, dune.Bool, dune.Bytes, dune.Rune:
-				r = dune.NewString(a.String())
-			case dune.String:
-				r = a
-			case dune.Object:
-				o := a.ToObject()
-				switch t := o.(type) {
-				case TimeObj:
-					r = dune.NewString(t.String())
-				default:
-					r = dune.NewString(a.TypeName())
-				}
-			default:
-				r = dune.NewString(a.TypeName())
-			}
-
-			return r, nil
+			return dune.NewString(a.String()), nil
 		},
 	},
 	{
