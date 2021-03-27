@@ -94,6 +94,15 @@ func TestExpression1(t *testing.T) {
 		{"return null % 1", 0},
 		{"return undefined % 1", 0},
 
+		{"return 0 == undefined", false},
+		{"return 0 == null", false},
+		{"return 0 === undefined", false},
+		{"return 0 === null", false},
+		{"return undefined == 0", false},
+		{"return null == 0", false},
+		{"return undefined === 0", false},
+		{"return null === 0", false},
+
 		{"return 1 > undefined", true},
 		{"return 1 >= undefined", true},
 		{"return 1 > null", true},
