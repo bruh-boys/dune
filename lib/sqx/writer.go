@@ -855,11 +855,11 @@ func (p *writer) writeSelect(s *SelectQuery) error {
 	for i, col := range s.Columns {
 		if i > 0 {
 			p.buf.WriteString(", ")
+			if p.Format {
+				p.buf.WriteString("\n       ")
+			}
 		}
 
-		if p.Format {
-			p.buf.WriteString("\n   ")
-		}
 		err := p.writeExpr(col)
 		if err != nil {
 			return err
