@@ -23,6 +23,8 @@ func init() {
 	c.ShortTimePattern = "HH:mm"
 	c.ShortDatePattern = "MM-dd-yyyy"
 	c.LongDatePattern = "ddd, MMM dd yyyy"
+	c.DateMonthPattern = "ddd, MMM dd"
+	c.DateMonthTimePattern = "ddd, MMM dd HH:mm"
 	c.DateTimePattern = "MM-dd-yyyy HH:mm"
 	c.LongDateTimePattern = "ddd, MMM dd yyyy HH:mm"
 	c.FirstDayOfWeek = time.Sunday
@@ -46,29 +48,33 @@ type Culture struct {
 	CurrencySymbol    string
 	CurrencyPattern   string
 
-	DateTimePattern     string
-	LongDateTimePattern string
-	ShortDatePattern    string
-	LongDatePattern     string
-	ShortTimePattern    string
-	FirstDayOfWeek      time.Weekday
+	DateMonthTimePattern string
+	DateTimePattern      string
+	LongDateTimePattern  string
+	ShortDatePattern     string
+	LongDatePattern      string
+	DateMonthPattern     string
+	ShortTimePattern     string
+	FirstDayOfWeek       time.Weekday
 }
 
 func (c *Culture) Clone() *Culture {
 	return &Culture{
-		Name:                c.Name,
-		Language:            c.Language,
-		DecimalSeparator:    c.DecimalSeparator,
-		ThousandSeparator:   c.ThousandSeparator,
-		NumberOfDecimals:    c.NumberOfDecimals,
-		CurrencySymbol:      c.CurrencySymbol,
-		CurrencyPattern:     c.CurrencyPattern,
-		DateTimePattern:     c.DateTimePattern,
-		LongDateTimePattern: c.LongDateTimePattern,
-		ShortDatePattern:    c.ShortDatePattern,
-		LongDatePattern:     c.LongDatePattern,
-		ShortTimePattern:    c.ShortTimePattern,
-		FirstDayOfWeek:      c.FirstDayOfWeek,
+		Name:                 c.Name,
+		Language:             c.Language,
+		DecimalSeparator:     c.DecimalSeparator,
+		ThousandSeparator:    c.ThousandSeparator,
+		NumberOfDecimals:     c.NumberOfDecimals,
+		CurrencySymbol:       c.CurrencySymbol,
+		CurrencyPattern:      c.CurrencyPattern,
+		DateMonthTimePattern: c.DateMonthTimePattern,
+		DateTimePattern:      c.DateTimePattern,
+		LongDateTimePattern:  c.LongDateTimePattern,
+		ShortDatePattern:     c.ShortDatePattern,
+		LongDatePattern:      c.LongDatePattern,
+		DateMonthPattern:     c.DateMonthPattern,
+		ShortTimePattern:     c.ShortTimePattern,
+		FirstDayOfWeek:       c.FirstDayOfWeek,
 	}
 }
 
@@ -104,6 +110,10 @@ func (c *Culture) formatDate(d time.Time, format string, translator *Translator,
 		format = c.ShortDatePattern
 	case "D":
 		format = c.LongDatePattern
+	case "H":
+		format = c.DateMonthTimePattern
+	case "M":
+		format = c.DateMonthPattern
 	case "g":
 		format = c.DateTimePattern
 	case "G":
@@ -522,15 +532,17 @@ func toGoDateFormat(format string) string {
 }
 
 const (
-	ShortDatePattern    = "d"
-	LongDatePattern     = "D"
-	DateTimePattern     = "g"
-	LongDateTimePattern = "G"
-	ShortTimePattern    = "t" // HH:mm
-	LongTimePattern     = "T" // HH:mm:ss
-	CurrencyPattern     = "c"
-	FloatPattern        = "f"
-	IntPattern          = "i"
+	ShortDatePattern     = "d"
+	LongDatePattern      = "D"
+	DateMonthPattern     = "M"
+	DateTimePattern      = "g"
+	DateMonthTimePattern = "H"
+	LongDateTimePattern  = "G"
+	ShortTimePattern     = "t" // HH:mm
+	LongTimePattern      = "T" // HH:mm:ss
+	CurrencyPattern      = "c"
+	FloatPattern         = "f"
+	IntPattern           = "i"
 )
 
 type datePart struct {

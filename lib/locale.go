@@ -45,9 +45,11 @@ declare namespace locale {
 		thousandSeparator: string
 		currencySymbol: string
 		currencyPattern: string
+		dateMonthTimePattern: string
 		dateTimePattern: string
 		shortDatePattern: string
 		longDatePattern: string
+		dateMonthPattern: string
 		shortTimePattern: string
 		firstDayOfWeek: number
 		clone(): Culture
@@ -427,6 +429,10 @@ func (c *culture) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 		return dune.NewString(c.culture.ShortDatePattern), nil
 	case "longDatePattern":
 		return dune.NewString(c.culture.LongDatePattern), nil
+	case "dateMonthPattern":
+		return dune.NewString(c.culture.DateMonthPattern), nil
+	case "dateMonthTimePattern":
+		return dune.NewString(c.culture.DateMonthTimePattern), nil
 	case "dateTimePattern":
 		return dune.NewString(c.culture.DateTimePattern), nil
 	case "shortTimePattern":
@@ -519,6 +525,22 @@ func (c *culture) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 			return fmt.Errorf("the object is readonly")
 		}
 		c.culture.LongDatePattern = v.String()
+	case "dateMonthPattern":
+		if v.Type != dune.String {
+			return ErrInvalidType
+		}
+		if c.readonly {
+			return fmt.Errorf("the object is readonly")
+		}
+		c.culture.DateMonthPattern = v.String()
+	case "dateMonthTimePattern":
+		if v.Type != dune.String {
+			return ErrInvalidType
+		}
+		if c.readonly {
+			return fmt.Errorf("the object is readonly")
+		}
+		c.culture.DateMonthTimePattern = v.String()
 	case "dateTimePattern":
 		if v.Type != dune.String {
 			return ErrInvalidType
