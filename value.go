@@ -186,7 +186,7 @@ func NewNativeFunction(v int) Value {
 }
 
 func (v Value) MarshalJSON() ([]byte, error) {
-	return json.Marshal(v.Export(0))
+	return json.Marshal(v.ExportMarshal(0))
 }
 
 func (v Value) TypeName() string {
@@ -453,6 +453,16 @@ func (v Value) Size() int {
 	// }
 }
 
+func (v Value) ExportMarshal(recursionLevel int) interface{} {
+	if v.Type == Object {
+		if m, ok := v.ToObject().(json.Marshaler); ok {
+			return m
+		}
+	}
+
+	return v.Export(recursionLevel)
+}
+
 const MAX_EXPORT_RECURSION = 200
 
 func (v Value) Export(recursionLevel int) interface{} {
@@ -492,7 +502,7 @@ func (v Value) Export(recursionLevel int) interface{} {
 		o := om.Map
 		m := make(map[string]interface{}, len(o))
 		for k, v := range o {
-			m[k.String()] = v.Export(recursionLevel)
+			m[k.String()] = v.ExportMarshal(recursionLevel)
 		}
 		om.RUnlock()
 		return m

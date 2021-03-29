@@ -41,15 +41,15 @@ var JSON = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected 1 or 2 arguments, got %d", len(args))
 			}
 
-			v := args[0].Export(0)
+			obj := args[0].ExportMarshal(0)
 
 			var b []byte
 			var err error
 
 			if format {
-				b, err = json.MarshalIndent(v, "", "    ")
+				b, err = json.MarshalIndent(obj, "", "    ")
 			} else {
-				b, err = json.Marshal(v)
+				b, err = json.Marshal(obj)
 			}
 
 			if err != nil {

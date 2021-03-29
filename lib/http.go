@@ -743,7 +743,7 @@ func serialize(v dune.Value) (string, error) {
 		return v.String(), nil
 	}
 
-	b, err := json.Marshal(v.Export(0))
+	b, err := json.Marshal(v.ExportMarshal(0))
 	if err != nil {
 		return "", err
 	}
@@ -2618,7 +2618,7 @@ func (r *responseWriter) doWriteJSON(status int, args []dune.Value, vm *dune.VM)
 		return dune.NullValue, fmt.Errorf("expected 1 argument, got %d", l)
 	}
 
-	v := args[0].Export(0)
+	v := args[0].ExportMarshal(0)
 
 	var skipCacheHeader bool
 	if l > 1 {

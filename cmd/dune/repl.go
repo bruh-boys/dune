@@ -49,7 +49,7 @@ func startREPL() error {
 				case dune.String, dune.Int, dune.Float, dune.Bool:
 					text = v.String()
 				default:
-					b, err := json.MarshalIndent(v.Export(0), "", "    ")
+					b, err := json.MarshalIndent(v.ExportMarshal(0), "", "    ")
 					if err != nil {
 						return dune.NullValue, err
 					}

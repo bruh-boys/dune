@@ -193,7 +193,7 @@ func (c *websocketConn) writeJSON(args []dune.Value, vm *dune.VM) (dune.Value, e
 		return dune.NullValue, fmt.Errorf("expecting 1 parameter, got %d", len(args))
 	}
 
-	v := args[0].Export(0)
+	v := args[0].ExportMarshal(0)
 
 	b, err := json.Marshal(v)
 
