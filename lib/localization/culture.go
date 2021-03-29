@@ -166,6 +166,10 @@ func (c *Culture) formatDate(d time.Time, format string, translator *Translator,
 			}
 			parts = append(parts, datePart{value: string(c)})
 
+		case 'w':
+			parts = append(parts, datePart{token: "w"})
+			continue
+
 		case 'h':
 			if i < l && format[i+1] == 'h' {
 				parts = append(parts, datePart{token: "hh"})
@@ -259,6 +263,9 @@ func (c *Culture) formatDate(d time.Time, format string, translator *Translator,
 
 		case "yyyy":
 			result = append(result, strconv.Itoa(d.Year()))
+
+		case "w":
+			result = append(result, strconv.Itoa(int(d.Weekday())))
 
 		case "h":
 			hours := d.Hour()
