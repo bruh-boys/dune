@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"bytes"
 	"fmt"
 	"math"
 	"strconv"
@@ -925,6 +926,14 @@ func (t TimeObj) Size() int {
 
 func (t TimeObj) String() string {
 	return time.Time(t).Format(time.RFC3339)
+}
+
+func (t TimeObj) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	buf.WriteRune('"')
+	buf.WriteString(time.Time(t).Format(time.RFC3339))
+	buf.WriteRune('"')
+	return buf.Bytes(), nil
 }
 
 func (t TimeObj) Export(recursionLevel int) interface{} {
