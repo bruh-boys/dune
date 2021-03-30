@@ -1193,6 +1193,7 @@ func (vm *VM) getFromObject(instr *Instruction, errIfNullOrUndefined bool) (bool
 				return false, vm.NewError("Cant read property %s of %s", cv.String(), bv.String())
 			}
 		} else {
+			vm.set(instr.A, bv)
 			return false, nil
 		}
 	}
