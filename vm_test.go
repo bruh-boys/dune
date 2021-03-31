@@ -1713,6 +1713,51 @@ func TestOptionalChainLoop4(t *testing.T) {
 	`)
 }
 
+func TestOptionalChainLoop5(t *testing.T) {
+	// check that the old value is overwriten with null
+	assertValue(t, nil, `
+		let arr = [
+			{ b: [1] },
+			{ b: null },
+		]
+		let a = 3
+		for (let v of arr) {
+			a = v.b?.[0]
+		}
+		return a
+	`)
+}
+
+func TestOptionalChainLoop6(t *testing.T) {
+	// check that the old value is overwriten with null
+	assertValue(t, nil, `
+		let arr = [
+			{ b: [[1]] },
+			{ b: null },
+		]
+		let a = 3
+		for (let v of arr) {
+			a = v.b?.[0][0]
+		}
+		return a
+	`)
+}
+
+func TestOptionalChainLoop7(t *testing.T) {
+	// check that the old value is overwriten with null
+	assertValue(t, nil, `
+		let arr = [
+			{ b: [[1]] },
+			{ b: [null] },
+		]
+		let a = 3
+		for (let v of arr) {
+			a = v.b?.[0]?.[0]
+		}
+		return a
+	`)
+}
+
 // Tests: Enum
 func TestEnum1(t *testing.T) {
 	assertValue(t, 4, `
