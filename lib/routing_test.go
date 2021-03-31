@@ -3,8 +3,6 @@ package lib
 import (
 	"fmt"
 	"testing"
-
-	"github.com/dunelang/dune"
 )
 
 func TestRoute(t *testing.T) {
@@ -194,15 +192,9 @@ func TestRoute6(t *testing.T) {
 	router := newRouter()
 
 	r := NewRoute("*")
-	values := make(map[string]dune.Value)
-	values["url"] = dune.NewString("r1")
-	r.Value = values
 	router.Add(r)
 
 	r = NewRoute(":bar")
-	values = make(map[string]dune.Value)
-	values["url"] = dune.NewString("r2")
-	r.Value = values
 	router.Add(r)
 
 	m, ok := router.Match("/foo")

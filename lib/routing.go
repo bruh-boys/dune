@@ -14,30 +14,29 @@ func init() {
 	dune.RegisterLib(Router, `
 	
 	declare namespace routing {
-		export function newRouter(): Router
-	
-		export interface Router {
-			reset(): void
-			add(r: Route): void
-			match(url: string): RouteMatch | null
-			print(): void
-		}
-	
-		export interface RouteMatch {
-			route: Route
-			data: string[]
-			int(name: string): number
-			string(name: string): string
-		}
-	
 		interface Any {
 			[prop: string]: any
 		}
 
 		export interface Route extends Any {
 			url: string
-			params?: string[]
 		}
+
+		export function newRouter(): Router
+	
+		export interface Router {
+			reset(): void
+			add(route: Route): void
+			match(url: string): RouteMatch | null
+			print(): void
+		}
+	
+		export interface RouteMatch {
+			route: any
+			values: any
+			int(name: string): number
+			string(name: string): string
+		}	
 	}
 
 	`)
@@ -100,47 +99,24 @@ func (r httpRouter) reset(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 }
 
 func (r httpRouter) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
-	if len(args) != 1 {
-		return dune.NullValue, fmt.Errorf("expected 1 argument, got %d", len(args))
+	if err := ValidateArgs(args, dune.Map); err != nil {
+		return dune.NullValue, err
 	}
-
-	var route *httpRoute
 
 	v := args[0]
 
-	switch v.Type {
+	mo := v.ToMap()
+	mo.RLock()
+	defer mo.RUnlock()
 
-	case dune.Object:
-		o, ok := v.ToObject().(*httpRoute)
-		if !ok {
-			return dune.NullValue, fmt.Errorf("invalid type for a route: %v", v.TypeName())
-		}
-		route = o
+	url, ok := mo.Map[dune.NewString("url")]
+	if !ok {
+		return dune.NullValue, fmt.Errorf("invalid route. Must contain a url property")
+	}
 
-	case dune.Map:
-		values := make(map[string]dune.Value)
-		var url string
-
-		mo := v.ToMap()
-		mo.RLock()
-		defer mo.RUnlock()
-
-		for k, mv := range mo.Map {
-			s := k.String()
-			if s == "url" {
-				url = mv.String()
-			} else {
-				values[s] = mv
-			}
-		}
-
-		route = &httpRoute{
-			URL:   fixRouteURL(url),
-			Value: values,
-		}
-
-	default:
-		return dune.NullValue, fmt.Errorf("invalid type for route")
+	route := &httpRoute{
+		URL:   fixRouteURL(url.String()),
+		Value: v,
 	}
 
 	r.Add(route)
@@ -211,7 +187,7 @@ func (r httpRouter) Add(t *httpRoute) {
 	node.route = t
 }
 
-func (r httpRouter) Match(url string) (routeMatch, bool) {
+func (r httpRouter) Match(url string) (*routeMatch, bool) {
 	url = extensionAsSegment(url)
 	segments := Split(url, "/")
 
@@ -282,28 +258,28 @@ func (r httpRouter) Match(url string) (routeMatch, bool) {
 
 	if node.route == nil {
 		if n, ok := node.child["*"]; ok {
-			return routeMatch{Route: n.route, Params: getParams(segments, n.route.URL)}, true
+			return &routeMatch{Route: n.route, Params: getParams(segments, n.route.URL)}, true
 		}
 
 		if lastWildcardNode != nil {
-			return routeMatch{Route: lastWildcardNode.route, Params: getParams(segments, lastWildcardNode.route.URL)}, true
+			return &routeMatch{Route: lastWildcardNode.route, Params: getParams(segments, lastWildcardNode.route.URL)}, true
 		}
-		return routeMatch{}, false
+		return &routeMatch{}, false
 	}
 
 	if lastNotMatched {
 		if lastWildcardNode != nil {
-			return routeMatch{Route: lastWildcardNode.route, Params: getParams(segments, lastWildcardNode.route.URL)}, true
+			return &routeMatch{Route: lastWildcardNode.route, Params: getParams(segments, lastWildcardNode.route.URL)}, true
 		}
 
 		if node.route.URL == "/" {
-			return routeMatch{Route: node.route}, true
+			return &routeMatch{Route: node.route}, true
 		}
 
-		return routeMatch{}, false
+		return &routeMatch{}, false
 	}
 
-	return routeMatch{Route: node.route, Params: getParams(segments, node.route.URL)}, true
+	return &routeMatch{Route: node.route, Params: getParams(segments, node.route.URL)}, true
 }
 
 func getParams(segments []string, route string) []string {
@@ -350,31 +326,38 @@ func (r *routeNode) print() {
 type routeMatch struct {
 	Route  *httpRoute
 	Params []string
+	values dune.Value
 }
 
-func (r routeMatch) Type() string {
+func (r *routeMatch) Type() string {
 	return "routing.RouteMatch"
 }
 
-func (r routeMatch) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (r *routeMatch) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "route":
 		if r.Route == nil {
 			return dune.NullValue, nil
 		}
-		return dune.NewObject(r.Route), nil
-	case "data":
-		p := make([]dune.Value, len(r.Params))
-		for i, v := range r.Params {
-			p[i] = dune.NewString(v)
+		return r.Route.Value, nil
+	case "values":
+		if r.values != dune.NullValue {
+			return r.values, nil
 		}
-		return dune.NewArrayValues(p), nil
+		m := make(map[dune.Value]dune.Value, len(r.Params))
+		for i, v := range r.Params {
+			key := r.Route.Params[i]
+			m[dune.NewString(key)] = dune.NewString(v)
+		}
+		v := dune.NewMapValues(m)
+		r.values = v
+		return v, nil
 	}
 
 	return dune.UndefinedValue, nil
 }
 
-func (r routeMatch) GetMethod(name string) dune.NativeMethod {
+func (r *routeMatch) GetMethod(name string) dune.NativeMethod {
 	switch name {
 	case "string":
 		return r.string
@@ -384,7 +367,7 @@ func (r routeMatch) GetMethod(name string) dune.NativeMethod {
 	return nil
 }
 
-func (r routeMatch) int(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func (r *routeMatch) int(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
@@ -407,7 +390,7 @@ func (r routeMatch) int(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	return dune.NullValue, nil
 }
 
-func (r routeMatch) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func (r *routeMatch) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
@@ -420,7 +403,7 @@ func (r routeMatch) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	return dune.NullValue, nil
 }
 
-func (m routeMatch) GetParam(name string) string {
+func (m *routeMatch) GetParam(name string) string {
 	for i, k := range m.Route.Params {
 		if k == name {
 			return m.Params[i]
@@ -433,55 +416,9 @@ type httpRoute struct {
 	sync.RWMutex
 	URL    string
 	Params []string
-	Value  map[string]dune.Value
+	Value  dune.Value
 }
 
 func NewRoute(url string) *httpRoute {
 	return &httpRoute{URL: fixRouteURL(url)}
-}
-
-func (r *httpRoute) Type() string {
-	return "routing.Route"
-}
-
-func (r *httpRoute) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
-	switch name {
-
-	case "url":
-		return dune.NewString(r.URL), nil
-
-	case "params":
-		params := make([]dune.Value, len(r.Params))
-		for i, p := range r.Params {
-			params[i] = dune.NewString(p)
-		}
-		return dune.NewArrayValues(params), nil
-
-	default:
-		r.RLock()
-		v, ok := r.Value[name]
-		r.RUnlock()
-		if !ok {
-			return dune.UndefinedValue, nil
-		}
-		return v, nil
-	}
-}
-
-func (r *httpRoute) SetProperty(name string, v dune.Value) error {
-	switch name {
-
-	case "url":
-		r.URL = v.String()
-		return nil
-
-	case "params":
-		return ErrReadOnly
-
-	default:
-		r.Lock()
-		r.Value[name] = v
-		r.Unlock()
-		return nil
-	}
 }
