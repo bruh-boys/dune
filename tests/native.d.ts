@@ -1289,7 +1289,7 @@ declare namespace runtime {
     export function resources(name: string): string[]
     export function resource(name: string): byte[]
 
-    export function getStackTrace(): string
+    export function stackTrace(): string
     export function newVM(p: Program, globals?: any[]): VirtualMachine
 
     export interface Program {
@@ -1340,7 +1340,7 @@ declare namespace runtime {
         runStaticFunc(index: number, ...args: any[]): any
         getValue(name: string): any
         getGlobals(): any[]
-        getStackTrace(): string
+        stackTrace(): string
         setFileSystem(v: io.FileSystem): void
         clone(): VirtualMachine
         resetSteps(): void

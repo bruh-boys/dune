@@ -550,7 +550,7 @@ func (vm *VM) getProgramPrototype(name string, this Value) (*Method, bool) {
 }
 
 func (vm *VM) Stacktrace() []string {
-	st := vm.getStackTrace()
+	st := vm.stackTrace()
 	s := make([]string, len(st))
 	for i, l := range st {
 		s[i] = l.String()
@@ -558,7 +558,7 @@ func (vm *VM) Stacktrace() []string {
 	return s
 }
 
-func (vm *VM) getStackTrace() []TraceLine {
+func (vm *VM) stackTrace() []TraceLine {
 	var trace []TraceLine
 
 	p := vm.Program
@@ -606,7 +606,7 @@ func (vm *VM) WrapError(err error) *Error {
 			t.IsRethrow = false
 			return t
 		}
-		t.stacktrace = append(t.stacktrace, vm.getStackTrace()...)
+		t.stacktrace = append(t.stacktrace, vm.stackTrace()...)
 		return t
 	case ErrorMessenger:
 		msg = t.Message()
@@ -618,7 +618,7 @@ func (vm *VM) WrapError(err error) *Error {
 	return &Error{
 		message:     msg,
 		instruction: vm.instruction(),
-		stacktrace:  vm.getStackTrace(),
+		stacktrace:  vm.stackTrace(),
 		goError:     goError,
 	}
 }
@@ -630,7 +630,7 @@ func (vm *VM) NewPublicError(format string, a ...interface{}) *Error {
 }
 
 func (vm *VM) NewError(format string, a ...interface{}) *Error {
-	st := vm.getStackTrace()
+	st := vm.stackTrace()
 	return &Error{
 		message:     fmt.Sprintf(format, a...),
 		instruction: vm.instruction(),

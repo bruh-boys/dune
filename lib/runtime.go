@@ -68,7 +68,7 @@ declare namespace runtime {
     export function resources(name: string): string[]
     export function resource(name: string): byte[]
 
-    export function getStackTrace(): string
+    export function stackTrace(): string
     export function newVM(p: Program, globals?: any[]): VirtualMachine
 
     export interface Program {
@@ -128,7 +128,7 @@ declare namespace runtime {
 		runFunc(index: number, ...args: any[]): any
 		getValue(name: string): any
 		getGlobals(): any[]
-		getStackTrace(): string
+		stackTrace(): string
 		clone(): VirtualMachine
 		resetSteps(): void
 	}
@@ -424,7 +424,7 @@ var Runtime = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "runtime.getStackTrace",
+		Name:      "runtime.stackTrace",
 		Arguments: 0,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			s := strings.Join(vm.Stacktrace(), "\n")
@@ -1065,8 +1065,8 @@ func (m *libVM) GetMethod(name string) dune.NativeMethod {
 		return m.getValue
 	case "getGlobals":
 		return m.getGlobals
-	case "getStackTrace":
-		return m.getStackTrace
+	case "stackTrace":
+		return m.stackTrace
 	case "resetSteps":
 		return m.resetSteps
 	}
@@ -1096,7 +1096,7 @@ func (m *libVM) resetSteps(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	return dune.NullValue, nil
 }
 
-func (m *libVM) getStackTrace(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func (m *libVM) stackTrace(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if !vm.HasPermission("trusted") {
 		return dune.NullValue, ErrUnauthorized
 	}
