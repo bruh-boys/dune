@@ -1651,7 +1651,7 @@ func TestOptionalChaining14(t *testing.T) {
 	`)
 }
 
-func TestOptionalChainingLoop(t *testing.T) {
+func TestOptionalChainLoop(t *testing.T) {
 	// check that the old value is overwriten with null
 	assertValue(t, nil, `
 		let arr = [
@@ -1662,6 +1662,52 @@ func TestOptionalChainingLoop(t *testing.T) {
 		let a
 		for (let v of arr) {
 			a = v.a?.b
+		}
+		return a
+	`)
+}
+
+func TestOptionalChainLoop2(t *testing.T) {
+	// check that the old value is overwriten with null
+	assertValue(t, nil, `
+	let arr = [
+		{ a: { b: {} } },
+		{ a: null },
+	]
+
+	let a
+	for (let v of arr) {
+		a = v.a?.b?.c?.d?.e
+	}
+	return a
+	`)
+}
+
+func TestOptionalChainLoop3(t *testing.T) {
+	// check that the old value is overwriten with null
+	assertValue(t, nil, `
+		let arr = [
+			{ b: "c" },
+			{ b: null },
+		]
+		let a = 3
+		for (let v of arr) {
+			a = v.b?.trim()
+		}
+		return a
+	`)
+}
+
+func TestOptionalChainLoop4(t *testing.T) {
+	// check that the old value is overwriten with null
+	assertValue(t, nil, `
+		let arr = [
+			{ b: "c" },
+			{ b: null },
+		]
+		let a = 3
+		for (let v of arr) {
+			a = v.b?.trim().trim()
 		}
 		return a
 	`)

@@ -106,7 +106,9 @@ type VM struct {
 	initialized bool
 	callStack   []*stackFrame
 	tryCatchs   []*tryCatch
-	reg0        int32
+	reg0        *Address
+	reg1        *Address
+	reg2        *Address
 	frameCache  []*stackFrame
 }
 
@@ -979,7 +981,7 @@ func (vm *VM) call(a, b *Address, args []Value, optional bool) int {
 			}
 		default:
 			if optional {
-				vm.incPC(int(vm.reg0))
+				vm.closeOptChain()
 				return vm_continue
 			}
 			if vm.handle((vm.NewError(fmt.Sprintf("Invalid value. Expected a function, got %v", value)))) {
@@ -991,6 +993,22 @@ func (vm *VM) call(a, b *Address, args []Value, optional bool) int {
 	}
 
 	return vm.callProgramFunc(f, b, args, isMethod, this, closures)
+}
+
+func (vm *VM) closeOptChain() {
+	vm.incPC(int(vm.reg0.Value))
+
+	if vm.reg1 != nil && vm.reg1.Kind != AddrVoid {
+		var v Value
+		if vm.reg2 != nil && vm.reg2.Kind != AddrVoid {
+			v = vm.get(vm.reg2)
+		}
+		vm.set(vm.reg1, v)
+	}
+
+	vm.reg0 = nil
+	vm.reg1 = nil
+	vm.reg2 = nil
 }
 
 func (vm *VM) callProgramFunc(f *Function, retAddr *Address, args []Value, isMethod bool, this Value, closures []*closureRegister) int {
@@ -1193,7 +1211,9 @@ func (vm *VM) getFromObject(instr *Instruction, errIfNullOrUndefined bool) (bool
 				return false, vm.NewError("Cant read property %s of %s", cv.String(), bv.String())
 			}
 		} else {
-			vm.set(instr.A, bv)
+			// set the address of the null or undefined value to
+			// set the optchain result
+			vm.reg2 = instr.B
 			return false, nil
 		}
 	}

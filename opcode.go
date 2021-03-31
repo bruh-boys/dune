@@ -28,7 +28,7 @@ const (
 	op_unm                                // A := -RK(B)
 	op_not                                // A := !RK(B)
 	op_bitwiseNot                         // A := ~B  bitwise not
-	op_setRegister                        // Set register: A register number, B register value
+	op_setRegister                        // Set register: A register 0, B register 1, C register 2
 	op_newClass                           // create a new instance of a class: A class type, B retAddress, C argsAddress
 	op_newClassSingleArg                  // create a new instance of a class with a single arg: A class type, B retAddress, C argsAddress
 	op_newArray                           // create a new array:  A array, B size
@@ -901,21 +901,8 @@ func exec_exponentiate(instr *Instruction, vm *VM) int {
 }
 
 func exec_setRegister(instr *Instruction, vm *VM) int {
-	if instr.A.Kind != AddrData {
-		panic(fmt.Sprintf("Compiler error: invalid register number kind: %v", instr.A))
-	}
-
-	if instr.B.Kind != AddrData {
-		panic(fmt.Sprintf("Compiler error: invalid register value kind: %v", instr.B))
-	}
-
-	switch instr.A.Value {
-	case 0:
-		vm.reg0 = instr.B.Value
-	default:
-		panic(fmt.Sprintf("Compiler error: invalid register number: %v", instr.A))
-	}
-
+	vm.reg0 = instr.A
+	vm.reg1 = instr.B
 	return vm_next
 }
 
@@ -1314,7 +1301,7 @@ func exec_getOptChain(instr *Instruction, vm *VM) int {
 	}
 
 	if !ok {
-		vm.incPC(int(vm.reg0))
+		vm.closeOptChain()
 		return vm_continue
 	}
 

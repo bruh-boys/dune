@@ -67,7 +67,7 @@ func NewCompiler() *compiler {
 }
 
 type selector struct {
-	optChainings []*Instruction
+	optChains []*Instruction
 }
 
 type compiler struct {
@@ -1458,8 +1458,8 @@ func (c *compiler) compileMapDeclExpr(t *ast.MapDeclExpr, dest *Address) (*Addre
 
 func (c *compiler) compileIndexExpr(t *ast.IndexExpr, dest *Address) (*Address, error) {
 	if t.First {
-		c.openOptChainingScope()
-		defer c.closeOptChainingScope()
+		c.openOptChainScope()
+		defer c.closeOptChainScope(dest)
 	}
 
 	left, err := c.compileExpr(t.Left, Void)
@@ -1478,7 +1478,7 @@ func (c *compiler) compileIndexExpr(t *ast.IndexExpr, dest *Address) (*Address, 
 
 	// move the value from the array to the dest register
 	if t.Optional {
-		c.addOptChaining()
+		c.addOptChain()
 		c.emit(op_getOptChain, dest, left, index, t.Left.Position())
 	} else {
 		c.emit(op_getIndexOrKey, dest, left, index, t.Left.Position())
@@ -1914,8 +1914,8 @@ func (c *compiler) compileSelectorExpr(t *ast.SelectorExpr, dest *Address) (*Add
 	}
 
 	if t.First {
-		c.openOptChainingScope()
-		defer c.closeOptChainingScope()
+		c.openOptChainScope()
+		defer c.closeOptChainScope(dest)
 	}
 
 	if x == nil {
@@ -1936,7 +1936,7 @@ func (c *compiler) compileSelectorExpr(t *ast.SelectorExpr, dest *Address) (*Add
 
 	// move the value from the map to the dest register
 	if t.Optional {
-		c.addOptChaining()
+		c.addOptChain()
 		c.emit(op_getOptChain, dest, x, key, t.X.Position())
 	} else {
 		c.emit(op_getIndexOrKey, dest, x, key, t.X.Position())
@@ -1945,26 +1945,37 @@ func (c *compiler) compileSelectorExpr(t *ast.SelectorExpr, dest *Address) (*Add
 	return dest, nil
 }
 
-func (c *compiler) openOptChainingScope() {
+func (c *compiler) isOpenOptChainScope() bool {
+	return len(c.selectors) > 0
+}
+
+func (c *compiler) openOptChainScope() {
 	c.selectors = append(c.selectors, &selector{})
 }
 
-func (c *compiler) addOptChaining() {
+func (c *compiler) addOptChain() {
 	sel := c.selectors[len(c.selectors)-1]
-	// +1 to skip the str instruction
+
+	// Save the current PC to calculate how many steps to jump when the scope is closed
+	// +1 to skip the setRegister instruction
 	pc := c.pc() + 1
-	i := c.emit(op_setRegister, NewAddress(AddrData, 0), NewAddress(AddrData, pc), Void, ast.Position{})
-	sel.optChainings = append(sel.optChainings, i)
+
+	i := c.emit(op_setRegister, NewAddress(AddrData, pc), Void, Void, ast.Position{})
+
+	sel.optChains = append(sel.optChains, i)
 }
 
-func (c *compiler) closeOptChainingScope() {
+func (c *compiler) closeOptChainScope(dest *Address) {
 	ln := len(c.selectors) - 1
 	sel := c.selectors[ln]
 	pc := c.pc()
-	for _, instr := range sel.optChainings {
-		offset := pc - int(instr.B.Value)
-		instr.B = NewAddress(AddrData, offset)
+
+	for _, instr := range sel.optChains {
+		offset := pc - int(instr.A.Value)
+		instr.A = NewAddress(AddrData, offset)
+		instr.B = dest
 	}
+
 	c.selectors = c.selectors[:ln]
 }
 
@@ -2062,8 +2073,8 @@ func (c *compiler) compileTailCallStmt(t *ast.CallExpr) error {
 
 func (c *compiler) compileCallExpr(t *ast.CallExpr, dest *Address, retVal bool) (*Address, error) {
 	if t.First {
-		c.openOptChainingScope()
-		defer c.closeOptChainingScope()
+		c.openOptChainScope()
+		defer c.closeOptChainScope(dest)
 	}
 
 	// if it is a method m is the constant of the method name
@@ -2084,7 +2095,7 @@ func (c *compiler) compileCallExpr(t *ast.CallExpr, dest *Address, retVal bool) 
 
 		// call: R(A) funcIndex, R(B) retAddress, R(C) argsAddress
 		if t.Optional {
-			c.addOptChaining()
+			c.addOptChain()
 			c.emit(op_calOptChainSingleArg, i, dest, exp, t.Position())
 		} else {
 			c.emit(op_callSingleArg, i, dest, exp, t.Position())
@@ -2099,7 +2110,7 @@ func (c *compiler) compileCallExpr(t *ast.CallExpr, dest *Address, retVal bool) 
 
 	// call: R(A) funcIndex, R(B) retAddress, R(C) argsAddress
 	if t.Optional {
-		c.addOptChaining()
+		c.addOptChain()
 		c.emit(op_calOptChain, i, dest, args, t.Position())
 	} else {
 		c.emit(op_call, i, dest, args, t.Position())
