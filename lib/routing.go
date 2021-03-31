@@ -37,8 +37,6 @@ func init() {
 		export interface Route extends Any {
 			url: string
 			params?: string[]
-			filter?: Function
-			handler: Function
 		}
 	}
 
