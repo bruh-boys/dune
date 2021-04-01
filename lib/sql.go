@@ -1352,9 +1352,9 @@ func getExecQuery(args []dune.Value, vm *dune.VM) (sqx.Query, error) {
 			q = t.query
 		case alterDropQuery:
 			q = t.query
-		case *dropTableQuery:
+		case createDatabaseQuery:
 			q = t.query
-		case *dropDatabaseQuery:
+		case dropDatabaseQuery:
 			q = t.query
 		default:
 			return nil, fmt.Errorf("invalid query type: %v", t)
