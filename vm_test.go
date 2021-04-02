@@ -171,6 +171,12 @@ func TestExpression1(t *testing.T) {
 		{"return 50 >> 2", int64(12)},
 		{"return 2 << 5", int64(64)},
 		{"return 0010 << 1", int64(16)},
+
+		{"return (a => 2)()", int64(2)},
+		{"return (a => a)(2)", int64(2)},
+		{"return (a => a + 1)(2)", int64(3)},
+		{"return (a => () => a + 1)(2)()", int64(3)},
+
 		{`
 			let a = 1;
 			a++;

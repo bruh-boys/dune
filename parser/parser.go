@@ -971,7 +971,7 @@ func (p *parser) parseLambda() (*ast.FuncDeclExpr, error) {
 	}
 
 	// The body is an expression: "(t) => t * 2"
-	expr, err := p.parseExpression()
+	expr, err := p.parseValueExpression()
 	if err != nil {
 		return nil, err
 	}
@@ -3328,13 +3328,13 @@ func (p *parser) parseFactor() (ast.Expr, error) {
 
 	case ast.LPAREN:
 		p.next()
-		exp, err := p.parseExpression()
+		exp, err := p.parseValueExpression()
 		if err != nil {
 			return nil, err
 		}
 
 		if t := p.next(); t.Type != ast.RPAREN {
-			return nil, NewError(t.Pos, "Expecting )")
+			return nil, NewError(t.Pos, "Expecting ), got %s", t.Str)
 		}
 
 		// check if there is an expression after the parenthesis like: (foo).bar
@@ -3358,7 +3358,7 @@ func (p *parser) parseFactor() (ast.Expr, error) {
 		return p.parseTypeof()
 
 	default:
-		return nil, NewError(t.Pos, "Expecting expression")
+		return nil, NewError(t.Pos, "Expecting expression, got %s", t.Str)
 	}
 }
 
