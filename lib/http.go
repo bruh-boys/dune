@@ -497,8 +497,10 @@ var HTTP = []dune.NativeFunction{
 				switch v.Type {
 				case dune.Null, dune.Undefined:
 				case dune.String:
-					if method != "POST" {
-						return dune.NullValue, fmt.Errorf("can only pass a data string with POST")
+					switch method {
+					case "POST", "PUT", "PATCH":
+					default:
+						return dune.NullValue, fmt.Errorf("can only pass a data string with POST, PUT or PATCH")
 					}
 					reader = strings.NewReader(v.String())
 					contentType = "application/json; charset=UTF-8"
@@ -514,7 +516,7 @@ var HTTP = []dune.NativeFunction{
 							}
 							vs, err := serialize(v)
 							if err != nil {
-								return dune.NullValue, fmt.Errorf("error serializign parameter: %v", v.Type)
+								return dune.NullValue, fmt.Errorf("error serializing parameter: %v", v.Type)
 							}
 							form.Add(k.String(), vs)
 						}
@@ -531,22 +533,24 @@ var HTTP = []dune.NativeFunction{
 			if err != nil {
 				return dune.NullValue, err
 			}
-
-			if method == "POST" {
+			switch method {
+			case "POST", "PUT", "PATCH":
 				r.Header.Add("Content-Type", contentType)
-			} else if method == "GET" && queryMap != nil {
-				q := r.URL.Query()
-				for k, v := range queryMap {
-					if v.IsNilOrEmpty() {
-						continue
+			case "GET":
+				if queryMap != nil {
+					q := r.URL.Query()
+					for k, v := range queryMap {
+						if v.IsNilOrEmpty() {
+							continue
+						}
+						vs, err := serialize(v)
+						if err != nil {
+							return dune.NullValue, fmt.Errorf("error serializing parameter: %v", v.Type)
+						}
+						q.Add(k.String(), vs)
 					}
-					vs, err := serialize(v)
-					if err != nil {
-						return dune.NullValue, fmt.Errorf("error serializign parameter: %v", v.Type)
-					}
-					q.Add(k.String(), vs)
+					r.URL.RawQuery = q.Encode()
 				}
-				r.URL.RawQuery = q.Encode()
 			}
 
 			return dune.NewObject(&request{request: r}), nil
