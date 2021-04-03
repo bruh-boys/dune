@@ -21,7 +21,7 @@ func init() {
 		declare namespace errors {
 			export function newError(msg: string): Error
 			export function wrap(msg: string, inner: Error): Error
-			export function public(code: number, msg: string, inner?: Error | string): Error
+			export function public(code: number, msg: string, ...args: any[]): Error
 		
 			export function is(err: Error, msg: string): Error
 			export function rethrow(err: Error): void
@@ -98,12 +98,50 @@ var Errors = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected at least 2 parameters, got %d", ln)
 			}
 
-			cv := args[0]
-			if cv.Type != dune.Int {
-				return dune.NullValue, fmt.Errorf("expected code to be int, got %v", cv.TypeName())
+			code := args[0]
+			if code.Type != dune.Int {
+				return dune.NullValue, fmt.Errorf("expected code to be int, got %v", code.TypeName())
 			}
 
-			return wrap(int(cv.ToInt()), true, args[1:], vm)
+			msg := args[1]
+			if msg.Type != dune.String {
+				return dune.NullValue, fmt.Errorf("expected message to be string, got %v", msg.TypeName())
+			}
+
+			values := make([]interface{}, ln-2)
+			for i, a := range args[2:] {
+				v := a.Export(0)
+				if t, ok := v.(*dune.Error); ok {
+					// wrap errors showing only the message
+					v = t.Message()
+				}
+				values[i] = v
+			}
+
+			key := Translate(msg.String(), vm)
+
+			tokens, s := FormatTemplateTokens(key, values...)
+
+			err := dune.NewPublicError(s)
+			err.Code = int(code.ToInt())
+
+			tkIndex := 0
+			for _, tk := range tokens {
+				if tk.Type == Parameter {
+					if tk.Value == "wrap" {
+						if tkIndex < ln {
+							// +1 because the first arg is the format string
+							e, ok := args[tkIndex+1].ToObjectOrNil().(*dune.Error)
+							if ok {
+								err.Wrapped = append(err.Wrapped, e)
+							}
+						}
+					}
+					tkIndex++
+				}
+			}
+
+			return dune.NewObject(err), nil
 		},
 	},
 }
