@@ -14,7 +14,7 @@ import (
 var DefaultCulture *Culture
 
 func init() {
-	c := NewCulture("en-US")
+	c := NewCulture("en")
 	c.DecimalSeparator = '.'
 	c.ThousandSeparator = ','
 	c.NumberOfDecimals = 2
