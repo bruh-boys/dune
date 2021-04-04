@@ -10,65 +10,58 @@ import (
 	"strings"
 )
 
-func NewPublicError(msg string) *Error {
-	return &Error{message: msg, public: true}
+func NewTypeError(errorType, msg string, args ...interface{}) *VMError {
+	if len(args) > 0 {
+		msg = fmt.Sprintf(msg, args...)
+	}
+	return &VMError{ErrorType: errorType, Message: msg}
 }
 
 func Wrap(msg string, err error) error {
-	e, ok := err.(*Error)
+	e, ok := err.(*VMError)
 	if !ok {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
-	w := &Error{message: msg, public: e.public}
-	w.Wrap(e)
+	w := &VMError{
+		Message: msg,
+		Wrapped: e,
+	}
+
 	return w
 }
 
-type Error struct {
-	pc          int
-	message     string
-	public      bool
-	instruction *Instruction
-	stacktrace  []TraceLine
-	goError     error
-	Wrapped     []*Error
+type VMError struct {
+	Message     string
+	ErrorType   string
+	TraceLines  []TraceLine
+	Wrapped     *VMError
 	IsRethrow   bool
-	Code        int
+	pc          int
+	instruction *Instruction
+	goError     error
 }
 
-func (e *Error) Type() string {
+func (e *VMError) Type() string {
 	return "Error"
 }
 
-func (e *Error) Public() bool {
-	return e.public
-}
-
-func (e *Error) String() string {
+func (e *VMError) String() string {
 	return e.Error()
 }
 
-func (e *Error) Message() string {
-	return e.message
+func (e *VMError) ErrorMessage() string {
+	return e.Message
 }
 
-func (e *Error) Wrap(inner *Error) {
-	if e.public && inner.public {
-		e.message += ": " + inner.message
-	}
-
-	e.Wrapped = append(e.Wrapped, inner)
-}
-
-func (e *Error) Error() string {
+func (e *VMError) Error() string {
 	var b = &bytes.Buffer{}
 
-	b.WriteString(e.message)
+	b.WriteString(e.Message)
 
-	if len(e.stacktrace) > 0 {
+	if len(e.TraceLines) > 0 {
 		b.WriteRune('\n')
-		for _, s := range e.stacktrace {
+		for _, s := range e.TraceLines {
 			if s.Function == "" || s.Line == 0 {
 				continue // this is an empty position
 			}
@@ -76,15 +69,11 @@ func (e *Error) Error() string {
 		}
 	}
 
-	for _, inner := range e.Wrapped {
-		fmt.Fprintf(b, "\n%s\n", inner.Error())
-	}
-
 	return b.String()
 }
 
-func (e *Error) Is(msg string) bool {
-	if e.message == msg {
+func (e *VMError) Is(msg string) bool {
+	if e.ErrorType == msg {
 		return true
 	}
 
@@ -92,21 +81,23 @@ func (e *Error) Is(msg string) bool {
 		return true
 	}
 
-	for _, wrap := range e.Wrapped {
-		if wrap.message == msg {
+	wrap := e.Wrapped
+	for wrap != nil {
+		if wrap.ErrorType == msg {
 			return true
 		}
 		if goErrorIs(wrap.goError, msg) {
 			return true
 		}
+		wrap = wrap.Wrapped
 	}
 	return false
 }
 
-func (e *Error) Stack() string {
+func (e *VMError) Stack() string {
 	var b = &bytes.Buffer{}
 
-	for _, s := range e.stacktrace {
+	for _, s := range e.TraceLines {
 		if s.Function == "" && s.File == "" && s.Line == 0 {
 			continue // this is an empty position
 		}
@@ -116,10 +107,10 @@ func (e *Error) Stack() string {
 	return b.String()
 }
 
-func (e *Error) stackLines() []string {
-	lines := make([]string, len(e.stacktrace))
+func (e *VMError) stackLines() []string {
+	lines := make([]string, len(e.TraceLines))
 
-	for _, s := range e.stacktrace {
+	for _, s := range e.TraceLines {
 		if s.Function == "" && s.File == "" && s.Line == 0 {
 			continue // this is an empty position
 		}
@@ -129,24 +120,21 @@ func (e *Error) stackLines() []string {
 	return lines
 }
 
-func (e *Error) GetProperty(name string, vm *VM) (Value, error) {
+func (e *VMError) GetProperty(name string, vm *VM) (Value, error) {
 	switch name {
-	case "code":
-		return NewInt(e.Code), nil
-	case "public":
-		return NewBool(e.public), nil
+	case "type":
+		return NewString(e.ErrorType), nil
 	case "message":
-		return NewString(e.message), nil
+		return NewString(e.Message), nil
 	case "pc":
 		return NewInt(e.pc), nil
 	case "stackTrace":
 		return NewString(e.Stack()), nil
 	}
-
 	return UndefinedValue, nil
 }
 
-func (e *Error) GetMethod(name string) NativeMethod {
+func (e *VMError) GetMethod(name string) NativeMethod {
 	switch name {
 	case "is":
 		return e.is
@@ -156,7 +144,7 @@ func (e *Error) GetMethod(name string) NativeMethod {
 	return nil
 }
 
-func (e *Error) is(args []Value, vm *VM) (Value, error) {
+func (e *VMError) is(args []Value, vm *VM) (Value, error) {
 	if len(args) != 1 {
 		return NullValue, fmt.Errorf("expected 1 argument, got %d", len(args))
 	}
@@ -167,17 +155,19 @@ func (e *Error) is(args []Value, vm *VM) (Value, error) {
 	return NewBool(v), nil
 }
 
-func (e *Error) string(args []Value, vm *VM) (Value, error) {
+func (e *VMError) string(args []Value, vm *VM) (Value, error) {
 	return NewString(e.Error()), nil
 }
 
-func (e *Error) MarshalJSON() ([]byte, error) {
+func (e *VMError) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
+		ErrorType  string
 		Message    string
-		StackTrace []string
+		TraceLines []TraceLine
 	}{
-		Message:    e.message,
-		StackTrace: e.stackLines(),
+		ErrorType:  e.ErrorType,
+		Message:    e.Message,
+		TraceLines: e.TraceLines,
 	})
 }
 

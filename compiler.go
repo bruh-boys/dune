@@ -2847,7 +2847,7 @@ func (e CompilerError) Position() ast.Position {
 	return e.Pos
 }
 
-func (e CompilerError) Message() string {
+func (e CompilerError) ErrorMessage() string {
 	return e.message
 }
 

@@ -18,6 +18,7 @@ declare namespace fmt {
 	export function fprintf(w: io.Writer, format: string, ...params: any[]): void
 	
     export function errorf(format: string, ...params: any[]): errors.Error
+    export function typeErrorf(type: string, format: string, ...params: any[]): errors.Error
 }	
 	`)
 }
@@ -28,47 +29,38 @@ var libFmt = []dune.NativeFunction{
 		Arguments: -1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			argsLen := len(args)
-			if argsLen == 0 {
+			if argsLen < 1 {
 				return dune.NullValue, fmt.Errorf("expected at least 1 parameter, got %d", len(args))
 			}
-			v := args[0]
-			if v.Type != dune.String {
-				return dune.NullValue, fmt.Errorf("expected parameter 1 to be a string, got %s", v.Type)
+
+			msg := args[0]
+			if msg.Type != dune.String {
+				return dune.NullValue, fmt.Errorf("expected parameter 1 to be a string, got %s", msg.Type)
 			}
 
-			values := make([]interface{}, argsLen-1)
-			for i, a := range args[1:] {
-				v := a.Export(0)
-				if t, ok := v.(*dune.Error); ok {
-					// wrap errors showing only the message
-					v = t.Message()
-				}
-				values[i] = v
+			return typeErrorf("", msg.String(), args[1:], vm)
+		},
+	},
+	{
+		Name:      "fmt.typeErrorf",
+		Arguments: -1,
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			argsLen := len(args)
+			if argsLen < 2 {
+				return dune.NullValue, fmt.Errorf("expected at least 2 parameters, got %d", len(args))
 			}
 
-			key := Translate(v.String(), vm)
-
-			tokens, s := FormatTemplateTokens(key, values...)
-
-			err := dune.NewPublicError(s)
-
-			tkIndex := 0
-			for _, tk := range tokens {
-				if tk.Type == Parameter {
-					if tk.Value == "wrap" {
-						if tkIndex < argsLen {
-							// +1 because the first arg is the format string
-							e, ok := args[tkIndex+1].ToObjectOrNil().(*dune.Error)
-							if ok {
-								err.Wrapped = append(err.Wrapped, e)
-							}
-						}
-					}
-					tkIndex++
-				}
+			t := args[0]
+			if t.Type != dune.String {
+				return dune.NullValue, fmt.Errorf("expected parameter 1 to be a string, got %s", t.Type)
 			}
 
-			return dune.NewObject(err), nil
+			msg := args[1]
+			if msg.Type != dune.String {
+				return dune.NullValue, fmt.Errorf("expected parameter 2 to be a string, got %s", msg.Type)
+			}
+
+			return typeErrorf(t.String(), msg.String(), args[2:], vm)
 		},
 	},
 	{
@@ -167,6 +159,43 @@ var libFmt = []dune.NativeFunction{
 			return dune.NewString(s), nil
 		},
 	},
+}
+
+func typeErrorf(errorType, msg string, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	argsLen := len(args)
+
+	values := make([]interface{}, argsLen)
+	for i, a := range args {
+		v := a.Export(0)
+		if t, ok := v.(*dune.VMError); ok {
+			// wrap errors showing only the message
+			v = t.ErrorMessage()
+		}
+		values[i] = v
+	}
+
+	key := Translate(msg, vm)
+
+	tokens, s := FormatTemplateTokens(key, values...)
+
+	err := dune.NewTypeError(errorType, s)
+
+	tkIndex := 0
+	for _, tk := range tokens {
+		if tk.Type == Parameter {
+			if tk.Value == "wrap" {
+				if tkIndex < argsLen {
+					e, ok := args[tkIndex].ToObjectOrNil().(*dune.VMError)
+					if ok {
+						err.Wrapped = e
+					}
+				}
+			}
+			tkIndex++
+		}
+	}
+
+	return dune.NewObject(err), nil
 }
 
 func fmtValue(v dune.Value) interface{} {

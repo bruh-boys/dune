@@ -34,16 +34,17 @@ var Console = []dune.NativeFunction{
 					lastInline = true
 				default:
 					obj := v.ExportMarshal(0)
-					if m, ok := obj.(json.Marshaler); ok {
-						if err := marshal(m, vm); err != nil {
-							return dune.NullValue, err
-						}
-						continue
-					}
 
 					str, ok := obj.(fmt.Stringer)
 					if ok {
 						fmt.Fprintln(vm.GetStdout(), str.String())
+						continue
+					}
+
+					if m, ok := obj.(json.Marshaler); ok {
+						if err := marshal(m, vm); err != nil {
+							return dune.NullValue, err
+						}
 						continue
 					}
 

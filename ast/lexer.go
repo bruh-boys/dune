@@ -197,7 +197,7 @@ func (p Position) String() string {
 }
 
 type NodeError interface {
-	Message() string
+	ErrorMessage() string
 	Position() Position
 	Error() string
 }

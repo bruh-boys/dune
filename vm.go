@@ -593,48 +593,48 @@ func (vm *VM) stackTrace() []TraceLine {
 }
 
 type ErrorMessenger interface {
-	Message() string
+	ErrorMessage() string
 }
 
-func (vm *VM) WrapError(err error) *Error {
+func (vm *VM) WrapError(err error) *VMError {
 	var msg string
 	var goError error
 
 	switch t := err.(type) {
-	case *Error:
+	case *VMError:
 		if t.IsRethrow {
 			t.IsRethrow = false
 			return t
 		}
-		t.stacktrace = append(t.stacktrace, vm.stackTrace()...)
+		t.TraceLines = append(t.TraceLines, vm.stackTrace()...)
 		return t
 	case ErrorMessenger:
-		msg = t.Message()
+		msg = t.ErrorMessage()
 	default:
 		msg = t.Error()
 		goError = t
 	}
 
-	return &Error{
-		message:     msg,
+	return &VMError{
+		Message:     msg,
+		TraceLines:  vm.stackTrace(),
 		instruction: vm.instruction(),
-		stacktrace:  vm.stackTrace(),
 		goError:     goError,
 	}
 }
 
-func (vm *VM) NewPublicError(format string, a ...interface{}) *Error {
+func (vm *VM) NewTypeError(errorType, format string, a ...interface{}) *VMError {
 	err := vm.NewError(format, a...)
-	err.public = true
+	err.ErrorType = errorType
 	return err
 }
 
-func (vm *VM) NewError(format string, a ...interface{}) *Error {
+func (vm *VM) NewError(format string, a ...interface{}) *VMError {
 	st := vm.stackTrace()
-	return &Error{
-		message:     fmt.Sprintf(format, a...),
+	return &VMError{
+		Message:     fmt.Sprintf(format, a...),
 		instruction: vm.instruction(),
-		stacktrace:  st,
+		TraceLines:  st,
 	}
 }
 
@@ -767,9 +767,9 @@ func (vm *VM) handle(err error) bool {
 	vm.setPC(jumpTo)
 
 	if try.errorReg != Void {
-		e, ok := err.(*Error)
+		e, ok := err.(*VMError)
 		if !ok {
-			e = &Error{message: err.Error()}
+			e = &VMError{Message: err.Error()}
 		}
 		vm.set(try.errorReg, NewObject(e))
 	}
@@ -905,8 +905,8 @@ func (vm *VM) recover(recoverValue interface{}) {
 	}
 
 	// don't call newError because it's handling itself the stack trace.
-	vm.Error = &Error{
-		message:     msg,
+	vm.Error = &VMError{
+		Message:     msg,
 		instruction: instr,
 	}
 }

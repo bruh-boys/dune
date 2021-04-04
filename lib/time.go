@@ -350,12 +350,12 @@ var Time = []dune.NativeFunction{
 			s := args[0].String()
 			ln := len(s)
 			if ln < 2 {
-				return dune.NullValue, vm.NewPublicError("invalid duration. Format is for example: 1s or 2d")
+				return dune.NullValue, dune.NewTypeError("parse", "invalid duration. Format is for example: 1s or 2d")
 			}
 
 			v, err := strconv.Atoi(s[:ln-1])
 			if err != nil {
-				return dune.NullValue, vm.NewPublicError("invalid duration for %s: must be an int", s)
+				return dune.NullValue, dune.NewTypeError("parse", "invalid duration for %s: must be an int", s)
 			}
 
 			var d time.Duration
@@ -370,7 +370,7 @@ var Time = []dune.NativeFunction{
 			case "d":
 				d = time.Duration(v) * time.Hour * 24
 			default:
-				return dune.NullValue, vm.NewPublicError("invalid duration: %s", s)
+				return dune.NullValue, dune.NewTypeError("parse", "invalid duration: %s", s)
 			}
 
 			return dune.NewObject(Duration(d)), nil
@@ -911,7 +911,7 @@ func parseDate(value, format string, loc *time.Location) (time.Time, error) {
 		}
 	}
 
-	return time.Time{}, dune.NewPublicError(fmt.Sprintf("Error parsing date: %s", value))
+	return time.Time{}, dune.NewTypeError("parse", "Error parsing date: %s", value)
 }
 
 type TimeObj time.Time

@@ -1966,12 +1966,12 @@ func (r *request) formInt(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	}
 
 	if s == "NaN" {
-		return dune.NullValue, dune.NewPublicError("invalid format: NaN")
+		return dune.NullValue, dune.NewTypeError("parse", "invalid format: NaN")
 	}
 
 	i, err := strconv.Atoi(s)
 	if err != nil {
-		return dune.NullValue, dune.NewPublicError(fmt.Sprintf("Invalid format: %s", s))
+		return dune.NullValue, dune.NewTypeError("parse", "Invalid format: %s", s)
 	}
 
 	return dune.NewInt(i), nil
@@ -2033,7 +2033,7 @@ func (r *request) formDate(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	t, err := loc.ParseDate(value, "", GetLocation(vm))
 	if err != nil {
-		return dune.NullValue, dune.NewPublicError(fmt.Sprintf("Invalid date: %v", err))
+		return dune.NullValue, dune.NewTypeError("parse", "Invalid date: %v", err)
 	}
 
 	return dune.NewObject(TimeObj(t)), nil
@@ -2081,7 +2081,7 @@ func (r *request) formJSON(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	v, err := unmarshal([]byte(s))
 	if err != nil {
-		return dune.NullValue, dune.NewPublicError(fmt.Sprintf("Invalid JSON: %v", err))
+		return dune.NullValue, dune.NewTypeError("parse", "Invalid JSON: %v", err)
 	}
 
 	return v, nil

@@ -1538,12 +1538,14 @@ func exec_throw(instr *Instruction, vm *VM) int {
 
 	var err error
 	if v.Type == Object {
-		if e, ok := v.ToObject().(*Error); ok {
+		if e, ok := v.ToObject().(*VMError); ok {
 			// don't alter the stack trace if it is a re throw
 			if e.IsRethrow {
 				err = e
 			} else {
-				err = vm.WrapError(e)
+				newError := vm.NewTypeError(e.ErrorType, e.Message)
+				newError.Wrapped = e.Wrapped
+				err = newError
 			}
 		}
 	}
@@ -1570,7 +1572,7 @@ func exec_throw(instr *Instruction, vm *VM) int {
 		vm.tryCatchs = vm.tryCatchs[:l]
 	}
 
-	if vm.handle((err)) {
+	if vm.handle(err) {
 		return vm_continue
 	} else {
 		return vm_exit

@@ -425,7 +425,7 @@ func (c *Culture) ParseDate(value, format string, loc *time.Location) (time.Time
 		}
 	}
 
-	return time.Time{}, dune.NewPublicError(fmt.Sprintf("Error parsing date: %s", value))
+	return time.Time{}, dune.NewTypeError("parse", "Error parsing date: %s", value)
 }
 
 func toGoDateFormat(format string) string {

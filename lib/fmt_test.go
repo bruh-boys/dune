@@ -1,53 +1,8 @@
 package lib
 
 import (
-	"os"
 	"testing"
-
-	"github.com/dunelang/dune"
 )
-
-func TestErrorf(t *testing.T) {
-	v := runTest(t, `return fmt.errorf("Day {{day}}: {{wrap}}", 2, errors.newError("Snap!"))`)
-
-	err, ok := v.ToObjectOrNil().(*dune.Error)
-	if !ok {
-		t.Fatalf("Type: %T", v)
-	}
-
-	if err.Message() != "Day 2: Snap!" {
-		t.Fatal("msg", err.Message())
-	}
-
-	if len(err.Wrapped) != 1 {
-		t.Fatal("wrap", err.Wrapped)
-	}
-
-	if !err.Is("Snap!") {
-		t.Fatal("IS", err)
-	}
-}
-
-func TestErrorIs(t *testing.T) {
-	v := runTest(t, `
-		let fs = io.newMemFS()
-
-		try {
-			fs.open("x")
-		} catch(err) {
-			return err
-		}	
-	`)
-
-	err, ok := v.ToObjectOrNil().(*dune.Error)
-	if !ok {
-		t.Fatalf("Type: %T", v)
-	}
-
-	if !err.Is(os.ErrNotExist.Error()) {
-		t.Fatal("IS", err)
-	}
-}
 
 func TestParse(t *testing.T) {
 	var tests = []struct {

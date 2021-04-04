@@ -204,6 +204,10 @@ func (v Value) TypeName() string {
 	return t.String()
 }
 
+func (v Value) ToString() string {
+	return v.String()
+}
+
 func (v Value) ToInt() int64 {
 	switch v.Type {
 	case Int:

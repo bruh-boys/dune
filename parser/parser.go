@@ -3431,25 +3431,25 @@ func isComment(t *ast.Token) bool {
 	return false
 }
 
-type Error struct {
+type ParseError struct {
 	Pos     ast.Position
 	message string
 }
 
-func (e Error) Message() string {
+func (e ParseError) ErrorMessage() string {
 	return e.message
 }
 
-func (e Error) Position() ast.Position {
+func (e ParseError) Position() ast.Position {
 	return e.Pos
 }
 
-func (e Error) Error() string {
+func (e ParseError) Error() string {
 	return fmt.Sprintf("%s\n -> %v", e.message, e.Position())
 }
 
-func NewError(p ast.Position, format string, args ...interface{}) Error {
-	return Error{p, fmt.Sprintf(format, args...)}
+func NewError(p ast.Position, format string, args ...interface{}) ParseError {
+	return ParseError{p, fmt.Sprintf(format, args...)}
 }
 
 // Make a hash of all the sources.
