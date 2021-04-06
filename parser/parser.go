@@ -1182,8 +1182,14 @@ func (p *parser) parseStmt() (ast.Stmt, error) {
 		var label string
 		t2 := p.peek()
 		if t2.Type == ast.IDENT {
-			label = t2.Str
-			p.next()
+			switch p.peekTwo().Type {
+			case ast.PERIOD:
+				// the ident is not a label
+
+			default:
+				label = t2.Str
+				p.next()
+			}
 		}
 		p.ignore(ast.SEMICOLON, 1)
 		return &ast.ContinueStmt{Pos: t.Pos, Label: label}, nil
