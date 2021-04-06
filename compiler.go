@@ -359,7 +359,7 @@ func (c *compiler) compileFuncBody(t *ast.FuncDeclStmt, fi *functionInfo) error 
 	if fi.parent.function.IsGlobal {
 		// we can't know in advance the index in the global array of closures
 		// because previous registers can be referenced later and thus marked
-		// as closure so keep a index (ix) in the compiler compiler and after
+		// as closure so keep a index (ix) in the compiler and after
 		// compiled the top function, update all now.
 		c.updateClosureIndexes(fi)
 	}
@@ -2454,7 +2454,7 @@ func (c *compiler) findRegister(name string, fi *functionInfo) (*Address, error)
 					}
 					// we can't know in advance the index in the global array of closures
 					// because previous registers can be referenced later and thus marked
-					// as closure so keep a index (ix) in the compiler compiler and after
+					// as closure so keep a index (ix) in the compiler and after
 					// compiled the top function, update all in updateClosureIndexes.
 					ix := c.markAsClosure(parentFn, r)
 					return NewAddress(AddrClosure, ix), nil
