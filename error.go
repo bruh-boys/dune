@@ -69,6 +69,13 @@ func (e *VMError) Error() string {
 		}
 	}
 
+	wrap := e.Wrapped
+	for wrap != nil {
+		b.WriteRune('\n')
+		b.WriteString(wrap.Error())
+		wrap = wrap.Wrapped
+	}
+
 	return b.String()
 }
 
