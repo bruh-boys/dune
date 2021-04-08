@@ -1,5 +1,9 @@
 # Dune 
 
+Dune combines the the simplicity, reliability and efficiency of [Go](https://golang.org) with the flexibility of [Typescript](http://typescriptlang.org).
+
+It is evolving so expect frequent breaking changes.
+
 ## Install 
 
 Download a [release](https://github.com/dunelang/dune/releases) or get it from source
@@ -238,7 +242,7 @@ func main() {
 }
 ```
 
-To do anything useful besides basic calculations, it needs to import the standard library:
+To import the standard library:
 
 ```Go
 package main
