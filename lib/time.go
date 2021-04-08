@@ -137,7 +137,7 @@ declare namespace time {
 
         format(f: string): string
 		formatIn(f: string, loc: Location): string
-		toISO(): string
+		toString(): string
 		
 		in(loc: Location): Time
         /**
@@ -1061,8 +1061,8 @@ func (t TimeObj) GetMethod(name string) dune.NativeMethod {
 		return t.equal
 	case "sameDay":
 		return t.sameDay
-	case "toISO":
-		return t.toISO
+	case "toString":
+		return t.toString
 	}
 	return nil
 }
@@ -1208,12 +1208,12 @@ func (t TimeObj) sameDay(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	return dune.NewBool(eq), nil
 }
 
-func (t TimeObj) toISO(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func (t TimeObj) toString(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgs(args); err != nil {
 		return dune.NullValue, err
 	}
 
-	str := time.Time(t).Format("2006-01-02T15:04:05")
+	str := time.Time(t).Format(time.RFC3339)
 	return dune.NewString(str), nil
 }
 
