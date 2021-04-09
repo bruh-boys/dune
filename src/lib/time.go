@@ -83,6 +83,7 @@ declare namespace time {
     export function date(year?: number, month?: number, day?: number, hour?: number, min?: number, sec?: number, loc?: Location): Time
 
 	export function parseDuration(s: string): Duration
+	export function parseTime(s: string): number
 	
     export function duration(nanoseconds: number | Duration): Duration
     export function toDuration(hour: number, minute?: number, second?: number): Duration
@@ -374,6 +375,43 @@ var Time = []dune.NativeFunction{
 			}
 
 			return dune.NewObject(Duration(d)), nil
+		},
+	},
+	{
+		Name:      "time.parseTime",
+		Arguments: -1,
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			if err := ValidateArgs(args, dune.String); err != nil {
+				return dune.NullValue, err
+			}
+
+			parts := Split(args[0].String(), ":")
+			ln := len(parts)
+			if ln < 2 || ln > 3 {
+				return dune.NullValue, dune.NewTypeError("parse", "invalid time. Format is for example 18:30")
+			}
+
+			h, err := strconv.Atoi(parts[0])
+			if err != nil {
+				return dune.NullValue, dune.NewTypeError("parse", "invalid hour part %s. Expected an int", parts[0])
+			}
+
+			m, err := strconv.Atoi(parts[1])
+			if err != nil {
+				return dune.NullValue, dune.NewTypeError("parse", "invalid min part %s. Expected an int", parts[1])
+			}
+
+			var s int
+			if ln > 2 {
+				s, err = strconv.Atoi(parts[2])
+				if err != nil {
+					return dune.NullValue, dune.NewTypeError("parse", "invalid sec part %s. Expected an int", parts[2])
+				}
+			}
+
+			ms := h*60*60*1000 + m*60*1000 + s*1000
+
+			return dune.NewInt(ms), nil
 		},
 	},
 	{
