@@ -1240,8 +1240,8 @@ func (t TimeObj) sameDay(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, fmt.Errorf("expected time.Time, got %s", args[0].TypeName())
 	}
 
-	tt1 := time.Time(t)
-	tt2 := time.Time(t2)
+	tt1 := time.Time(t).UTC()
+	tt2 := time.Time(t2).UTC()
 	eq := tt1.Year() == tt2.Year() && tt1.Month() == tt2.Month() && tt1.Day() == tt2.Day()
 	return dune.NewBool(eq), nil
 }
