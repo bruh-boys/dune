@@ -28,7 +28,7 @@ func main() {
 	d := flag.Bool("d", false, "decompile")
 	r := flag.Bool("r", false, "list resources")
 	n := flag.Bool("n", false, "no optimizations")
-	ini := flag.Bool("init", false, "generate native.d.ts and tsconfig.json")
+	i := flag.Bool("i", false, "generate native.d.ts and tsconfig.json")
 	dts := flag.Bool("dts", false, "generate native.d.ts")
 	flag.Parse()
 
@@ -91,7 +91,7 @@ func main() {
 		return
 	}
 
-	if *ini {
+	if *i {
 		var path string
 		if aLen == 1 {
 			path = args[0]
