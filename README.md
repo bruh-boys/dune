@@ -1,6 +1,6 @@
 # Dune 
 
-Dune combines the the simplicity, reliability and efficiency of [Go](https://golang.org) with the flexibility of [Typescript](http://typescriptlang.org).
+Dune combines the simplicity, reliability and efficiency of [Go](https://golang.org) with the flexibility of [Typescript](http://typescriptlang.org).
 
 It is evolving so expect frequent breaking changes.
 
