@@ -631,8 +631,13 @@ func (vm *VM) NewTypeError(errorType, format string, a ...interface{}) *VMError 
 
 func (vm *VM) NewError(format string, a ...interface{}) *VMError {
 	st := vm.stackTrace()
+
+	if len(a) > 0 {
+		format = fmt.Sprintf(format, a...)
+	}
+
 	return &VMError{
-		Message:     fmt.Sprintf(format, a...),
+		Message:     format,
 		instruction: vm.instruction(),
 		TraceLines:  st,
 	}

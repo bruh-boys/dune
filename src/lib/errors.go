@@ -166,7 +166,9 @@ func newTypeError(errorType, msg string, args []dune.Value, vm *dune.VM) (dune.V
 		values[i] = v
 	}
 
-	msg = fmt.Sprintf(msg, values...)
+	if len(values) > 0 {
+		msg = fmt.Sprintf(msg, values...)
+	}
 
 	err := vm.NewError(msg)
 	err.ErrorType = errorType

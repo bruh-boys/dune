@@ -3455,7 +3455,10 @@ func (e ParseError) Error() string {
 }
 
 func NewError(p ast.Position, format string, args ...interface{}) ParseError {
-	return ParseError{p, fmt.Sprintf(format, args...)}
+	if len(args) == 0 {
+		format = fmt.Sprintf(format, args...)
+	}
+	return ParseError{p, format}
 }
 
 // Make a hash of all the sources.
