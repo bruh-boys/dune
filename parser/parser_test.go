@@ -210,3 +210,23 @@ func TestParseSwitchFallthrough3(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+func TestIgnoreTypeBugfix(t *testing.T) {
+	_, err := ParseStr(`export type V = { [key: string]: X }`)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestIgnoreTypeBugfix2(t *testing.T) {
+	_, err := ParseStr(`export type StringOrPlurals = string | string[]`)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestIgnoreTypeBugfix3(t *testing.T) {
+	_, err := ParseStr(`export type Translation = StringOrPlurals | Map<StringOrPlurals>`)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

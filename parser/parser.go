@@ -2257,6 +2257,8 @@ loop:
 			}
 		case ast.IDENT, ast.NULL:
 			p.next()
+			p.tryIgnoreGenericDecl()
+
 			// the type may have a package prefix
 			if p.peek().Type == ast.PERIOD {
 				p.next()
@@ -2342,31 +2344,8 @@ func (p *parser) ignoreTypeDefinition() error {
 		return err
 	}
 
-	if err := p.ignoreGenericDecl(); err != nil {
+	if err := p.ignoreTypeDecl(); err != nil {
 		return err
-	}
-
-	if p.peek().Type == ast.LPAREN {
-		return p.ignoreLambda()
-	}
-
-loop:
-	for {
-		t := p.peek()
-		switch t.Type {
-		case ast.STRING, ast.IDENT:
-			p.next()
-		default:
-			return NewError(t.Pos, "Expecting string or ident, got %v", t.Type)
-		}
-
-		t = p.peek()
-		switch t.Type {
-		case ast.BOR, ast.AND, ast.PERIOD:
-			p.next()
-		default:
-			break loop
-		}
 	}
 
 	p.ignore(ast.SEMICOLON, 1)
@@ -3455,7 +3434,7 @@ func (e ParseError) Error() string {
 }
 
 func NewError(p ast.Position, format string, args ...interface{}) ParseError {
-	if len(args) == 0 {
+	if len(args) > 0 {
 		format = fmt.Sprintf(format, args...)
 	}
 	return ParseError{p, format}
