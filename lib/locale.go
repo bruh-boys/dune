@@ -5,22 +5,19 @@ import (
 	"time"
 
 	"github.com/dunelang/dune"
-	"github.com/dunelang/dune/lib/localization"
+	"github.com/dunelang/dune/lib/locale"
 )
 
 var defaultLocalizer *localizer
 
 func init() {
 	defaultLocalizer = &localizer{
-		culture:    localization.DefaultCulture,
-		translator: localization.DefaultTranslator,
+		culture:    locale.DefaultCulture,
+		translator: locale.DefaultTranslator,
 	}
 
 	dune.RegisterLib(Locale, `
-
-// translate a value.
-declare function T(key: string, ...params: any[]): string
-
+ 
 declare namespace locale {
 	export const defaultLocalizer: Localizer
 	export function setLocalizer(c: Localizer): void
@@ -59,9 +56,8 @@ declare namespace locale {
 
 	export interface Translator {
 		add(language: string, key: string, translation: string): void
-		addLibrary(language: string, library: string, values: any): void
-		hasLibrary(name: string, language: string): boolean
 		languages(): string[]
+		translate(key: string, ...params: any[]): string
 	}
 
 	export function newLocalizer(): Localizer
@@ -153,7 +149,7 @@ var Locale = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 			name := args[0].String()
-			c := dune.NewObject(&culture{culture: localization.NewCulture(name)})
+			c := dune.NewObject(&culture{culture: locale.NewCulture(name)})
 			return c, nil
 		},
 	},
@@ -161,7 +157,7 @@ var Locale = []dune.NativeFunction{
 		Name:      "locale.newTranslator",
 		Arguments: 0,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			t := localization.NewTranslator()
+			t := locale.NewTranslator()
 			lt := dune.NewObject(&translator{t})
 			return lt, nil
 		},
@@ -171,7 +167,7 @@ var Locale = []dune.NativeFunction{
 		Arguments: 0,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			loc := &localizer{
-				translator: localization.DefaultTranslator,
+				translator: locale.DefaultTranslator,
 			}
 			lt := dune.NewObject(loc)
 			return lt, nil
@@ -256,49 +252,6 @@ var Locale = []dune.NativeFunction{
 			return dune.NewString(s), nil
 		},
 	},
-	{
-		Name:      "T",
-		Arguments: -1,
-		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			ln := len(args)
-			if ln == 0 {
-				return dune.NullValue, fmt.Errorf("expected at least 1 argument, got %d", len(args))
-			}
-
-			a := args[0]
-			if a.Type == dune.Null {
-				return dune.NullValue, nil
-			}
-
-			value := a.String()
-			if value == "" {
-				return a, nil
-			}
-
-			var params []interface{}
-
-			if ln > 1 {
-				params = make([]interface{}, ln-1)
-				for i, vp := range args[1:] {
-					params[i] = vp.Export(0)
-				}
-			}
-
-			loc := vm.Localizer
-			if loc == nil {
-				loc = defaultLocalizer
-			}
-
-			key := loc.Translate(vm.Language, value)
-			if key == "" {
-				key = localization.FormatKey(value)
-			}
-
-			s := FormatTemplate(key, params...)
-
-			return dune.NewString(s), nil
-		},
-	},
 }
 
 func Translate(v string, vm *dune.VM) string {
@@ -314,7 +267,7 @@ func Translate(v string, vm *dune.VM) string {
 }
 
 type translator struct {
-	translator *localization.Translator
+	translator *locale.Translator
 }
 
 func (t *translator) Type() string {
@@ -325,12 +278,10 @@ func (t *translator) GetMethod(name string) dune.NativeMethod {
 	switch name {
 	case "add":
 		return t.add
-	case "addLibrary":
-		return t.addLibrary
-	case "hasLibrary":
-		return t.hasLibrary
 	case "languages":
 		return t.languages
+	case "translate":
+		return t.translate
 	}
 	return nil
 }
@@ -346,39 +297,6 @@ func (t *translator) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	t.translator.Add(language, key, value)
 	return dune.NullValue, nil
-}
-
-func (t *translator) addLibrary(args []dune.Value, vm *dune.VM) (dune.Value, error) {
-	if err := ValidateArgs(args, dune.String, dune.String, dune.Map); err != nil {
-		return dune.NullValue, err
-	}
-
-	language := args[0].String()
-	library := args[1].String()
-	values := args[2].ToMap().Map
-
-	for k, v := range values {
-		t.translator.AddLibrary(language, library, k.String(), v.String())
-	}
-
-	return dune.NullValue, nil
-}
-
-func (t *translator) hasLibrary(args []dune.Value, vm *dune.VM) (dune.Value, error) {
-	if err := ValidateArgs(args, dune.String, dune.String); err != nil {
-		return dune.NullValue, err
-	}
-
-	language := args[0].String()
-	library := args[1].String()
-
-	lan := t.translator.Language(language)
-	if lan == nil {
-		return dune.FalseValue, nil
-	}
-
-	v := lan.HasLibrary(library)
-	return dune.NewBool(v), nil
 }
 
 func (t *translator) languages(args []dune.Value, vm *dune.VM) (dune.Value, error) {
@@ -397,8 +315,45 @@ func (t *translator) languages(args []dune.Value, vm *dune.VM) (dune.Value, erro
 	return dune.NewArrayValues(values), nil
 }
 
+func (t *translator) translate(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	ln := len(args)
+	if ln == 0 {
+		return dune.NullValue, fmt.Errorf("expected at least 1 argument, got %d", len(args))
+	}
+
+	a := args[0]
+	if a.Type == dune.Null {
+		return dune.NullValue, nil
+	}
+
+	value := a.String()
+	if value == "" {
+		return a, nil
+	}
+
+	var params []interface{}
+
+	if ln > 1 {
+		params = make([]interface{}, ln-1)
+		for i, vp := range args[1:] {
+			params[i] = vp.Export(0)
+		}
+	}
+
+	key, ok := t.translator.Translate(vm.Language, value)
+	if !ok {
+		key = value
+	}
+
+	if len(params) > 0 {
+		key = fmt.Sprintf(key, params...)
+	}
+
+	return dune.NewString(key), nil
+}
+
 type culture struct {
-	culture  *localization.Culture
+	culture  *locale.Culture
 	readonly bool
 }
 
@@ -589,8 +544,8 @@ func (c *culture) clone(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 }
 
 type localizer struct {
-	culture    *localization.Culture
-	translator *localization.Translator
+	culture    *locale.Culture
+	translator *locale.Translator
 }
 
 func (l *localizer) Type() string {
@@ -670,7 +625,9 @@ func (l *localizer) translate(args []dune.Value, vm *dune.VM) (dune.Value, error
 
 	s := l.Translate(lang.String(), a.String())
 
-	s = FormatTemplate(s, params...)
+	if len(params) > 0 {
+		s = fmt.Sprintf(s, params...)
+	}
 
 	return dune.NewString(s), nil
 }

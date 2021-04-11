@@ -29,7 +29,7 @@ func TestErrorIs(t *testing.T) {
 }
 
 func TestErrorWrap(t *testing.T) {
-	v := runTest(t, `return fmt.errorf("ERROR {{wrap}}", errors.newError("Snap!"))`)
+	v := runTest(t, `return fmt.errorf("ERROR %s", errors.newError("Snap!"))`)
 
 	err, ok := v.ToObjectOrNil().(*dune.VMError)
 	if !ok {
@@ -46,7 +46,7 @@ func TestErrorWrap(t *testing.T) {
 }
 
 func _TestErrorWrap2(t *testing.T) {
-	v := runTest(t, `return fmt.typeErrorf("io", "ERROR {{wrap}}", errors.newTypeError("io", "Snap!"))`)
+	v := runTest(t, `return fmt.typeErrorf("io", "ERROR %s", errors.newTypeError("io", "Snap!"))`)
 
 	err, ok := v.ToObjectOrNil().(*dune.VMError)
 	if !ok {

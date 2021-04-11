@@ -4,8 +4,7 @@ import "testing"
 
 func TestTranslate1(t *testing.T) {
 	v := runTest(t, `
-		return T("Hello {{name}}!", "Bill")
-		
+		return locale.defaultLocalizer.translate("en", "Hello %s!", "Bill")		
 	`)
 
 	if v.String() != "Hello Bill!" {
@@ -15,26 +14,12 @@ func TestTranslate1(t *testing.T) {
 
 func TestTranslate2(t *testing.T) {
 	v := runTest(t, `
-		locale.defaultLocalizer.translator.add("es", "Hello {{name}}!", "Hola {{name}}!")
-		runtime.vm.language = "es"
-		return T("Hello {{name}}!", "Bill")
+		locale.defaultLocalizer.translator.add("es", "Hello %s!", "Hola %s!")
+		return locale.defaultLocalizer.translate("es", "Hello %s!", "Bill")
 		
 	`)
 
 	if v.String() != "Hola Bill!" {
-		t.Fatal(v.String())
-	}
-}
-
-func TestTranslate3(t *testing.T) {
-	v := runTest(t, `
-		let loc = locale.defaultLocalizer	
-		loc.translator.add("es", "Hello", "Hola")	
-		return loc.translate("es", "Hello")
-		
-	`)
-
-	if v.String() != "Hola" {
 		t.Fatal(v.String())
 	}
 }
@@ -197,6 +182,30 @@ func TestFormatCurrency3(t *testing.T) {
 	`)
 
 	if v.String() != "-1.000,33€" {
+		t.Fatal(v.String())
+	}
+}
+
+func TestFormatMonthTranslations(t *testing.T) {
+	v := runTest(t, `
+		locale.defaultLocalizer.translator.add("es", "January", "Enero")
+		locale.setCurrentLanguage("es")
+		return time.date(2021, 1, 1).format("MMM")
+	`)
+
+	if v.String() != "Enero" {
+		t.Fatal(v.String())
+	}
+}
+
+func TestFormatWeekdayTranslations(t *testing.T) {
+	v := runTest(t, `
+		locale.defaultLocalizer.translator.add("es", "Friday", "Viernes")
+		locale.setCurrentLanguage("es")
+		return time.date(2021, 1, 1).format("ddd")
+	`)
+
+	if v.String() != "Viernes" {
 		t.Fatal(v.String())
 	}
 }

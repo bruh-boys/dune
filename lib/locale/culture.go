@@ -1,4 +1,4 @@
-package localization
+package locale
 
 import (
 	"bytes"
@@ -558,26 +558,26 @@ type datePart struct {
 }
 
 var WeekDays = []string{
-	"@@Sunday",
-	"@@Monday",
-	"@@Tuesday",
-	"@@Wednesday",
-	"@@Thursday",
-	"@@Friday",
-	"@@Saturday",
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday",
 }
 
 var MonthNames = []string{
-	"@@January",
-	"@@February",
-	"@@March",
-	"@@April",
-	"@@May",
-	"@@June",
-	"@@July",
-	"@@August",
-	"@@September",
-	"@@October",
-	"@@November",
-	"@@December",
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December",
 }

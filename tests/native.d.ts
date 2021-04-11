@@ -13,8 +13,6 @@ interface Object { }
 interface RegExp { }
 interface byte { }
 
-declare const int: any
-declare const float: any
 declare const Array: any
 
 interface Array<T> {
@@ -33,27 +31,12 @@ interface Array<T> {
     sort(comprarer: (a: T, b: T) => boolean): void
 }
 
-// translate a value.
-declare function T(key: string, ...params: any[]): string
-
-declare namespace errors {
-    export function wrap(msg: string, inner: Error): Error
-    export function public(msg: string, inner?: Error | string): Error
-
-    export interface Error {
-        type: string
-        public: boolean
-        message: string
-        pc: number
-        stackTrace: string
-        string(): string
-    }
-}
 
 
 
 
 
+ 
 interface Array<T> {
     [n: number]: T
     slice(start?: number, count?: number): Array<T>
@@ -67,7 +50,7 @@ interface Array<T> {
     removeAt(i: number): void
     removeAt(from: number, to: number): void
     indexOf(v: T): number
-    join(sep: string): T
+    join(sep?: string): T
     sort(comprarer: (a: T, b: T) => boolean): void
     equals(other: Array<T>): boolean;
     any(func: (t: T) => any): boolean;
@@ -75,7 +58,8 @@ interface Array<T> {
     contains<T>(t: T): boolean;
     remove<T>(t: T): void;
     first(): T;
-    last(): T;
+	last(): T;
+	clear(): void
     first(func?: (t: T) => any): T;
     last(func?: (t: T) => any): T;
     firstIndex(func: (t: T) => any): number;
@@ -102,35 +86,35 @@ declare namespace array {
      */
     export function bytes(size: number, capacity?: number): byte[]
 }
-
+	
 
 
 
 declare namespace assert {
-    export function contains(value: string, search: string): void
-    export function equal(a: any, b: any): void
+    export function contains(search: string, value: string): void
+    export function equal(a: any, b: any, errorMessage?: string): void
     export function isNull(a: any): void
-    export function isNotNull(a: any): void
-    export function exception(msg: string, func: Function): void
+	export function isNotNull(a: any): void
+	export function exception(msg: string, func: Function): void
 
-    export function int(a: any, msg: string): number
-    export function float(a: any, msg: string): number
-    export function string(a: any, msg: string): string
-    export function bool(a: any, msg: string): boolean
-    export function object(a: any, msg: string): any
+	export function int(a: any, msg: string): number
+	export function float(a: any, msg: string): number
+	export function string(a: any, msg: string): string
+	export function bool(a: any, msg: string): boolean	
+	export function object(a: any, msg: string): any	
 }
 
 
 
 
-
+	
 declare function go(f: Function): void
 
 
+	
 
 
-
-
+	
 declare namespace base64 {
     export function encode(s: any): string
     export function encodeWithPadding(s: any): string
@@ -141,24 +125,29 @@ declare namespace base64 {
 
 
 
-
+	
 declare namespace binary {
     export function putInt16LittleEndian(v: byte[], n: number): void
     export function putInt32LittleEndian(v: byte[], n: number): void
+    export function putInt64LittleEndian(v: byte[], n: number): void
+
     export function putInt16BigEndian(v: byte[], n: number): void
     export function putInt32BigEndian(v: byte[], n: number): void
+    export function putInt64BigEndian(v: byte[], n: number): void
 
     export function int16LittleEndian(v: byte[]): number
     export function int32LittleEndian(v: byte[]): number
+    export function int64LittleEndian(v: byte[]): number
+
     export function int16BigEndian(v: byte[]): number
     export function int32BigEndian(v: byte[]): number
     export function int64BigEndian(v: byte[]): number
 }
+ 
 
 
 
-
-
+	
 declare namespace bufio {
     export function newWriter(w: io.Writer): Writer
     export function newScanner(r: io.Reader): Scanner
@@ -173,7 +162,7 @@ declare namespace bufio {
     }
 
     export interface Scanner {
-        scan(): boolean
+        scan(): boolean 
         text(): string
     }
 
@@ -188,7 +177,7 @@ declare namespace bufio {
 
 
 
-
+	
 declare namespace bytecode {
     /**
      * 
@@ -196,9 +185,9 @@ declare namespace bytecode {
      * @param fileSystem 
      * @param scriptMode if statements outside of functions are allowed.
      */
-    export function compile(path: string, fileSystem?: io.FileSystem): runtime.Program
-
-    export function hash(path: string, fileSystem?: io.FileSystem): string
+	export function compile(path: string, fileSystem?: io.FileSystem): runtime.Program
+	
+	export function hash(path: string, fileSystem?: io.FileSystem): string
 
     export function compileStr(code: string): runtime.Program
 
@@ -217,11 +206,15 @@ declare namespace bytecode {
 
 
 
+declare namespace bytes {
+	export function newReader(b: byte[]): io.Reader
+}	
 
+
+
+	
 declare namespace caching {
-
-    export let global: Cache
-
+ 
     export function newCache(d?: time.Duration | number): Cache
 
     export interface Cache {
@@ -239,7 +232,7 @@ declare namespace caching {
 
 
 declare namespace console {
-    export function log(...v: any[]): void
+	export function log(...v: any[]): void
 }
 
 
@@ -248,7 +241,6 @@ declare namespace console {
 declare namespace convert {
     export function toInt(v: string | number): number
     export function toFloat(v: string | number): number
-    export function parseCurrency(v: string | number): number
     export function toString(v: any): string
     export function toRune(v: any): string
     export function toBool(v: string | number | boolean): boolean
@@ -261,7 +253,6 @@ declare namespace convert {
 
 declare namespace crypto {
     export function signSHA1_RSA_PCKS1(privateKey: string, value: string): byte[]
-    // export function verifySHA1_RSA(publicKey: string, message: string, signature: byte[]): void
 
     export function signTempSHA1(value: string): string
     export function checkTempSignSHA1(value: string, hash: string): boolean
@@ -283,6 +274,7 @@ declare namespace crypto {
     export function hmacSHA512(value: byte[] | string, pwd?: byte[] | string): byte[]
     export function hashPassword(pwd: string): string
     export function compareHashAndPassword(hash: string, pwd: string): boolean
+	export function rand(n: number): number
     export function random(len: number): byte[]
     export function randomAlphanumeric(len: number): string
 }
@@ -295,8 +287,8 @@ declare namespace crypto {
 declare namespace csv {
     export function newReader(r: io.Reader): Reader
     export interface Reader {
-        comma: string
-        lazyQuotes: boolean
+		comma: string
+		lazyQuotes: boolean
         read(): string[]
     }
 
@@ -310,14 +302,14 @@ declare namespace csv {
 
 
 
-
+	
 declare namespace encoding {
     export interface Decoder {
         reader(r: io.Reader): io.Reader
     }
     export interface Encoder {
-        writer(r: io.Writer): io.Writer
-        string(s: string): string
+		writer(r: io.Writer): io.Writer
+		string(s: string): string
     }
 
     export function newDecoderISO8859_1(): Decoder
@@ -331,12 +323,35 @@ declare namespace encoding {
 
 
 
+declare namespace errors {
+	export function parse(err: string): Error
+	export function newError(msg: string, ...args: any[]): Error
+	export function newTypeError(type: string, msg: string, ...args: any[]): Error
+	export function unwrap(err: Error): Error
+	export function is(err: Error, type: string): Error
+	export function rethrow(err: Error): void
+
+	export interface Error {
+		type: string
+		message: string
+		pc: number
+		stackTrace: string
+		string(): string
+		is(error: string): boolean
+	} 
+}
+
+
+
+
 
 declare namespace filepath {
     /**
      * Returns the extension of a path
      */
-    export function ext(path: string): string
+	export function ext(path: string): string 
+	
+	export function abs(path: string): string
 
     /**
      *  Base returns the last element of path.
@@ -368,7 +383,7 @@ declare namespace filepath {
 
 
 
-declare namespace fileutil {
+declare namespace fileutil { 
     export function copy(src: string, dst: string): byte[]
 }
 
@@ -380,9 +395,12 @@ declare namespace fmt {
     export function println(...n: any[]): void
     export function printf(format: string, ...params: any[]): void
     export function sprintf(format: string, ...params: any[]): string
-    export function fprintf(w: io.Writer, format: string, ...params: any[]): void
-}
-
+	export function fprintf(w: io.Writer, format: string, ...params: any[]): void
+	
+    export function errorf(format: string, ...params: any[]): errors.Error
+    export function typeErrorf(type: string, format: string, ...params: any[]): errors.Error
+}	
+	
 
 
 
@@ -391,22 +409,22 @@ declare namespace fsnotify {
 
     export type EventHandler = (e: Event) => void
 
-    export interface Watcher {
-        add(path: string, recursive?: boolean): void
-    }
+	export interface Watcher {
+		add(path: string, recursive?: boolean): void
+	}
+ 
+	export interface Event {
+		name: string
+		operation: number
+	}
 
-    export interface Event {
-        name: string
-        operation: number
-    }
-
-    // const (
-    // 	Create Op = 1 << iota
-    // 	Write
-    // 	Remove
-    // 	Rename
-    // 	Chmod
-    // )
+	// const (
+	// 	Create Op = 1 << iota
+	// 	Write
+	// 	Remove
+	// 	Rename
+	// 	Chmod
+	// )
 }
 
 
@@ -459,12 +477,20 @@ declare namespace html {
 
 
 declare namespace http {
-    export type SameSite = number
-    export const SameSiteDefaultMode: SameSite
-    export const SameSiteLaxMode: SameSite
-    export const SameSiteStrictMode: SameSite
-    export const SameSiteNoneMode: SameSite
+	export const OK: number
+	export const REDIRECT: number
+	export const BAD_REQUEST: number
+	export const UNAUTHORIZED: number
+	export const NOT_FOUND: number
+	export const INTERNAL_ERROR: number
+	export const UNAVAILABLE: number
 
+	export type SameSite = number
+	export const SameSiteDefaultMode: SameSite
+	export const SameSiteLaxMode: SameSite
+	export const SameSiteStrictMode: SameSite
+	export const SameSiteNoneMode: SameSite
+	
     export function get(url: string, timeout?: time.Duration | number, config?: tls.Config): string
     export function post(url: string, data?: any): string
 
@@ -478,38 +504,16 @@ declare namespace http {
 
     export function parseURL(url?: string): URL
 
-    export function newRouter(): Router
-
-    export interface Router {
-        reset(): void
-        add(r: Route): void
-        match(url: string): RouteMatch | null
-    }
-
-    export interface RouteMatch {
-        route: Route
-        values: string[]
-        int(name: string): number
-        value(name: string): string
-    }
-
-    export interface Route {
-        url: string
-        handler: Function
-        filter?: Function
-        permissions?: string[]
-    }
-
-    export type Handler = (w: ResponseWriter, r: Request) => void
+    export type Handler = (w: ResponseWriter, r: Request, routeData?: any) => void
 
     export interface Server {
         address: string
         addressTLS: string
         tlsConfig: tls.Config
         handler: Handler
-        readHeaderTimeout: time.Duration | number
+		readHeaderTimeout: time.Duration | number
         writeTimeout: time.Duration | number
-        readTimeout: time.Duration | number
+		readTimeout: time.Duration | number
         idleTimeout: time.Duration | number
         start(): void
         close(): void
@@ -520,14 +524,9 @@ declare namespace http {
 
     export type METHOD = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS"
 
-    export function newRequest(method: METHOD, url: string, data?: any): Request
-
-    export function newContext(method: METHOD, url: string, data?: any): Context
-
-    export interface Context {
-        request: Request
-        response: ResponseWriter
-    }
+	export function newRequest(method: METHOD, url: string, data?: any): Request
+	
+	export function newResponseRecorder(r: Request): ResponseWriter
 
     export interface Request {
         /**
@@ -542,12 +541,6 @@ declare namespace http {
 
         host: string
 
-        /**
-         * scheme + host + port
-         * https://stackoverflow.com/a/37366696/4264
-         */
-        origin: string
-
         url: URL
 
         referer: string
@@ -559,16 +552,16 @@ declare namespace http {
         remoteAddr: string
         remoteIP: string
 
-        /**
-         * The extension of the URL
-         */
+		/**
+		 * The extension of the URL
+		 */
         extension: string
 
-        // string returns the first value for the named component of the query.
+        // value returns the first value for the named component of the query.
         // POST and PUT body parameters take precedence over URL query string values.
-        string(key: string): string
-
-        // int works as value but deserializes the value into an object.
+		value(key: string): string
+		
+		// json works as value but deserializes the value into an object.
         json(key: string): any
 
         // int works as value but converts the value to an int.
@@ -577,14 +570,14 @@ declare namespace http {
         // float works as value but converts the value to a float.
         float(key: string): number
 
-        // currency works as value but converts the value to a float.
-        currency(key: string): number
-
         // bool works as value but converts the value to an bool.
         bool(key: string): boolean
 
-        // date works as value but converts the value formated as "yyyy-mm-dd" to an time.Time.
-        date(key: string): time.Time
+        // date works as value but converts the value to time.Time.
+		date(key: string): time.Time
+		
+		routeInt(segment: number): number
+		routeString(segment: number): string
 
         headers(): string[]
         header(key: string): string
@@ -592,25 +585,20 @@ declare namespace http {
 
         file(name: string): File
 
-        // The parsed form data, including both the URL
-        // field's query parameters and the POST or PUT form data.
-        // This field is only available after ParseForm is called.
-        // The HTTP client ignores Form and uses Body instead.
-        values: StringMap
+        values(): any
 
-        formValues: StringMap
-
+		formValues(): StringMap
+		
         cookie(key: string): Cookie | null
 
         addCookie(c: Cookie): void
-        addCookieValue(name: string, value: string): void
 
         setBasicAuth(user: string, password: string): void
         basicAuth(): { user: string, password: string }
 
         execute(timeout?: number | time.Duration, tlsconf?: tls.Config): Response
-
-        mustExecute(timeout?: number | time.Duration, tlsconf?: tls.Config): string
+        executeString(timeout?: number | time.Duration, tlsconf?: tls.Config): string
+        executeJSON(timeout?: number | time.Duration, tlsconf?: tls.Config): any 
     }
 
 
@@ -619,7 +607,7 @@ declare namespace http {
         contentType: string
         size: number
         read(b: byte[]): number
-        ReadAt(p: byte[], off: number): number
+		ReadAt(p: byte[], off: number): number
         close(): void
     }
 
@@ -632,8 +620,8 @@ declare namespace http {
         name: string
         value: string
         secure: boolean
-        httpOnly: boolean
-        sameSite: SameSite
+		httpOnly: boolean
+		sameSite: SameSite
     }
 
     export interface URL {
@@ -653,7 +641,9 @@ declare namespace http {
 
         path: string
         query: string
-        pathAndQuery: string
+		pathAndQuery: string
+		
+		string(): string
     }
 
     // interface FormValues {
@@ -665,11 +655,12 @@ declare namespace http {
         status: number
         handled: boolean
         proto: string
-        body(): string
-        bytes(): byte[]
-        cookies(): Cookie[]
-        headers(): string[]
-        header(name: string): string[]
+		body(): string
+		json(): any
+		bytes(): byte[]
+		cookies(): Cookie[]
+		headers(): string[]
+		header(name: string): string[]
     }
 
 
@@ -678,18 +669,18 @@ declare namespace http {
 
         handled: boolean
 
-        /**
-         * Only will have a value if it is a Recorder
-         */
-        readonly body: io.Buffer
-
-        readonly headers: Map<string[]>
-
+		body(): string
+		json(): any
+		bytes(): byte[]
+		
         cookie(name: string): Cookie
 
         cookies(): Cookie[]
 
-        addCookie(c: Cookie): void
+		addCookie(c: Cookie): void
+		
+		headers(): string[]
+		header(name: string): string[]
 
         /**
          * Writes v to the server response.
@@ -738,7 +729,7 @@ declare namespace http {
          */
         writeJSONError(status: number, msg?: string): void
 
-        redirect(url: string): void
+        redirect(url: string, status?: number): void
     }
 
 
@@ -749,78 +740,13 @@ declare namespace http {
 
 
 declare namespace httputil {
-    export function newSingleHostReverseProxy(target: http.URL): ReverseProxy
-
-    export interface ReverseProxy {
-        serveHTTP(w: http.ResponseWriter, r: http.Request): void
-    }
+	export function newSingleHostReverseProxy(target: http.URL): ReverseProxy
+	
+	export interface ReverseProxy {
+		serveHTTP(w: http.ResponseWriter, r: http.Request): void
+	}
 }
 
-
-
-
-
-declare namespace i18n {
-    export interface Culture {
-        name: string
-        currencySymbol: string
-        currency: string
-        currencyPattern: string
-        decimalSeparator: string
-        thousandSeparator: string
-        shortDatePattern: string
-        longDatePattern: string
-        shortTimePattern: string
-        longTimePattern: string
-        dateTimePattern: string
-        firstDayOfWeek: number
-    }
-
-    export const DefaultCulture: Culture
-    export function setDefaultCulture(c: string): void
-
-    export function getCultureNames(): StringMap
-    export function getCulture(name: string): Culture
-    export function format(pattern: string, value: any): string
-    export function translate(culture: string, key: string): string
-    export function addTranslation(culture: string, key: string, translation: string): void
-    export function addResources(culture: string, name: string, resources: any[]): void
-
-
-
-    /**
-     *  Example:
-            "es-ES",
-            ',',
-            '.',
-            "EUR",
-            "€",
-            "0:00€",
-            "0:0000€",
-            "0:00",
-            "dd-MM-yyyy HH:mm",
-            "ddd, dd-MM-yyyy HH:mm",
-            "dd-MM-yyyy",
-            "ddd, dd MMM yyyy",
-            "HH:mm",
-            "HH:mm:ss",
-            time.Monday,
-     */
-    export function addCulture(
-        name: string,
-        decimalSeparator: string,
-        thousandSeparator: string,
-        currency: string,
-        currencySymbol: string,
-        currencyPattern: string,
-        floatPattern: string,
-        dateTimePattern: string,
-        shortDatePattern: string,
-        longDatePattern: string,
-        shortTimePattern: string,
-        longTimePattern: string,
-        firstDayOfWeek: number): Culture
-}
 
 
 
@@ -831,9 +757,9 @@ declare namespace io {
     }
 
     export interface ReaderAt {
-        ReadAt(p: byte[], off: number): number
+		ReadAt(p: byte[], off: number): number
     }
-
+	
     export interface ReaderCloser extends Reader {
         close(): void
     }
@@ -868,14 +794,10 @@ declare namespace io {
         write(v: any): void
         string(): string
         toBytes(): byte[]
-    }
+	}
 
     export interface FileSystem {
-        /**
-         * The current working directory
-         */
-        workingDir: string
-
+		getWd(): string
         abs(path: string): string
         open(path: string): File
         openIfExists(path: string): File
@@ -895,12 +817,12 @@ declare namespace io {
         stat(path: string): FileInfo
         readDir(path: string): FileInfo[]
         readNames(path: string, recursive?: boolean): string[]
-    }
-
-    export interface RestrictedFS extends FileSystem {
-        addToWhitelist(path: string): void
-        addToBlacklist(path: string): void
-    }
+	}
+	
+	export interface RestrictedFS extends FileSystem {
+		addToWhitelist(path: string): void
+		addToBlacklist(path: string): void
+	}
 
     export interface File {
         read(b: byte[]): number
@@ -937,10 +859,71 @@ declare namespace json {
 
 
 
+ 
+declare namespace locale {
+	export const defaultLocalizer: Localizer
+	export function setLocalizer(c: Localizer): void
+	export function setDefaultLocalizer(c: Localizer): void
+	
+	export const currentLocalizer: Localizer
+	export const currentLanguage: string
+	export function setCurrentLanguage(language: string): void
 
-declare namespace log {
+	export function format(format: string, v: any): string
+	export function parseNumber(v: string): number
+	export function parseDate(v: string, format?: string): time.Time
+
+	export function newCulture(name: string): Culture
+
+	export interface Culture {
+		name: string
+		language: string
+		locked: boolean
+		numberOfDecimals: number
+		decimalSeparator: string
+		thousandSeparator: string
+		currencySymbol: string
+		currencyPattern: string
+		dateMonthTimePattern: string
+		dateTimePattern: string
+		shortDatePattern: string
+		longDatePattern: string
+		dateMonthPattern: string
+		shortTimePattern: string
+		firstDayOfWeek: number
+		clone(): Culture
+	}
+
+	export function newTranslator(): Translator
+
+	export interface Translator {
+		add(language: string, key: string, translation: string): void
+		languages(): string[]
+		translate(key: string, ...params: any[]): string
+	}
+
+	export function newLocalizer(): Localizer
+
+	export interface Localizer {
+		culture: Culture
+		translator: Translator
+		
+		translate(language: string, template: string): string
+		format(format: string, v: any, language?: string): string
+		parseNumber(v: string): number
+		parseDate(value: string, format?: string): time.Time
+	}
+
+}
+
+
+
+
+
+declare namespace logging {	
     export const defaultLogger: Logger
-    export function setDefaultLogger(logger: Logger): void
+	export function setDefaultLogger(logger: Logger): void
+	
     export function fatal(format: any, ...v: any[]): void
     export function system(format: any, ...v: any[]): void
     export function write(table: string, format: any, ...v: any[]): void
@@ -949,9 +932,8 @@ declare namespace log {
 
     export interface Logger {
         path: string
-        debug: boolean
+		debug: boolean
         save(table: string, data: string, ...v: any): void
-        insert(date: time.Time, table: string, data: string, ...v: any[]): void
         query(table: string, start: time.Time, end: time.Time, offset?: number, limit?: number): Scanner
     }
 
@@ -966,29 +948,6 @@ declare namespace log {
         time: time.Time
         string(): string
     }
-}
-
-
-
-declare interface StringMap {
-    [key: string]: string
-}
-
-declare interface KeyIndexer<T> {
-    [key: string]: T
-}
-
-declare type Map<T> = KeyIndexer<T>
-
-declare namespace Object {
-    export function len(v: any): number
-    export function keys(v: any): string[]
-    export function values<T>(v: Map<T>): T[]
-    export function values<T>(v: any): T[]
-    export function deleteKey(v: any, key: string | number): void
-    export function deleteKeys(v: any): void
-    export function hasKey(v: any, key: any): boolean
-    export function clone<T>(v: T): T
 }
 
 
@@ -1011,9 +970,12 @@ declare namespace math {
 
     export function abs(n: number): number
 
+    export function pow(n: number, exp: number): number
+
     export function min(nums: number[]): number
 
-    export function floor(n: number): number
+	export function floor(n: number): number
+	
     export function ceil(n: number): number
 
     export function round(n: number, decimals?: number): number
@@ -1028,7 +990,7 @@ declare namespace math {
 
 
 declare namespace net {
-    export function inCIDR(cidr: string, ip: string): boolean;
+	export function inCIDR(cidr: string, ip: string): boolean;
 
     export function getIPAddress(): string
 
@@ -1036,11 +998,11 @@ declare namespace net {
 
     export type dialNetwork = "tcp" | "tcp4" | "tcp6" | "udp" | "udp4" | "udp6" | "ip" | "ip4" | "ip6" | "unix" | "unixgram" | "unixpacket"
 
-    export type listenNetwork = "tcp" | "tcp4" | "tcp6" | "unix" | "unixpacket"
-
-    export interface IP {
-        string(): string
-    }
+	export type listenNetwork = "tcp" | "tcp4" | "tcp6" | "unix" | "unixpacket"
+	
+	export interface IP {
+		string(): string
+	}
 
     export interface Connection {
         read(b: byte[]): number
@@ -1063,42 +1025,67 @@ declare namespace net {
     export interface TCPListener {
         accept(): TCPConnection
         close(): void
-    }
-
+	}
+	
     export function dialTCP(network: dialNetwork, localAddr: TCPAddr, remoteAddr: TCPAddr): TCPConnection
-    export function listenTCP(network: listenNetwork, address: TCPAddr): TCPListener
+	export function listenTCP(network: listenNetwork, address: TCPAddr): TCPListener
 
     export interface TCPConnection {
-        localAddr: TCPAddr | Addr
-        remoteAddr: TCPAddr | Addr
+		localAddr: TCPAddr | Addr
+		remoteAddr: TCPAddr | Addr
         read(b: byte[]): number
         write(b: byte[]): number
         setDeadline(t: time.Time): void
         setWriteDeadline(t: time.Time): void
         setReadDeadline(t: time.Time): void
         close(): void
-    }
-
-    export function resolveTCPAddr(network: dialNetwork, address: string): TCPAddr
-
+	}
+	
+	export function resolveTCPAddr(network: dialNetwork, address: string): TCPAddr
+	
     export interface TCPAddr {
-        IP: IP
-        port: number
-        IPAddress(): string
+		IP: IP
+		port: number
+		IPAddress(): string
         string(): string
     }
 
     export interface Addr {
-        IPAddress(): string
+		IPAddress(): string
         string(): string
     }
 }
 
 
 
+	
+declare interface StringMap {
+    [key: string]: string
+}
+
+declare interface KeyIndexer<T> {
+    [key: string]: T
+}
+
+declare type Map<T> = KeyIndexer<T>
+ 
+declare namespace Object {
+    export function len(v: any): number
+    export function keys(v: any): string[]
+    export function values<T>(v: Map<T>): T[]
+    export function values<T>(v: any): T[]
+    export function deleteKey(v: any, key: string | number): void
+    export function deleteKeys(v: any): void
+    export function hasKey(v: any, key: any): boolean
+    export function clone<T>(v: T): T
+}
+	
+
 
 
 declare namespace os {
+	export const ErrNotExist: string
+
     export const stdin: io.File
     export const stdout: io.File
     export const stderr: io.File
@@ -1119,14 +1106,12 @@ declare namespace os {
 
     export function exit(code?: number): void
 
-    export const homeDir: string
-    export const pathSeparator: string
-
+    export const userHomeDir: string
+	export const pathSeparator: string
+	
     export function hostName(): string
-
+	 
     export function mapPath(path: string): string
-
-    export function newUUID(): string
 
     export function newCommand(name: string, ...params: any[]): Command
 
@@ -1141,7 +1126,29 @@ declare namespace os {
         start(): void
         output(): string
         combinedOutput(): string
-    }
+	}
+	
+	export function getWd(): string
+	export function open(path: string): io.File
+	export function openIfExists(path: string): io.File
+	export function openForWrite(path: string): io.File
+	export function openForAppend(path: string): io.File
+	export function chdir(dir: string): void
+	export function exists(path: string): boolean
+	export function rename(source: string, dest: string): void
+	export function removeAll(path: string): void
+	export function readAll(path: string): byte[]
+	export function readAllIfExists(path: string): byte[]
+	export function readString(path: string): string
+	export function readStringIfExists(path: string): string
+	export function write(path: string, data: string | io.Reader | byte[]): void
+	export function append(path: string, data: string | byte[]): void
+	export function mkdir(path: string): void
+	export function stat(path: string): io.FileInfo
+	export function readDir(path: string): io.FileInfo[]
+	export function readNames(path: string, recursive?: boolean): string[]
+
+
 }
 
 
@@ -1190,12 +1197,43 @@ declare namespace reflect {
 declare namespace regex {
     export function match(pattern: string, value: string): boolean
     export function split(pattern: string, value: string): string[]
-    export function findAllStringSubmatch(pattern: string, value: string, count?: number): string[]
+    export function findAllString(pattern: string, value: string, count?: number): string[]
+    export function findAllStringSubmatch(pattern: string, value: string, count?: number): string[][]
     export function findAllStringSubmatchIndex(pattern: string, value: string, count?: number): number[][]
     export function replaceAllString(pattern: string, source: string, replace: string): string
 }
 
 
+
+
+	
+	declare namespace routing {
+		interface Any {
+			[prop: string]: any
+		}
+
+		export interface Route extends Any {
+			url: string
+		}
+
+		export function newRouter(): Router
+	
+		export interface Router {
+			reset(): void
+			add(route: Route): void
+			match(url: string): RouteMatch | null
+			print(): void
+		}
+	
+		export interface RouteMatch {
+			route: any
+			values: any
+			int(name: string): number
+			string(name: string): string
+		}	
+	}
+
+	
 
 
 
@@ -1226,14 +1264,16 @@ declare function defer(f: () => void): void;
 
 declare namespace runtime {
     export const version: string
-}
 
-declare namespace runtime {
-    export interface Finalizable {
+	export const ErrFunctionNotExist: string
+
+    export interface Finalizable { 
         close(): void
-    }
+	}
+	
+	// export function call(module: string, func: string, ...args: any[]): any
 
-    export function typeDefs(): string
+	export function typeDefs(): string
 
     export function setFileSystem(fs: io.FileSystem): void
 
@@ -1242,23 +1282,10 @@ declare namespace runtime {
 
     export function panic(message: string): void
 
+	export function attribute(name: string): string
+
     export type OSName = "linux" | "windows" | "darwin"
-
-    export const pluginManager: PluginManager
-    export const globalPluginManager: PluginManager
-
-    export function setGlobalPluginManager(p: PluginManager): void
-    export function initGlobalPluginManager(fs?: io.FileSystem): PluginManager
-
-    export const context: Context
-
-    // allows to set values shared accross all contexts
-    export const global: any
-
-    export function newPluginManager(fs?: io.FileSystem): PluginManager
-    export function newPlugin(name: string, program: Program): Plugin
-    export function newContext(): Context
-
+	
     /**
      * Returns the operating system
      */
@@ -1274,16 +1301,12 @@ declare namespace runtime {
      */
     export const nativeExecutable: string
 
-    export const vm: VirtualMachine
+	export const context: any
+    export function setContext(c: any): void
 
+	export const vm: VirtualMachine
 
     export function runFunc(func: string, ...args: any[]): any
-    export function exec(func: string, ...args: any[]): any
-    export function execIfExists(func: string, ...args: any[]): any
-
-    // export function attachHook(name: string, func: Function): void
-    // export function dispatchHook(name: string, ...params: any[]): void
-    // export function anyHook(name: string): boolean
 
     export const hasResources: boolean
     export function resources(name: string): string[]
@@ -1293,16 +1316,21 @@ declare namespace runtime {
     export function newVM(p: Program, globals?: any[]): VirtualMachine
 
     export interface Program {
+		readonly constants: any[]
         functions(): FunctionInfo[]
         functionInfo(name: string): FunctionInfo
         resources(): string[]
         resource(key: string): byte[]
         setResource(key: string, value: byte[]): void
 
-        attributes(): StringMap
-        attribute(name: string): string
-        attributeValues(name: string): string[]
-        addAttribute(name: string, value: string): void
+		attributes(): string[]
+		attribute(name: string): string
+		hasAttribute(name: string): boolean
+		setAttribute(name: string, value: string): string
+
+		permissions(): string[]
+		hasPermission(name: string): boolean
+		addPermission(name: string): void
 
         /**
          * Strip sources, not exported functions name and other info.
@@ -1310,93 +1338,52 @@ declare namespace runtime {
         strip(): void
         string(): string
         write(w: io.Writer): void
-    }
-
+	}
+	
     export interface FunctionInfo {
         name: string
         index: number
-        arguments: number
+		arguments: number
+		optionalArguments: number
         exported: boolean
-        func: Function
+		func: Function
+		attributes(): string[]
+		attribute(name: string): string
+		hasAttribute(name: string): boolean
         string(): string
     }
 
     export interface VirtualMachine {
-        maxAllocations: number
-        maxFrames: number
-        maxSteps: number
-        readonly steps: number
-        readonly allocations: number
-        readonly fileSystem: io.FileSystem
-        readonly program: Program
-        context: Context
-        trusted: boolean
-        error: errors.Error
-        initialize(): void
-        run(...args: any[]): any
-        runFunc(name: string, ...args: any[]): any
-        runFunc(index: number, ...args: any[]): any
-        runStaticFunc(name: string, ...args: any[]): any
-        runStaticFunc(index: number, ...args: any[]): any
-        getValue(name: string): any
-        getGlobals(): any[]
-        stackTrace(): string
-        setFileSystem(v: io.FileSystem): void
-        clone(): VirtualMachine
-        resetSteps(): void
-    }
-
-    export interface Context {
-        db: sql.DB
-        plugin: Plugin
-        pluginManager: PluginManager
-        pluginName: string
-        language: string
-        culture: i18n.Culture
-        location: time.Location
-        debug: boolean
-        test: boolean
-        items: { [key: string]: any }
-        dataFS: io.FileSystem
-        addPlugin(name: string): void
-        hasPlugin(name: string): boolean
-        getPlugins(): string[]
-        setPlugins(v: string[]): void
-        clone(): Context
-        exec(func: string, ...args: any[]): any
-        execIfExists(func: string, ...args: any[]): any
-        getProtectedItem(name: string): any
-        setProtectedItem(name: string, v: any): void
-    }
-
-    export interface PluginManager {
-        debug: boolean
-        fileSystem: io.FileSystem
-        getPlugin(plugin: string): Plugin
-        allPlugins(): Plugin[]
-        loadPlugin(plugin: string | Plugin, trusted?: boolean): Plugin
-        reloadPlugin(plugin: string, trusted?: boolean): Plugin
-        clone(): PluginManager
-        clear(name?: string): void
-        runFunc(func: string, ...args: any[]): any
-        exec(c: Context, func: string, ...args: any[]): any
-        execIfExists(c: Context, func: string, ...args: any[]): any
-        copy(): PluginManager
-
-        attachHook(name: string, func: Function): void
-        dispatchHook(name: string, ...params: any[]): void
-        anyHook(name: string): boolean
-    }
-
-    export interface Plugin {
-        name: string
-        dirName: string
-        program: Program
-        globals: any[]
-        setGlobals(v: any[]): void
-    }
+		maxAllocations: number
+		maxFrames: number
+		maxSteps: number
+		fileSystem: io.FileSystem
+		localizer: locale.Localizer
+		readonly steps: number
+		readonly allocations: number
+		readonly program: Program
+		context: any
+		language: string
+		location: time.Location
+		error: errors.Error
+		initialize(): any[]
+		run(...args: any[]): any
+		runFunc(name: string, ...args: any[]): any
+		runFunc(index: number, ...args: any[]): any
+		getValue(name: string): any
+		getGlobals(): any[]
+		stackTrace(): string
+		clone(): VirtualMachine
+		resetSteps(): void
+	}
 }
 
+
+
+
+declare namespace secure {
+	export function newSecureObject(read: boolean, write: boolean): any 
+}
 
 
 
@@ -1435,65 +1422,36 @@ declare namespace smtp {
 
 
 declare namespace sql {
-    export type DriverType = "mysql"
-
     /**
      * If you specify a databaseName every query will be parsed and all tables will be
      * prefixed with the database name: "SELECT foo FROM bar" will automatically be converted 
      * to "SELECT databasename.foo FROM bar". 
-     * 
-     * The parser understands most SQL standard but very little DDL (no ALTER TABLE yet).
      */
-    export function open(driver: DriverType, connString: string, databaseName?: string): DB
-    export function changeDatabase(name: string): void
-
-    export function setLogAllQueries(value: boolean): void
-    //export function setAuditAllQueries(value: boolean): void
-
-    export let hasTransaction: boolean
-    export let nestedTransactions: number
-    export let driver: DriverType
-    export let database: string
-    export let transactionNestLevel: number
-
-    export function exec(query: string | Query, ...params: any[]): Result
-    export function execRaw(query: string, ...params: any[]): Result
-    export function reader(query: string | SelectQuery, ...params: any[]): Reader
-    export function query(query: string | SelectQuery, ...params: any[]): any[]
-    export function queryValues(query: string | SelectQuery, ...params: any[]): any[]
-    export function queryRaw(query: string | SelectQuery, ...params: any[]): any[]
-    export function queryFirst(query: string | SelectQuery, ...params: any[]): any
-    export function queryValue(query: string | SelectQuery, ...params: any[]): any
-
-    export function queryValueRaw(query: string | SelectQuery, ...params: any[]): any
-    export function loadTable(query: string | SelectQuery, ...params: any[]): Table
-    export function beginTransaction(): void
-    export function commit(force?: boolean): void
-    export function rollback(): void
-    export function hasTable(name: string): boolean
-    export function databases(): string[]
-    export function tables(): string[]
-    export function columns(table: string): SchemaColumn[]
-    export function setWhitelistFuncs(funcs: string[]): void
+    export function open(driver: string, connString: string, databaseName?: string): DB
+	
+	export function setWhitelistFuncs(funcs: string[]): void
+	
 
     /**
      * DB is a handle to the database.
      */
     export interface DB {
-        database: string
-        namespace: string
-        openAnyDatabase: boolean
+		database: string
+		prefix: string
+		namespace: string
         readOnly: boolean
-        driver: DriverType
-        nestedTransactions: number
-        hasTransaction: boolean
+		locked: boolean
+        driver: string
+		hasTransaction: boolean
+		
+		setMaxOpenConns(v: number): void
+		setMaxIdleConns(v: number): void
+		setConnMaxLifetime(d: time.Duration | number): void
 
-        setMaxOpenConns(v: number): void
-        setMaxIdleConns(v: number): void
-        setConnMaxLifetime(d: time.Duration | number): void
-
-        onQuery: (query: string | SelectQuery, ...params: any[]) => void
-        open(name: string): DB
+		onExecuting: (query: Query, ...params: any[]) => void
+		
+        open(name: string, namespace?: string): DB
+        clone(): DB
         close(): void
 
         reader(query: string | SelectQuery, ...params: any[]): Reader
@@ -1504,7 +1462,7 @@ declare namespace sql {
         queryValues(query: string | SelectQuery, ...params: any[]): any[]
         queryValuesRaw(query: string | SelectQuery, ...params: any[]): any[]
         queryValue(query: string | SelectQuery, ...params: any[]): any
-        queryValueRaw(query: string | SelectQuery, ...params: any[]): any
+    	queryValueRaw(query: string | SelectQuery, ...params: any[]): any
 
         loadTable(query: string | SelectQuery, ...params: any[]): Table
         loadTableRaw(query: string | SelectQuery, ...params: any[]): Table
@@ -1543,39 +1501,25 @@ declare namespace sql {
         rowsAffected: number
     }
 
-    export interface Table {
-        columns: Column[]
-        rows: Row[]
-        length: number
-        page?: number
-        pageSize?: number
-        totalCount?: number
-        items?: any
-    }
-
-    export interface Row extends Array<any> {
-        [index: number]: any
-        [key: string]: any
-        length: number
-        columns: Array<Column>
-    }
-
-    export type ColumnType = "string" | "int" | "float" | "bool" | "datetime"
-
-    export interface Column {
-        name: string
-        type: ColumnType
-    }
-
     export function parse(query: string, ...params: any[]): Query
-    export function select(query: string, ...params: any[]): SelectQuery
+	export function select(query: string, ...params: any[]): SelectQuery
+	
+	export interface ValidateOptions {
+		tables: Map<string[]>
+	}
 
-    export interface ValidateOptions {
-        tables: Map<string[]>
-    }
+	export interface QueryTable {
+		name: string
+		alias: string
+		database: string
+		leftJoin: boolean
+	}
 
-    export function validateSelect(q: SelectQuery, options: ValidateOptions): void
-
+	export function getTables(q: Query): QueryTable[]
+	export function getFilterColumns(q: Query): { name: string, table: string }[]
+	
+	export function validateSelect(q: SelectQuery, options: ValidateOptions): void
+	
     export function newSelect(): SelectQuery
 
     export function where(filter: string, ...params: any[]): SelectQuery
@@ -1583,10 +1527,11 @@ declare namespace sql {
     export function orderBy(s: string): SelectQuery
 
     export interface Query {
-        toSQL(format?: boolean, driver?: DriverType, escapeIdents?: boolean, ignoreNamespaces?: boolean): string
+        parameters: any[]
+        toSQL(format?: boolean, driver?: string, escapeIdents?: boolean): string
     }
 
-    export interface DQLQuery extends Query {
+    export interface CRUDQuery extends Query {
         hasLimit: boolean
         hasWhere: boolean
         parameters: any[]
@@ -1632,6 +1577,11 @@ declare namespace sql {
         getFilterColumns(): string[]
     }
 
+    export interface InsertQuery extends Query {
+        parameters: any[]
+        addColumn(s: string, value: any): void
+	}
+	
     export interface UpdateQuery extends Query {
         hasLimit: boolean
         hasWhere: boolean
@@ -1657,6 +1607,27 @@ declare namespace sql {
         limit(rowCount: number): DeleteQuery
         limit(rowCount: number, offset: number): DeleteQuery
     }
+
+    export interface Table {
+        columns: Column[]
+        rows: Row[]
+    }
+
+    export interface Row extends Array<any> {
+        [index: number]: any
+        [key: string]: any
+        length: number
+        columns: Array<Column>
+    }
+
+    export type ColumnType = "string" | "int" | "float" | "bool" | "datetime"
+
+    export interface Column {
+        name: string
+        type: ColumnType
+    }
+
+
 }
 
 
@@ -1670,12 +1641,16 @@ declare namespace strconv {
     export function formatCustomBase34(i: number): string
     export function parseCustomBase34(s: string): number
 
+
+    export function formatRef(i: number, length?: number): string
+    export function parseRef(ref: string): number
+
 }
 
 
 
 
-
+	
 declare namespace strings {
     export function newReader(a: string): io.Reader
 }
@@ -1692,11 +1667,12 @@ declare namespace strings {
     export function isAlphanumeric(value: string): boolean
     export function isAlphanumericIdent(value: string): boolean
     export function isNumeric(value: string): boolean
-    export function sort(a: string[]): void
+	export function sort(a: string[]): void
+	export function repeat(value: string, count: number): string
 }
-
+	  
 interface String {
-    [n: number]: string
+    [n: number]: string 
 
     /**
      * Gets the length of the string.
@@ -1744,22 +1720,22 @@ interface String {
     lastIndexOf(s: string, start?: number): number
 
 
-    /**
-     * Replace with regular expression.
-     * The syntax is defined: https://golang.org/pkg/regexp/syntax
-     */
+	/**
+	 * Replace with regular expression.
+	 * The syntax is defined: https://golang.org/pkg/regexp/syntax
+	 */
     replaceRegex(expr: string, replace: string): string
 }
 
+	
 
 
-
-
+	
 declare namespace sync {
     export function newMutex(): Mutex
-    export function newWaitGroup(concurrency?: number): WaitGroup
-
-    export function execLocked(key: string, func: Function): any
+	export function newWaitGroup(concurrency?: number): WaitGroup
+	
+	export function execLocked(key: string, func: Function): any
 
     export interface WaitGroup {
         go(f: Function): void
@@ -1782,7 +1758,7 @@ declare namespace sync {
     }
 }
 
-
+	
 
 
 
@@ -1799,26 +1775,171 @@ declare namespace templates {
      * 
      * @param headerFunc By defauult is: function render(w: io.Writer, model: any)
      */
-    export function compile(text: string, headerFunc?: string): string
+    export function compile(text: string): string
     /**
      * 
      * @param headerFunc By defauult is: function render(w: io.Writer, model: any)
      */
-    export function compileHTML(text: string, headerFunc?: string): string
+    export function compileHTML(text: string): string
 
     /**
      * 
      * @param headerFunc By defauult is: function render(w: io.Writer, model: any)
      */
-    export function writeHTML(w: io.Writer, path: string, model?: any, fs?: io.FileSystem, headerFunc?: string): void
+    export function writeHTML(w: io.Writer, path: string, model?: any, fs?: io.FileSystem): void
 
     /**
      * 
      * @param headerFunc By defauult is: function render(w: io.Writer, model: any)
      */
-    export function writeHTMLTemplate(w: io.Writer, template: string, model?: any, headerFunc?: string): void
+    export function writeHTMLTemplate(w: io.Writer, template: string, model?: any): void
 }
 
+
+
+
+
+declare namespace terminal {
+	export function init(): void
+	export function close(): void
+	export function sync(): void
+	export function setInputMode(v: number): void
+	export function setOutputMode(v: number): void
+	export function size(): { width: number, height: number }
+	export function flush(): void
+	export function clear(fg?: number, bg?: number): void
+	export function setCursor(x: number, y: number): void
+	export function hideCursor(): void
+	export function setCell(x: number, y: number, r: number | string, fg: number, bg: number): void
+	export function pollEvent(): Event
+
+	interface Event {
+		type: number
+		mod: number
+		key: number
+		ch: number
+		chStr: string
+		width: number
+		height: number
+		err: string
+		mouseX: number
+		mouseY: number
+	}
+
+	const ColorDefault = 0
+	const ColorBlack = 1
+	const ColorRed = 2
+	const ColorGreen = 3
+	const ColorYellow = 4
+	const ColorBlue = 5
+	const ColorMagenta = 6
+	const ColorCyan = 7
+	const ColorWhite = 8
+
+	const EventKey = 0
+	const EventResize = 1
+	const EventMouse = 2
+	const EventError = 3
+	const EventInterrupt = 4
+	const EventRaw = 5
+	const EventNone = 6
+
+	const InputCurrent = 0
+	const InputEsc = 1
+	const InputAlt = 2
+	const InputMouse = 3
+
+	const OutputCurrent = 0
+	const OutputNormal = 1
+	const Output256 = 2
+	const Output216 = 3
+	const OutputGrayscale = 4
+
+	const AttrBold = 512
+	const AttrUnderline = 1024
+	const AttrReverse = 2048
+
+	const ModAlt = 1
+	const ModMotion = 2
+
+	const KeyCtrlTilde = 0x00
+	const KeyCtrl2 = 0x00
+	const KeyCtrlSpace = 0x00
+	const KeyCtrlA = 0x01
+	const KeyCtrlB = 0x02
+	const KeyCtrlC = 0x03
+	const KeyCtrlD = 0x04
+	const KeyCtrlE = 0x05
+	const KeyCtrlF = 0x06
+	const KeyCtrlG = 0x07
+	const KeyBackspace = 0x08
+	const KeyCtrlH = 0x08
+	const KeyTab = 0x09
+	const KeyCtrlI = 0x09
+	const KeyCtrlJ = 0x0A
+	const KeyCtrlK = 0x0B
+	const KeyCtrlL = 0x0C
+	const KeyEnter = 0x0D
+	const KeyCtrlM = 0x0D
+	const KeyCtrlN = 0x0E
+	const KeyCtrlO = 0x0F
+	const KeyCtrlP = 0x10
+	const KeyCtrlQ = 0x11
+	const KeyCtrlR = 0x12
+	const KeyCtrlS = 0x13
+	const KeyCtrlT = 0x14
+	const KeyCtrlU = 0x15
+	const KeyCtrlV = 0x16
+	const KeyCtrlW = 0x17
+	const KeyCtrlX = 0x18
+	const KeyCtrlY = 0x19
+	const KeyCtrlZ = 0x1A
+	const KeyEsc = 0x1B
+	const KeyCtrlLsqBracket = 0x1B
+	const KeyCtrl3 = 0x1B
+	const KeyCtrl4 = 0x1C
+	const KeyCtrlBackslash = 0x1C
+	const KeyCtrl5 = 0x1D
+	const KeyCtrlRsqBracket = 0x1D
+	const KeyCtrl6 = 0x1E
+	const KeyCtrl7 = 0x1F
+	const KeyCtrlSlash = 0x1F
+	const KeyCtrlUnderscore = 0x1F
+	const KeySpace = 0x20
+	const KeyBackspace2 = 0x7F
+	const KeyCtrl8 = 0x7F
+
+
+	const KeyF1 = 0
+	const KeyF2 = 1
+	const KeyF3 = 2
+	const KeyF4 = 3
+	const KeyF5 = 4
+	const KeyF6 = 5
+	const KeyF7 = 6
+	const KeyF8 = 7
+	const KeyF9 = 8
+	const KeyF10 = 9
+	const KeyF11 = 10
+	const KeyF12 = 11
+	const KeyInsert = 12
+	const KeyDelete = 13
+	const KeyHome = 14
+	const KeyEnd = 15
+	const KeyPgup = 16
+	const KeyPgdn = 17
+	const KeyArrowUp = 18
+	const KeyArrowDown = 19
+	const KeyArrowLeft = 20
+	const KeyArrowRight = 21
+	const MouseLeft = 22
+	const MouseMiddle = 23
+	const MouseRight = 24
+	const MouseRelease = 25
+	const MouseWheelUp = 26
+	const MouseWheelDown = 27
+
+}
 
 
 
@@ -1832,8 +1953,6 @@ declare namespace time {
      * The default date format.
      */
     export const DefaultDateFormat: string
-
-    export const AllWeekDays: number
 
     export const Nanosecond: number
     export const Microsecond: number
@@ -1870,12 +1989,13 @@ declare namespace time {
     export const utc: Location
     export const local: Location
 
+    export function setLocation(name: string): void
     export function setDefaultLocation(name: string): void
 
     /**
      * Sets a fixed value for now() for testing.
      */
-    export function setFixedNow(t: time.Time): void
+    export function setFixedNow(t: Time): void
 
     /**
      * Remove a fixed value for now().
@@ -1883,11 +2003,7 @@ declare namespace time {
     export function unsetFixedNow(): void
     export function loadLocation(name: string): Location
 
-    export function convertFormat(format: string): string
-    export function formatMinutes(v: number): string
-
-    export function setDayOfWeek(value: number, dayOfWeek: number, active: boolean): number
-    export function isDayOfWeekActive(value: number, dayOfWeek: number): boolean
+	export function formatMinutes(v: number): string
 
     /**
      * 
@@ -1896,11 +2012,10 @@ declare namespace time {
     export function unix(seconds: number): Time
 
     export function date(year?: number, month?: number, day?: number, hour?: number, min?: number, sec?: number, loc?: Location): Time
-    export function localDate(year?: number, month?: number, day?: number, hour?: number, min?: number, sec?: number): Time
 
-
-    export function parseDuration(s: string): Duration
-
+	export function parseDuration(s: string): Duration
+	export function parseTime(s: string): number
+	
     export function duration(nanoseconds: number | Duration): Duration
     export function toDuration(hour: number, minute?: number, second?: number): Duration
     export function toMilliseconds(hour: number, minute?: number, second?: number): number
@@ -1948,12 +2063,15 @@ declare namespace time {
         addMilliseconds(t: number): Time
 
         setDate(year?: number, month?: number, day?: number): Time
+        addDate(year: number, month: number, day: number): Time
         setTime(hour?: number, minute?: number, second?: number, millisecond?: number): Time
         setTimeMillis(millis: number): Time
 
         format(f: string): string
-        formatIn(f: string, loc: Location): string
-        in(loc: Location): Time
+		formatIn(f: string, loc: Location): string
+		toString(): string
+		
+		in(loc: Location): Time
         /**
          * setLocation returns the same time with the location. No conversions
          * are made. 9:00 UTC becomes 9:00 Europe/Madrid
@@ -1983,19 +2101,18 @@ declare namespace time {
     }
 
     export interface Period {
-        start?: time.Time
-        end?: time.Time
+        start?: Time
+        end?: Time
     }
 
     export function after(d: number | Duration, value?: any): sync.Channel
     export function sleep(millis: number): void
-    export function sleep(d: time.Duration): void
-    export function parse(value: any, format?: string): time.Time
-    export function parseLocal(value: any, format?: string): time.Time
-    export function parseInLocation(value: any, format: string, location: Location): time.Time
-
-
-    export function newTicker(duration: number | time.Duration, func: Function): Ticker
+    export function sleep(d: Duration): void
+    export function parse(value: any, format?: string): Time
+    export function parseInLocation(value: any, format: string, location: Location): Time
+	
+	
+	export function newTicker(duration: number | Duration, func: Function): Ticker
     export function newTimer(duration: number, func: Function): Ticker
 
     export interface Ticker {
@@ -2014,17 +2131,31 @@ declare namespace tls {
     export function newConfig(insecureSkipVerify?: boolean): Config
 
     export interface Config {
-        insecureSkipVerify: boolean
+		insecureSkipVerify: boolean
+		certManager: autocert.CertManager
         loadCertificate(certPath: string, keyPath: string): void
         loadCertificateData(cert: byte[] | string, key: byte[] | string): void
-    }
+	}
 
-    export interface Certificate {
-        cert: byte[]
-        key: byte[]
-    }
+	export interface Certificate {
+		cert: byte[]
+		key: byte[]
+	}
+	
+	export function generateCert(): Certificate 
+}
 
-    export function generateCert(): Certificate
+declare namespace autocert {
+	export interface CertManager {
+
+	}
+
+	export function newCertManager(dirCache: string, domains: string[], cache?: Cache): CertManager
+	export function newCertManager(dirCache: string, hostPolicy: (host: string) => void, cache?: Cache): CertManager
+
+	export interface Cache {
+	}
+	export function newFileSystemCache(fs: io.FileSystem): Cache
 }
 
 
@@ -2061,35 +2192,12 @@ declare namespace websocket {
 
 
 
-declare namespace sync {
-    export function newWorker(): Worker
-    export function newJob(): Job
-
-    export interface Worker {
-        readonly isRunning: boolean
-        errorFunc: (job: any, e: errors.Error) => void
-        add(job: Job): void
-        start(): void
-        stop(): void
-    }
-
-    export interface Job {
-        idTask?: number
-        params: any
-        timeout?: time.Duration
-        workFunc: (params: any) => void
-    }
-}
-
-
-
-
 
 declare namespace xlsx {
     export function newFile(): XLSXFile
     export function openFile(path: string): XLSXFile
     export function openFile(file: io.File): XLSXFile
-    export function openReaderAt(r: io.ReaderAt, size: number): XLSXFile
+    export function openReaderAt(r: io.ReaderAt, size: number): XLSXFile 
     export function openBinary(file: io.File): XLSXFile
     export function newStyle(): Style
 
