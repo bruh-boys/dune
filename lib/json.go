@@ -1,9 +1,9 @@
 package lib
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/dunelang/dune"
 )
@@ -12,8 +12,7 @@ func init() {
 	dune.RegisterLib(JSON, `
 
 declare namespace json {
-    export function escapeString(str: string): string
-    export function marshal(v: any, indent?: boolean): string
+    export function marshal(v: any, indent?: boolean, escapeHTML?: boolean): string
     export function unmarshal(str: string | byte[]): any
 
 }
@@ -25,38 +24,47 @@ var JSON = []dune.NativeFunction{
 		Name:      "json.marshal",
 		Arguments: -1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			var format bool
+			ln := len(args)
+			if ln == 0 || ln > 3 {
+				return dune.NullValue, fmt.Errorf("expected 1, 2 or 3 arguments, got %d", len(args))
+			}
 
-			switch len(args) {
-			case 1:
+			var indent bool
+			var escapeHTML bool
 
-			case 2:
-				b := args[1]
-				if b.Type != dune.Bool {
-					return dune.NullValue, fmt.Errorf("expected arg 2 to be boolean, got %s", b.TypeName())
+			if ln > 1 {
+				v := args[1]
+				if v.Type != dune.Bool {
+					return dune.NullValue, fmt.Errorf("expected arg 2 to be boolean, got %s", v.TypeName())
 				}
-				format = b.ToBool()
+				indent = v.ToBool()
+			}
 
-			default:
-				return dune.NullValue, fmt.Errorf("expected 1 or 2 arguments, got %d", len(args))
+			if ln > 2 {
+				v := args[2]
+				if v.Type != dune.Bool {
+					return dune.NullValue, fmt.Errorf("expected arg 3 to be boolean, got %s", v.TypeName())
+				}
+				escapeHTML = v.ToBool()
 			}
 
 			obj := args[0].ExportMarshal(0)
 
-			var b []byte
-			var err error
+			buf := &bytes.Buffer{}
 
-			if format {
-				b, err = json.MarshalIndent(obj, "", "    ")
-			} else {
-				b, err = json.Marshal(obj)
+			encoder := json.NewEncoder(buf)
+
+			if indent {
+				encoder.SetIndent("", "    ")
 			}
 
-			if err != nil {
+			encoder.SetEscapeHTML(escapeHTML)
+
+			if err := encoder.Encode(obj); err != nil {
 				return dune.NullValue, err
 			}
 
-			return dune.NewString(string(b)), nil
+			return dune.NewString(buf.String()), nil
 		},
 	},
 	{
@@ -85,19 +93,6 @@ var JSON = []dune.NativeFunction{
 			}
 
 			return v, nil
-		},
-	},
-	{
-		Name:      "json.escapeString",
-		Arguments: 1,
-		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if err := ValidateArgs(args, dune.String); err != nil {
-				return dune.NullValue, err
-			}
-			s := args[0].String()
-			r := strings.NewReplacer("\\", "\\\\", "\n", "\\n", "\r", "", "\"", "\\\"", "'", "\\'")
-			s = r.Replace(s)
-			return dune.NewString(s), nil
 		},
 	},
 }
