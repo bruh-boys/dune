@@ -435,7 +435,14 @@ func (q *SelectQuery) AndQuery(filter *SelectQuery) {
 		return
 	}
 
-	exp := &ParenExpr{X: filter.WherePart.Expr}
+	var exp Expr
+	if len(filter.Columns) > 0 {
+		exp = filter
+	} else {
+		exp = filter.WherePart.Expr
+	}
+
+	exp = &ParenExpr{X: exp}
 
 	if q.WherePart != nil {
 		q.WherePart.Expr = &BinaryExpr{Left: q.WherePart.Expr, Right: exp, Operator: AND}
@@ -481,12 +488,20 @@ func (q *SelectQuery) OrQuery(filter *SelectQuery) {
 		return
 	}
 
-	exp := filter.WherePart.Expr
+	var exp Expr
+	if len(filter.Columns) > 0 {
+		exp = filter
+	} else {
+		exp = filter.WherePart.Expr
+	}
+
+	exp = &ParenExpr{X: exp}
 
 	if q.WherePart != nil {
 		q.WherePart.Expr = &BinaryExpr{Left: q.WherePart.Expr, Right: exp, Operator: OR}
 		return
 	}
+
 	q.WherePart = &WherePart{Pos: exp.Position(), Expr: exp}
 }
 
@@ -606,7 +621,14 @@ func (q *DeleteQuery) AndQuery(filter *SelectQuery) {
 		return
 	}
 
-	exp := &ParenExpr{X: filter.WherePart.Expr}
+	var exp Expr
+	if len(filter.Columns) > 0 {
+		exp = filter
+	} else {
+		exp = filter.WherePart.Expr
+	}
+
+	exp = &ParenExpr{X: exp}
 
 	if q.WherePart != nil {
 		q.WherePart.Expr = &BinaryExpr{Left: q.WherePart.Expr, Right: exp, Operator: AND}
@@ -648,7 +670,14 @@ func (q *DeleteQuery) OrQuery(filter *SelectQuery) {
 		return
 	}
 
-	exp := filter.WherePart.Expr
+	var exp Expr
+	if len(filter.Columns) > 0 {
+		exp = filter
+	} else {
+		exp = filter.WherePart.Expr
+	}
+
+	exp = &ParenExpr{X: exp}
 
 	if q.WherePart != nil {
 		q.WherePart.Expr = &BinaryExpr{Left: q.WherePart.Expr, Right: exp, Operator: OR}
@@ -746,7 +775,14 @@ func (q *UpdateQuery) AndQuery(filter *SelectQuery) {
 		return
 	}
 
-	exp := &ParenExpr{X: filter.WherePart.Expr}
+	var exp Expr
+	if len(filter.Columns) > 0 {
+		exp = filter
+	} else {
+		exp = filter.WherePart.Expr
+	}
+
+	exp = &ParenExpr{X: exp}
 
 	if q.WherePart != nil {
 		q.WherePart.Expr = &BinaryExpr{Left: q.WherePart.Expr, Right: exp, Operator: AND}
@@ -788,7 +824,14 @@ func (q *UpdateQuery) OrQuery(filter *SelectQuery) {
 		return
 	}
 
-	exp := filter.WherePart.Expr
+	var exp Expr
+	if len(filter.Columns) > 0 {
+		exp = filter
+	} else {
+		exp = filter.WherePart.Expr
+	}
+
+	exp = &ParenExpr{X: exp}
 
 	if q.WherePart != nil {
 		q.WherePart.Expr = &BinaryExpr{Left: q.WherePart.Expr, Right: exp, Operator: OR}

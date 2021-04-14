@@ -164,6 +164,7 @@ declare namespace sql {
         and(s: string, ...params: any[]): SelectQuery
         and(filter: SelectQuery): SelectQuery
         or(s: string, ...params: any[]): SelectQuery
+        or(filter: SelectQuery): SelectQuery
         join(s: string, ...params: any[]): SelectQuery
 
         /**
@@ -201,6 +202,7 @@ declare namespace sql {
         and(s: string, ...params: any[]): DeleteQuery
         and(filter: DeleteQuery): DeleteQuery
         or(s: string, ...params: any[]): DeleteQuery
+        or(filter: SelectQuery): SelectQuery
         limit(rowCount: number): DeleteQuery
         limit(rowCount: number, offset: number): DeleteQuery
     }
@@ -2546,11 +2548,29 @@ func (s deleteQuery) or(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if l == 0 {
 		return dune.NullValue, fmt.Errorf("expected at least 1 argument, got 0")
 	}
-	if args[0].Type != dune.String {
-		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
+
+	filter := args[0]
+
+	// the filter can be a query object
+	if filter.Type == dune.Object {
+		f, ok := filter.ToObject().(selectQuery)
+		if !ok {
+			return dune.NullValue, fmt.Errorf("expected argument to be a string or query, got %s", args[0].TypeName())
+		}
+
+		// when passing a query object the parameters are contained in the object
+		if l > 1 {
+			return dune.NullValue, fmt.Errorf("expected only 1 argument, got %d", l)
+		}
+		s.query.OrQuery(f.query)
+		return dune.NewObject(s), nil
 	}
 
-	v := args[0].String()
+	if filter.Type != dune.String {
+		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", filter.Type)
+	}
+
+	v := filter.String()
 
 	var params []interface{}
 	if l > 1 {
@@ -3257,11 +3277,29 @@ func (s selectQuery) or(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if l == 0 {
 		return dune.NullValue, fmt.Errorf("expected at least 1 argument, got 0")
 	}
-	if args[0].Type != dune.String {
-		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", args[0].Type)
+
+	filter := args[0]
+
+	// the filter can be a query object
+	if filter.Type == dune.Object {
+		f, ok := filter.ToObject().(selectQuery)
+		if !ok {
+			return dune.NullValue, fmt.Errorf("expected argument to be a string or query, got %s", args[0].TypeName())
+		}
+
+		// when passing a query object the parameters are contained in the object
+		if l > 1 {
+			return dune.NullValue, fmt.Errorf("expected only 1 argument, got %d", l)
+		}
+		s.query.OrQuery(f.query)
+		return dune.NewObject(s), nil
 	}
 
-	v := args[0].String()
+	if filter.Type != dune.String {
+		return dune.NullValue, fmt.Errorf("expected argument to be a string, got %v", filter.Type)
+	}
+
+	v := filter.String()
 
 	var params []interface{}
 	if l > 1 {
