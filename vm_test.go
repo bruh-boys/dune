@@ -1460,6 +1460,27 @@ func TestClassClosure2(t *testing.T) {
 	`)
 }
 
+func TestClosureBugfix_IgnoreNotAncestors(t *testing.T) {
+	assertValue(t, 33, `
+		function foo() {
+			let a = () => {
+				let v = 22
+				let f = () => v
+				return f()
+			}
+		
+			let b = () => {
+				let v = 33
+				let f = () => v
+				return f()
+			}
+		
+			return b()
+		}
+		return foo()
+	`)
+}
+
 func TestConstant1(t *testing.T) {
 	assertValue(t, 33, `
 		const a = 33

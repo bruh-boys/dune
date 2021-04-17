@@ -800,7 +800,7 @@ loop:
 					}
 					count++
 				}
-			} else {
+			} else if c.isParentFunc(f, cl.fn) {
 				count += len(f.Closures)
 			}
 		}
@@ -822,6 +822,29 @@ loop:
 			}
 		}
 	}
+}
+
+func (c *compiler) isParentFunc(parent, nested *Function) bool {
+	fp := c.functionInfo(parent.Index)
+	fn := c.functionInfo(nested.Index)
+
+	for fn != nil {
+		if fn == fp {
+			return true
+		}
+		fn = fn.parent
+	}
+
+	return false
+}
+
+func (c *compiler) functionInfo(i int) *functionInfo {
+	for _, fi := range c.functions {
+		if fi.function.Index == i {
+			return fi
+		}
+	}
+	return nil
 }
 
 func (c *compiler) compileThrowStmt(s *ast.ThrowStmt) error {
