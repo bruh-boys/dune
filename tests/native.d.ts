@@ -1620,7 +1620,7 @@ declare namespace sql {
         columns: Array<Column>
     }
 
-    export type ColumnType = "string" | "int" | "float" | "bool" | "datetime"
+    export type ColumnType = "string" | "int" | "decimal" | "bool" | "datetime"
 
     export interface Column {
         name: string
