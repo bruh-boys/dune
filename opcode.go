@@ -562,7 +562,7 @@ func exec_multiply(instr *Instruction, vm *VM) int {
 		case Rune:
 			vm.set(instr.A, NewRune(lh.ToRune()*rh.ToRune()))
 		case Null, Undefined:
-			vm.set(instr.A, lh)
+			vm.set(instr.A, NewInt(0))
 		default:
 			if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 				return vm_continue
@@ -575,7 +575,7 @@ func exec_multiply(instr *Instruction, vm *VM) int {
 		case Int, Float:
 			vm.set(instr.A, NewFloat(lh.ToFloat()*rh.ToFloat()))
 		case Null, Undefined:
-			vm.set(instr.A, lh)
+			vm.set(instr.A, NewInt(0))
 		default:
 			if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 				return vm_continue
@@ -588,7 +588,7 @@ func exec_multiply(instr *Instruction, vm *VM) int {
 		case Rune, Int:
 			vm.set(instr.A, NewRune(lh.ToRune()*rh.ToRune()))
 		case Null, Undefined:
-			vm.set(instr.A, lh)
+			vm.set(instr.A, NewInt(0))
 		default:
 			if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 				return vm_continue
@@ -599,7 +599,7 @@ func exec_multiply(instr *Instruction, vm *VM) int {
 	case Null, Undefined:
 		switch rh.Type {
 		case Int, Float, Rune:
-			vm.set(instr.A, rh)
+			vm.set(instr.A, NewInt(0))
 		default:
 			if vm.handle((vm.NewError("Invalid operation on %v and %v", lh.Type, rh.Type))) {
 				return vm_continue
