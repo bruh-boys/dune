@@ -509,6 +509,12 @@ func (b buffer) write(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		b.buf.Write(v.ToBytes())
 	case dune.Int:
 		fmt.Fprintf(b.buf, "%d", v.ToInt())
+	case dune.Bool:
+		if v.ToBool() {
+			b.buf.Write([]byte("true"))
+		} else {
+			b.buf.Write([]byte("false"))
+		}
 	case dune.Float:
 		fmt.Fprintf(b.buf, "%f", v.ToFloat())
 	case dune.Array:
