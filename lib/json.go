@@ -64,6 +64,9 @@ var JSON = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 
+			// trim the last byte because encoder.Encode adds a '\n' at the end.
+			buf.Truncate(buf.Len() - 1)
+
 			return dune.NewString(buf.String()), nil
 		},
 	},
