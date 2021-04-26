@@ -203,7 +203,7 @@ func getType(s string) ColType {
 		return Unknown
 	case "int", "integer", "bigint":
 		return Int
-	case "string", "text", "varchar", "nvarchar", "char", "longtext":
+	case "string", "text", "varchar", "nvarchar", "char", "mediumtext", "longtext":
 		return String
 	case "float", "real", "decimal", "double":
 		return Decimal
