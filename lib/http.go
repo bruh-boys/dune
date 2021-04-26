@@ -23,6 +23,8 @@ import (
 	"github.com/dunelang/dune"
 )
 
+const genericError = "We are sorry, something went wrong"
+
 func init() {
 	// set a default timeout for the whole app
 	http.DefaultClient.Timeout = time.Second * 60
@@ -2552,7 +2554,7 @@ func (r *responseWriter) writeError(args []dune.Value, vm *dune.VM) (dune.Value,
 		case 404:
 			r.writer.Write([]byte("Not Found"))
 		default:
-			r.writer.Write([]byte("Internal error"))
+			r.writer.Write([]byte(genericError))
 		}
 	}
 
@@ -2586,7 +2588,7 @@ func (r *responseWriter) writeJSONError(args []dune.Value, vm *dune.VM) (dune.Va
 		case 404:
 			err = []byte("Not Found")
 		default:
-			err = []byte("Internal error")
+			err = []byte(genericError)
 		}
 	}
 
