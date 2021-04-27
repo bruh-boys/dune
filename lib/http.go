@@ -2554,7 +2554,7 @@ func (r *responseWriter) writeError(args []dune.Value, vm *dune.VM) (dune.Value,
 		case 404:
 			r.writer.Write([]byte("Not Found"))
 		default:
-			r.writer.Write([]byte(genericError))
+			r.writer.Write([]byte(Translate(genericError, vm)))
 		}
 	}
 
@@ -2588,7 +2588,7 @@ func (r *responseWriter) writeJSONError(args []dune.Value, vm *dune.VM) (dune.Va
 		case 404:
 			err = []byte("Not Found")
 		default:
-			err = []byte(genericError)
+			err = []byte(Translate(genericError, vm))
 		}
 	}
 
