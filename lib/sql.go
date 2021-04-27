@@ -297,13 +297,13 @@ var SQL = []dune.NativeFunction{
 
 			a := args[0].ToArray()
 
-			sqx.WhitelistFuncs = make([]string, len(a))
+			sqx.ValidFuncs = make([]string, len(a))
 
 			for i, v := range a {
 				if v.Type != dune.String {
 					return dune.NullValue, fmt.Errorf("invalid value at index %d. It's a %s", i, v.TypeName())
 				}
-				sqx.WhitelistFuncs[i] = v.String()
+				sqx.ValidFuncs[i] = v.String()
 			}
 
 			return dune.NullValue, nil

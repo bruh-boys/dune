@@ -8,49 +8,7 @@ import (
 	"time"
 )
 
-var WhitelistFuncs = []string{
-	"HOUR",
-	"MINUTE",
-	"SECOND",
-	"DAY",
-	"MONTH",
-	"YEAR",
-	"DAYOFWEEK",
-	"NOW",
-	"UTC_TIMESTAMP",
-	"DATEDIFF",
-	"DATE_ADD",
-	"DATE",
-	"TIME",
-	"DATE_FORMAT",
-	"MONTHNAME",
-	"CONVERT_TZ",
-	"SUM",
-	"MAX",
-	"MIN",
-	"AVG",
-	"COUNT",
-	"ROUND",
-	"CONCAT",
-	"CONCAT_WS",
-	"LENGTH",
-	"LCASE",
-	"LOWER",
-	"REPLACE",
-	"SUBSTR",
-	"SUBSTRING",
-	"SUBSTRING_INDEX",
-	"TRIM",
-	"UCASE",
-	"IF",
-	"GROUP_CONCAT",
-	"COALESCE",
-	"DISTINCT",
-
-	// Custom sqx funcs
-	"START_OF_DAY",
-	"END_OF_DAY",
-}
+var ValidFuncs []string
 
 type writer struct {
 	// A database forces the query to specify all tables with it.
@@ -1363,7 +1321,7 @@ func (p *writer) writeInExpr(t *InExpr) error {
 func (p *writer) isWhiteListedFunc(name string) bool {
 	list := p.WhitelistFuncs
 	if list == nil {
-		list = WhitelistFuncs
+		list = ValidFuncs
 		if list == nil {
 			return true
 		}

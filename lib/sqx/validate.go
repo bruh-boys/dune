@@ -216,16 +216,18 @@ func validateInExpr(in *InExpr, options *ValidateOptions) error {
 }
 
 func validateCallExpr(expr *CallExpr, options *ValidateOptions) error {
-	var found bool
-	for _, f := range WhitelistFuncs {
-		if strings.EqualFold(f, expr.Name) {
-			found = true
-			break
+	if ValidFuncs != nil {
+		var found bool
+		for _, f := range ValidFuncs {
+			if strings.EqualFold(f, expr.Name) {
+				found = true
+				break
+			}
 		}
-	}
 
-	if !found {
-		return fmt.Errorf("invalid function: %s", expr.Name)
+		if !found {
+			return fmt.Errorf("invalid function: %s", expr.Name)
+		}
 	}
 
 	for _, arg := range expr.Args {

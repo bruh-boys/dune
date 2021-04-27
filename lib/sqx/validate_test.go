@@ -5,6 +5,21 @@ import (
 	"testing"
 )
 
+func init() {
+	ValidFuncs = []string{
+		"NOW",
+		"SUM",
+		"MAX",
+		"COUNT",
+		"CONCAT",
+		"START_OF_DAY",
+		"END_OF_DAY",
+		"DATE_ADD",
+		"MONTH",
+		"UTC_TIMESTAMP",
+	}
+}
+
 func TestValidateIN(t *testing.T) {
 	opt := &ValidateOptions{
 		Tables: []*ValidateTable{
@@ -217,6 +232,7 @@ func TestValidateFunction2(t *testing.T) {
 
 	assertSelect(t, opt, expected, query)
 }
+
 func TestValidateFunction3(t *testing.T) {
 	opt := &ValidateOptions{
 		Tables: []*ValidateTable{
