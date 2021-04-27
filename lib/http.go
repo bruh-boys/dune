@@ -245,6 +245,8 @@ declare namespace http {
          */
         write(v: any): number
 
+		writeGziped(v: any): number
+
         /**
          * Writes v to the server response setting json content type if
          * the header is not already set.
@@ -2241,6 +2243,9 @@ func (r *responseWriter) GetMethod(name string) dune.NativeMethod {
 	case "write":
 		r.handled = true
 		return r.write
+	case "writeGziped":
+		r.handled = true
+		return r.writeGziped
 	case "writeJSON":
 		r.handled = true
 		return r.writeJSON
@@ -2493,6 +2498,41 @@ func (r *responseWriter) redirect(args []dune.Value, vm *dune.VM) (dune.Value, e
 	r.status = status
 	http.Redirect(r.writer, r.request, url, status)
 
+	return dune.NullValue, nil
+}
+
+func (r *responseWriter) writeGziped(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	if !strings.Contains(r.request.Header.Get("Accept-Encoding"), "gzip") {
+		return r.write(args, vm)
+	}
+
+	if len(args) != 1 {
+		return dune.NullValue, fmt.Errorf("expected 1 argument, got %d", len(args))
+	}
+	var a = args[0]
+	var b []byte
+
+	switch a.Type {
+	case dune.Null, dune.Undefined:
+		return dune.NullValue, nil
+	case dune.String, dune.Bytes:
+		b = a.ToBytes()
+	default:
+		b = []byte(a.String())
+	}
+
+	if err := vm.AddAllocations(len(b)); err != nil {
+		return dune.NullValue, err
+	}
+	r.writer.Header().Set("Content-Encoding", "gzip")
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+	if _, err := gz.Write(b); err != nil {
+		return dune.NullValue, err
+	}
+	gz.Close()
+	b = buf.Bytes()
+	r.writer.Write(b)
 	return dune.NullValue, nil
 }
 
