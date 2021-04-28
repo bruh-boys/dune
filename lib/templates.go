@@ -374,6 +374,7 @@ func getVM(b []byte, vm *dune.VM) (*dune.VM, error) {
 
 	m := dune.NewVM(p)
 
+	m.Now = vm.Now
 	m.MaxAllocations = 10000000000 // vm.MaxAllocations
 	m.MaxFrames = 10               // vm.MaxFrames
 	m.MaxSteps = 10000000          // vm.MaxSteps

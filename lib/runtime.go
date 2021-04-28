@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/dunelang/dune"
 	"github.com/dunelang/dune/binary"
@@ -121,6 +122,7 @@ declare namespace runtime {
 		context: any
 		language: string
 		location: time.Location
+		now: time.Time
 		error: errors.Error
 		initialize(): any[]
 		run(...args: any[]): any
@@ -393,6 +395,7 @@ var Runtime = []dune.NativeFunction{
 				}
 			}
 
+			m.Now = vm.Now
 			m.MaxAllocations = vm.MaxAllocations
 			m.MaxFrames = vm.MaxFrames
 			m.MaxSteps = vm.MaxSteps
@@ -961,6 +964,12 @@ func (m *libVM) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 		return dune.NewInt64(m.vm.MaxSteps), nil
 	case "steps":
 		return dune.NewInt64(m.vm.Steps()), nil
+	case "now":
+		n := m.vm.Now
+		if n.IsZero() {
+			return dune.NullValue, nil
+		}
+		return dune.NewObject(TimeObj(n)), nil
 	case "allocations":
 		return dune.NewInt64(m.vm.Allocations()), nil
 	}
@@ -993,6 +1002,14 @@ func (m *libVM) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 
 	case "context":
 		m.vm.Context = v
+		return nil
+
+	case "now":
+		t, ok := v.ToObject().(TimeObj)
+		if !ok {
+			return ErrInvalidType
+		}
+		m.vm.Now = time.Time(t)
 		return nil
 
 	case "fileSystem":
