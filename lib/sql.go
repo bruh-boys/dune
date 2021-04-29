@@ -19,12 +19,14 @@ func init() {
 
 
 declare namespace sql {
+    export type DriverType = "mysql" | "sqlite3"
+
     /**
      * If you specify a databaseName every query will be parsed and all tables will be
      * prefixed with the database name: "SELECT foo FROM bar" will automatically be converted 
      * to "SELECT databasename.foo FROM bar". 
      */
-    export function open(driver: string, connString: string, databaseName?: string): DB
+    export function open(driver: DriverType, connString: string, databaseName?: string): DB
 	
 	export function setWhitelistFuncs(funcs: string[]): void
 	
@@ -38,9 +40,11 @@ declare namespace sql {
 		namespace: string
         readOnly: boolean
 		locked: boolean
-        driver: string
+        driver: DriverType
 		hasTransaction: boolean
 		
+		initMultiDB(): void
+
 		setMaxOpenConns(v: number): void
 		setMaxIdleConns(v: number): void
 		setConnMaxLifetime(d: time.Duration | number): void
@@ -125,7 +129,7 @@ declare namespace sql {
 
     export interface Query {
         parameters: any[]
-        toSQL(format?: boolean, driver?: string, escapeIdents?: boolean): string
+        toSQL(format?: boolean, driver?: DriverType, escapeIdents?: boolean): string
     }
 
     export interface CRUDQuery extends Query {
@@ -1052,6 +1056,8 @@ func (s *libDB) GetMethod(name string) dune.NativeMethod {
 		return s.clone
 	case "close":
 		return s.close
+	case "initMultiDB":
+		return s.initMultiDB
 	case "exec":
 		return s.exec
 	case "reader":
@@ -1386,6 +1392,11 @@ func getExecQuery(args []dune.Value, vm *dune.VM) (sqx.Query, error) {
 	}
 
 	return q, nil
+}
+
+func (s *libDB) initMultiDB(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	err := s.db.InitMultiDB()
+	return dune.NullValue, err
 }
 
 func (s *libDB) exec(args []dune.Value, vm *dune.VM) (dune.Value, error) {

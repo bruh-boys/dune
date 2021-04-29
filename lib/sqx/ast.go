@@ -265,6 +265,7 @@ func (q *CreateDatabaseQuery) queryNode() {}
 
 type CreateTableQuery struct {
 	Pos         Position
+	Database    string
 	Name        string
 	Columns     []*CreateColumn
 	Constraints []CreateTableConstraint

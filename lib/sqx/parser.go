@@ -853,11 +853,22 @@ func (p *Parser) parseCreateTable(t *Token) (*CreateTableQuery, error) {
 		s.IfNotExists = true
 	}
 
-	table, err := p.parseIdent()
+	name, err := p.parseIdent()
 	if err != nil {
 		return nil, err
 	}
-	s.Name = table
+
+	if p.peek().Type == PERIOD {
+		p.next()
+		table, err := p.parseIdent()
+		if err != nil {
+			return nil, err
+		}
+		s.Database = name
+		s.Name = table
+	} else {
+		s.Name = name
+	}
 
 	if _, err := p.accept(LPAREN); err != nil {
 		return nil, err

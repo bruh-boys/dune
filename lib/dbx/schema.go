@@ -3,18 +3,51 @@ package dbx
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 )
 
-func (db *DB) Databases() (*Table, error) {
-	query := "show databases"
+func (db *DB) InitMultiDB() error {
+	switch db.Driver {
+	case "sqlite3":
+		_, err := db.Exec("CREATE TABLE IF NOT EXISTS dbx_internal_schema (name TEXT)")
+		return err
 
-	rows, err := db.queryable().Query(query)
-	if err != nil {
-		return nil, err
+	default:
+		return nil
 	}
-	defer rows.Close()
+}
 
-	return ToTable(rows)
+func (db *DB) Databases() (*Table, error) {
+	switch db.Driver {
+	case "sqlite3":
+		ok, err := db.HasTable("dbx_internal_schema")
+		if err != nil {
+			return nil, err
+		}
+		if !ok {
+			t := &Table{Columns: []*Column{{Name: "Database", Type: String}}}
+			return t, nil
+		}
+		query := "SELECT name AS Database FROM dbx_internal_schema"
+		rows, err := db.queryable().Query(query)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		return ToTable(rows)
+
+	case "mysql":
+		query := "show databases"
+		rows, err := db.queryable().Query(query)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		return ToTable(rows)
+
+	default:
+		return nil, fmt.Errorf("invalid driver: %s", db.Driver)
+	}
 }
 
 func (db *DB) HasDatabase(name string) (bool, error) {
@@ -23,6 +56,18 @@ func (db *DB) HasDatabase(name string) (bool, error) {
 	}
 
 	switch db.Driver {
+	case "sqlite3":
+		ok, err := db.HasTable("dbx_internal_schema")
+		if err != nil {
+			return false, err
+		}
+		if !ok {
+			return false, nil
+		}
+		return db.queryBoolean(`SELECT 1 
+								FROM dbx_internal_schema 
+								AND name = ?`, name)
+
 	case "mysql":
 		return db.queryBoolean(`SELECT 1
 								FROM INFORMATION_SCHEMA.SCHEMATA
@@ -42,6 +87,14 @@ func (db *DB) fullDatabaseName() string {
 
 func (db *DB) HasTable(name string) (bool, error) {
 	switch db.Driver {
+	case "sqlite3":
+		if db.Database != "" {
+			name = db.Database + "_" + name
+		}
+		return db.queryBoolean(`SELECT 1 
+								FROM sqlite_master 
+								WHERE type = 'table' 
+								AND name = ?`, name)
 
 	case "mysql":
 		if db.Database == "" {
@@ -59,6 +112,8 @@ func (db *DB) HasTable(name string) (bool, error) {
 
 func (db *DB) Tables() ([]string, error) {
 	switch db.Driver {
+	case "sqlite3":
+		return db.sqliteTables()
 
 	case "mysql":
 		q := `SHOW TABLES`
@@ -73,8 +128,38 @@ func (db *DB) Tables() ([]string, error) {
 	}
 }
 
+func (db *DB) sqliteTables() ([]string, error) {
+	tables, err := db.dbTables(`SELECT name 
+								FROM sqlite_master 
+								WHERE type = 'table' 
+								AND name NOT LIKE 'sqlite_%'`)
+	if err != nil {
+		return nil, err
+	}
+	d := db.Database
+	// filter non prefixed tables and remove the prefix
+	if d != "" {
+		d += "_"
+		for i := len(tables) - 1; i >= 0; i-- {
+			t := tables[i]
+			if !strings.HasPrefix(t, d) {
+				tables = append(tables[:i], tables[i+1:]...)
+				continue
+			}
+			tables[i] = t[len(d):]
+		}
+	}
+	return tables, nil
+}
+
 func (db *DB) Columns(table string) ([]SchemaColumn, error) {
 	switch db.Driver {
+	case "sqlite3":
+		if db.Database != "" {
+			table = db.Database + "_" + table
+		}
+		return db.sqliteColumns(table)
+
 	case "mysql":
 		return db.mysqlColumns(table)
 
@@ -87,6 +172,34 @@ type SchemaColumn struct {
 	Name     string
 	Type     string
 	Nullable bool
+}
+
+func (db *DB) sqliteColumns(table string) ([]SchemaColumn, error) {
+	rows, err := db.queryable().Query("pragma table_info(" + table + ")")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var columns []SchemaColumn
+
+	var null string
+	var dummy interface{}
+
+	for rows.Next() {
+		c := SchemaColumn{}
+		err = rows.Scan(&dummy, &c.Name, &c.Type, &null, &dummy, &dummy)
+		if err != nil {
+			return nil, err
+		}
+		columns = append(columns, c)
+	}
+
+	if rows.Err() != nil {
+		return nil, err
+	}
+
+	return columns, nil
 }
 
 func (db *DB) mysqlColumns(table string) ([]SchemaColumn, error) {

@@ -492,11 +492,10 @@ func (p *writer) writeShow(s *ShowQuery) error {
 }
 
 func (p *writer) writeShowDatabases(s *ShowQuery) error {
-	if p.Database != "" {
-		return fmt.Errorf("invalid database in SHOW DATABASES at %v", s.Pos)
-	}
-
 	switch p.driver {
+	case "sqlite3":
+		p.buf.WriteString("SELECT name AS Database FROM dbx_internal_schema")
+
 	default:
 		p.buf.WriteString("SHOW DATABASES")
 	}
@@ -527,6 +526,15 @@ func (p *writer) writeShowTables(s *ShowQuery) error {
 	}
 
 	switch p.driver {
+	case "sqlite3":
+		p.buf.WriteString(`SELECT name FROM sqlite_master WHERE type = "table"`)
+		if database != "" {
+			p.buf.WriteString(` AND name like "`)
+			if err := p.writeUnescapedAlphanumeric(database); err != nil {
+				return err
+			}
+			p.buf.WriteString(`%"`)
+		}
 	default:
 		p.buf.WriteString("SHOW TABLES")
 		if database != "" {
@@ -541,6 +549,12 @@ func (p *writer) writeShowTables(s *ShowQuery) error {
 
 func (p *writer) writeShowColumns(q *ShowQuery) error {
 	switch p.driver {
+	case "sqlite3":
+		p.buf.WriteString("PRAGMA table_info(")
+		if err := p.writeTable(q.Database, q.Table); err != nil {
+			return err
+		}
+		p.buf.WriteString(")")
 	default:
 		p.buf.WriteString("SHOW COLUMNS FROM ")
 		if err := p.writeTable(q.Database, q.Table); err != nil {
@@ -552,6 +566,12 @@ func (p *writer) writeShowColumns(q *ShowQuery) error {
 
 func (p *writer) writeShowIndex(q *ShowQuery) error {
 	switch p.driver {
+	case "sqlite3":
+		p.buf.WriteString("PRAGMA index_list(")
+		if err := p.writeTable(q.Database, q.Table); err != nil {
+			return err
+		}
+		p.buf.WriteString(")")
 	default:
 		p.buf.WriteString("SHOW INDEX FROM ")
 		if err := p.writeTable(q.Database, q.Table); err != nil {
@@ -564,14 +584,21 @@ func (p *writer) writeShowIndex(q *ShowQuery) error {
 func (p *writer) writeCreateDatabase(s *CreateDatabaseQuery) error {
 	p.currentQuery = s
 
-	p.buf.WriteString("CREATE DATABASE ")
-
-	if s.IfNotExists {
-		p.buf.WriteString("IF NOT EXISTS ")
-	}
-
-	if err := p.writeDatabase(s.Name); err != nil {
-		return err
+	switch p.driver {
+	case "sqlite3":
+		p.buf.WriteString(`INSERT OR REPLACE INTO dbx_internal_schema (name) VALUES ("`)
+		if err := p.writeUnescapedAlphanumeric(s.Name); err != nil {
+			return err
+		}
+		p.buf.WriteString(`")`)
+	default:
+		p.buf.WriteString("CREATE DATABASE ")
+		if s.IfNotExists {
+			p.buf.WriteString("IF NOT EXISTS ")
+		}
+		if err := p.writeDatabase(s.Name); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -585,7 +612,12 @@ func (p *writer) writeCreateTable(s *CreateTableQuery) error {
 		p.buf.WriteString("IF NOT EXISTS ")
 	}
 
-	if err := p.writeTable(p.Database, s.Name); err != nil {
+	database := s.Database
+	if database == "" {
+		database = p.Database
+	}
+
+	if err := p.writeTable(database, s.Name); err != nil {
 		return err
 	}
 
@@ -726,9 +758,70 @@ func (p *writer) writeConstraint(s *CreateTableQuery, c *Constraint) error {
 
 func (p *writer) writeCreateColumn(c *CreateColumn) error {
 	switch p.driver {
+	case "sqlite3":
+		return p.writeCreateColumnSqlite3(c)
 	default:
 		return p.writeCreateColumnMySQL(c)
 	}
+}
+
+func (p *writer) writeCreateColumnSqlite3(c *CreateColumn) error {
+	if err := p.writeIdentifier(c.Name); err != nil {
+		return err
+	}
+
+	switch c.Type {
+	case Int:
+		p.buf.WriteString(" INTEGER")
+	case Decimal:
+		p.buf.WriteString(" REAL")
+	case Char, Varchar:
+		p.buf.WriteString(" VARCHAR")
+	case Text, MediumText:
+		p.buf.WriteString(" TEXT")
+	case Bool:
+		p.buf.WriteString(" BOOLEAN")
+	case DatTime:
+		p.buf.WriteString(" DATETIME")
+	}
+
+	if c.Size != "" {
+		p.buf.WriteString("(")
+		if err := p.writeUnescapedAlphanumeric(c.Size); err != nil {
+			return err
+		}
+
+		if c.Decimals != "" {
+			p.buf.WriteString(",")
+			if err := p.writeUnescapedAlphanumeric(c.Decimals); err != nil {
+				return err
+			}
+		}
+		p.buf.WriteString(")")
+	}
+
+	if c.Key {
+		p.buf.WriteString(" PRIMARY KEY")
+	}
+
+	if !c.Nullable {
+		p.buf.WriteString(" NOT")
+	}
+	p.buf.WriteString(" NULL")
+
+	if c.Default != "" {
+		p.buf.WriteString(" DEFAULT ")
+		if err := p.writeQuotedAlphanumeric(c.Default); err != nil {
+			return err
+		}
+	}
+
+	switch c.Type {
+	case Char, Varchar, Text, MediumText:
+		p.buf.WriteString(" COLLATE NOCASE")
+	}
+
+	return nil
 }
 
 func (p *writer) writeCreateColumnMySQL(c *CreateColumn) error {
@@ -931,7 +1024,13 @@ func (p *writer) writeSelect(s *SelectQuery) error {
 	}
 
 	if s.ForUpdate {
-		p.buf.WriteString(" FOR UPDATE")
+		switch p.driver {
+		case "sqlite3":
+			// sqlite does not support it and does not need it
+			// because the whole database is locked
+		default:
+			p.buf.WriteString(" FOR UPDATE")
+		}
 	}
 
 	return nil
@@ -1002,15 +1101,21 @@ func (p *writer) writeTable(database, table string) error {
 		database = p.Database
 	}
 
+	if p.Namespace != "" && !strings.ContainsRune(table, '_') {
+		table = p.Namespace + "_" + table
+	}
+
 	if database != "" {
+		if p.driver == "sqlite3" {
+			// if it is sqlite3 use table prefix to simulate databases.
+			// Write as one identifier to avoid writing: `dbfoo`_`table`
+			return p.writeIdentifier(database + "_" + table)
+		}
+
 		if err := p.writeDatabase(database); err != nil {
 			return err
 		}
 		p.buf.WriteString(".")
-	}
-
-	if p.Namespace != "" && !strings.ContainsRune(table, '_') {
-		table = p.Namespace + "_" + table
 	}
 
 	if err := p.writeIdentifier(table); err != nil {
@@ -1388,6 +1493,10 @@ func (p *writer) writeFuncCallExpr(t *CallExpr) error {
 	}
 
 	switch name {
+	case "UTC_TIMESTAMP", "NOW":
+		if p.driver == "sqlite3" {
+			return p.writeUTCTimestampSqlite(t)
+		}
 	case "START_OF_DAY":
 		return p.writeStartOfDay()
 	case "END_OF_DAY":
@@ -1410,6 +1519,15 @@ func (p *writer) writeFuncCallExpr(t *CallExpr) error {
 
 	p.buf.WriteRune(')')
 
+	return nil
+}
+
+func (p *writer) writeUTCTimestampSqlite(t *CallExpr) error {
+	if len(t.Args) > 0 {
+		return fmt.Errorf("expected 0 args")
+	}
+
+	p.buf.WriteString("datetime('now')")
 	return nil
 }
 
@@ -1846,9 +1964,19 @@ func (p *writer) writeConstantExpr(t *ConstantExpr) error {
 	case NULL:
 		p.buf.WriteString("null")
 	case TRUE:
-		p.buf.WriteString("true")
+		switch p.driver {
+		case "sqlite3":
+			p.buf.WriteString("1")
+		default:
+			p.buf.WriteString("true")
+		}
 	case FALSE:
-		p.buf.WriteString("false")
+		switch p.driver {
+		case "sqlite3":
+			p.buf.WriteString("0")
+		default:
+			p.buf.WriteString("false")
+		}
 	case DEFAULT:
 		p.buf.WriteString("default")
 	default:

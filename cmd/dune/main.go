@@ -13,7 +13,9 @@ import (
 	"github.com/dunelang/dune/parser"
 
 	_ "github.com/dunelang/dune/lib"
+
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func printVersion() {
