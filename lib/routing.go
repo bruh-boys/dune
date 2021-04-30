@@ -18,17 +18,14 @@ func init() {
 			[prop: string]: any
 		}
 
-		export interface Route extends Any {
-			url: string
-		}
-
 		export function newRouter(): Router
 	
 		export interface Router {
 			reset(): void
-			add(route: Route): void
+			add(url: string, route: any): void
 			match(url: string): RouteMatch | null
 			print(): void
+			routes(): any[]
 		}
 	
 		export interface RouteMatch {
@@ -70,8 +67,30 @@ func (r httpRouter) GetMethod(name string) dune.NativeMethod {
 		return r.match
 	case "print":
 		return r.print
+	case "routes":
+		return r.routes
 	}
 	return nil
+}
+
+type recurseHelper struct {
+	routes []dune.Value
+}
+
+func (r httpRouter) routes(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	h := &recurseHelper{}
+	addRoutes(r.node, h)
+	return dune.NewArrayValues(h.routes), nil
+}
+
+func addRoutes(node *routeNode, h *recurseHelper) {
+	if node.route != nil {
+		h.routes = append(h.routes, node.route.Value)
+	}
+
+	for _, v := range node.child {
+		addRoutes(v, h)
+	}
 }
 
 func (r httpRouter) print(args []dune.Value, vm *dune.VM) (dune.Value, error) {
@@ -99,24 +118,13 @@ func (r httpRouter) reset(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 }
 
 func (r httpRouter) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
-	if err := ValidateArgs(args, dune.Map); err != nil {
+	if err := ValidateArgs(args, dune.String, dune.Map); err != nil {
 		return dune.NullValue, err
 	}
 
-	v := args[0]
-
-	mo := v.ToMap()
-	mo.RLock()
-	defer mo.RUnlock()
-
-	url, ok := mo.Map[dune.NewString("url")]
-	if !ok {
-		return dune.NullValue, fmt.Errorf("invalid route. Must contain a url property")
-	}
-
 	route := &httpRoute{
-		URL:   fixRouteURL(url.String()),
-		Value: v,
+		URL:   fixRouteURL(args[0].String()),
+		Value: args[1],
 	}
 
 	r.Add(route)
