@@ -29,7 +29,7 @@ func (db *DB) Databases() (*Table, error) {
 			return t, nil
 		}
 		query := "SELECT name AS Database FROM dbx_internal_schema"
-		rows, err := db.queryable().Query(query)
+		rows, err := db.connection().Query(query)
 		if err != nil {
 			return nil, err
 		}
@@ -38,7 +38,7 @@ func (db *DB) Databases() (*Table, error) {
 
 	case "mysql":
 		query := "show databases"
-		rows, err := db.queryable().Query(query)
+		rows, err := db.connection().Query(query)
 		if err != nil {
 			return nil, err
 		}
@@ -175,7 +175,7 @@ type SchemaColumn struct {
 }
 
 func (db *DB) sqliteColumns(table string) ([]SchemaColumn, error) {
-	rows, err := db.queryable().Query("pragma table_info(" + table + ")")
+	rows, err := db.connection().Query("pragma table_info(" + table + ")")
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +203,7 @@ func (db *DB) sqliteColumns(table string) ([]SchemaColumn, error) {
 }
 
 func (db *DB) mysqlColumns(table string) ([]SchemaColumn, error) {
-	rows, err := db.queryable().Query("SHOW COLUMNS FROM " + table)
+	rows, err := db.connection().Query("SHOW COLUMNS FROM " + table)
 	if err != nil {
 		return nil, err
 	}
@@ -230,7 +230,7 @@ func (db *DB) mysqlColumns(table string) ([]SchemaColumn, error) {
 }
 
 func (db *DB) queryBoolean(query string, args ...interface{}) (bool, error) {
-	row := db.queryable().QueryRow(query, args...)
+	row := db.connection().QueryRow(query, args...)
 
 	var i int
 

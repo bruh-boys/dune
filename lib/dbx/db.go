@@ -65,14 +65,14 @@ func (db *DB) HasTransaction() bool {
 	return v
 }
 
-type queryable interface {
+type connection interface {
 	Prepare(query string) (*sql.Stmt, error)
 	Exec(query string, args ...interface{}) (sql.Result, error)
 	Query(query string, args ...interface{}) (*sql.Rows, error)
 	QueryRow(query string, args ...interface{}) *sql.Row
 }
 
-func (db *DB) queryable() queryable {
+func (db *DB) connection() connection {
 	if db.tx != nil {
 		return db.tx
 	}
@@ -131,7 +131,7 @@ func (db *DB) Commit() error {
 }
 
 func (db *DB) Prepare(query string) (*Stmt, error) {
-	stmt, err := db.queryable().Prepare(query)
+	stmt, err := db.connection().Prepare(query)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (db *DB) ExecRaw(query string, args ...interface{}) (sql.Result, error) {
 		return nil, ErrReadOnly
 	}
 
-	q := db.queryable()
+	q := db.connection()
 	r, err := q.Exec(query, args...)
 	if err != nil {
 		return nil, err
@@ -161,7 +161,7 @@ func (db *DB) ExecRaw(query string, args ...interface{}) (sql.Result, error) {
 }
 
 func (db *DB) QueryRaw(query string, args ...interface{}) (*sql.Rows, error) {
-	r, err := db.queryable().Query(query, args...)
+	r, err := db.connection().Query(query, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -172,11 +172,11 @@ func (db *DB) QueryRaw(query string, args ...interface{}) (*sql.Rows, error) {
 }
 
 func (db *DB) QueryRowRaw(query string, args ...interface{}) *sql.Row {
-	return db.queryable().QueryRow(query, args...)
+	return db.connection().QueryRow(query, args...)
 }
 
 func (db *DB) ScanValueRaw(v interface{}, query string, args ...interface{}) error {
-	return db.queryable().QueryRow(query, args...).Scan(v)
+	return db.connection().QueryRow(query, args...).Scan(v)
 }
 
 type Reader struct {
