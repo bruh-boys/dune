@@ -1409,6 +1409,14 @@ func (s *libDB) exec(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
+	if s.db.Driver == "sqlite3" {
+		switch t := q.(type) {
+		case *sqx.DropDatabaseQuery:
+			err := s.dropSqliteDatabase(t.Database)
+			return dune.NullValue, err
+		}
+	}
+
 	sQuery, params, err := s.toSQLString(q, vm)
 	if err != nil {
 		return dune.NullValue, err
@@ -1416,13 +1424,50 @@ func (s *libDB) exec(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	res, err := s.db.ExecRaw(sQuery, params...)
 	if err != nil {
-		if errors.Is(err, dbx.ErrReadOnly) {
-			return dune.NullValue, dune.NewTypeError("sql", err.Error())
-		}
 		return dune.NullValue, err
 	}
 
 	return dune.NewObject(sqlResult{res}), nil
+}
+
+func (s *libDB) dropSqliteDatabase(name string) error {
+	_, err := s.db.ExecRaw("DELETE FROM dbx_internal_schema WHERE name = ?", name)
+	if err != nil {
+		return err
+	}
+
+	q := `SELECT name 
+			FROM sqlite_master 
+			WHERE type = 'table' 
+			AND name LIKE '` + name + "_%'"
+
+	rows, err := s.db.QueryRaw(q)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var table string
+	var tables []string
+	for rows.Next() {
+		err = rows.Scan(&table)
+		if err != nil {
+			return err
+		}
+		tables = append(tables, table)
+	}
+
+	if rows.Err() != nil {
+		return err
+	}
+
+	for _, table := range tables {
+		if _, err := s.db.ExecRaw("DROP TABLE " + table); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s *libDB) queryFirst(args []dune.Value, vm *dune.VM) (dune.Value, error) {
