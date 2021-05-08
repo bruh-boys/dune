@@ -16,10 +16,11 @@ type NativeObject interface {
 
 // NativeFunction is a function written in Go as opposed to an interpreted function
 type NativeFunction struct {
-	Name      string
-	Arguments int
-	Index     int
-	Function  func(this Value, args []Value, vm *VM) (Value, error)
+	Name        string
+	Arguments   int
+	Index       int
+	Permissions []string
+	Function    func(this Value, args []Value, vm *VM) (Value, error)
 }
 
 type NativeMethod func(args []Value, vm *VM) (Value, error)

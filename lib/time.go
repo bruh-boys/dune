@@ -497,13 +497,10 @@ var Time = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "time.setDefaultLocation",
-		Arguments: 1,
+		Name:        "time.setDefaultLocation",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
@@ -521,13 +518,10 @@ var Time = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "time.setLocation",
-		Arguments: 1,
+		Name:        "time.setLocation",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
@@ -545,13 +539,10 @@ var Time = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "time.setFixedNow",
-		Arguments: 1,
+		Name:        "time.setFixedNow",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.Object); err != nil {
 				return dune.NullValue, err
 			}
@@ -566,13 +557,10 @@ var Time = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "time.unsetFixedNow",
-		Arguments: 0,
+		Name:        "time.unsetFixedNow",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			vm.Now = time.Time{}
 			return dune.NullValue, nil
 		},

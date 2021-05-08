@@ -41,8 +41,9 @@ declare namespace fsnotify {
 
 var FSNotify = []dune.NativeFunction{
 	{
-		Name:      "fsnotify.newWatcher",
-		Arguments: 1,
+		Name:        "fsnotify.newWatcher",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			v := args[0]
 			switch v.Type {
@@ -63,10 +64,6 @@ var FSNotify = []dune.NativeFunction{
 }
 
 func newFileWatcher(fn dune.Value, vm *dune.VM) (*fsWatcher, error) {
-	if !vm.HasPermission("trusted") {
-		return nil, ErrUnauthorized
-	}
-
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err

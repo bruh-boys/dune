@@ -51,13 +51,10 @@ var defaultLogger *logger
 
 var Log = []dune.NativeFunction{
 	{
-		Name:      "->logging.defaultLogger",
-		Arguments: 0,
+		Name:        "->logging.defaultLogger",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if defaultLogger == nil {
 				return dune.NullValue, nil
 			}
@@ -65,13 +62,10 @@ var Log = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "logging.setDefaultLogger",
-		Arguments: 1,
+		Name:        "logging.setDefaultLogger",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			db, ok := args[0].ToObjectOrNil().(*logger)
 			if !ok {
 				return dune.NullValue, fmt.Errorf("expected a logging, got %s", args[0].TypeName())
@@ -83,13 +77,10 @@ var Log = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "logging.fatal",
-		Arguments: -1,
+		Name:        "logging.fatal",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			err := writeLog("system", args)
 			if err != nil {
 				return dune.NullValue, err
@@ -100,13 +91,10 @@ var Log = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "logging.write",
-		Arguments: -1,
+		Name:        "logging.write",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			l := len(args)
 			if l < 2 {
 				return dune.NullValue, fmt.Errorf("expected at least 2 parameters, got %d", len(args))

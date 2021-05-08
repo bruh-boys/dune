@@ -45,24 +45,18 @@ declare namespace bytecode {
 
 var Bytecode = []dune.NativeFunction{
 	{
-		Name:      "bytecode.compile",
-		Arguments: -1,
+		Name:        "bytecode.compile",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			return compile(args, vm)
 		},
 	},
 	{
-		Name:      "bytecode.hash",
-		Arguments: -1,
+		Name:        "bytecode.hash",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateOptionalArgs(args, dune.String, dune.Bool, dune.Bool, dune.Object); err != nil {
 				return dune.NullValue, err
 			}
@@ -93,13 +87,10 @@ var Bytecode = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "bytecode.compileStr",
-		Arguments: 1,
+		Name:        "bytecode.compileStr",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
@@ -114,13 +105,10 @@ var Bytecode = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "bytecode.loadProgram",
-		Arguments: 1,
+		Name:        "bytecode.loadProgram",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.Bytes); err != nil {
 				return dune.NullValue, err
 			}
@@ -134,13 +122,10 @@ var Bytecode = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "bytecode.load",
-		Arguments: -1,
+		Name:        "bytecode.load",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateOptionalArgs(args, dune.String, dune.Object); err != nil {
 				return dune.NullValue, err
 			}
@@ -174,13 +159,10 @@ var Bytecode = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "bytecode.readProgram",
-		Arguments: 1,
+		Name:        "bytecode.readProgram",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.Object); err != nil {
 				return dune.NullValue, err
 			}
@@ -199,13 +181,10 @@ var Bytecode = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "bytecode.writeProgram",
-		Arguments: 2,
+		Name:        "bytecode.writeProgram",
+		Arguments:   2,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.Object, dune.Object); err != nil {
 				return dune.NullValue, err
 			}

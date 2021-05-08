@@ -18,13 +18,10 @@ declare namespace secure {
 
 var Secure = []dune.NativeFunction{
 	{
-		Name:      "secure.newSecureObject",
-		Arguments: 2,
+		Name:        "secure.newSecureObject",
+		Arguments:   2,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.Bool, dune.Bool); err != nil {
 				return dune.NullValue, err
 			}

@@ -146,13 +146,10 @@ var Runtime = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "panic",
-		Arguments: 1,
+		Name:        "panic",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			panic(args[0].String())
 		},
 	},
@@ -173,13 +170,10 @@ var Runtime = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "runtime.runFunc",
-		Arguments: -1,
+		Name:        "runtime.runFunc",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if len(args) == 0 {
 				return dune.NullValue, fmt.Errorf("expected at least the function name")
 			}
@@ -201,12 +195,10 @@ var Runtime = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "runtime.setContext",
-		Arguments: 1,
+		Name:        "runtime.setContext",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			vm.Context = args[0]
 			return dune.NullValue, nil
 		},
@@ -275,13 +267,10 @@ var Runtime = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "runtime.setFileSystem",
-		Arguments: 1,
+		Name:        "runtime.setFileSystem",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.Object); err != nil {
 				return dune.NullValue, err
 			}
@@ -342,20 +331,16 @@ var Runtime = []dune.NativeFunction{
 		},
 	},
 	{
-		Name: "->runtime.OS",
+		Name:        "->runtime.OS",
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			return dune.NewString(runtime.GOOS), nil
 		},
 	},
 	{
-		Name: "->runtime.nativeExecutable",
+		Name:        "->runtime.nativeExecutable",
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			ex, err := os.Executable()
 			if err != nil {
 				return dune.NullValue, err
@@ -408,20 +393,16 @@ var Runtime = []dune.NativeFunction{
 		},
 	},
 	{
-		Name: "->runtime.vm",
+		Name:        "->runtime.vm",
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			return dune.NewObject(&libVM{vm}), nil
 		},
 	},
 	{
-		Name: "runtime.resetSteps",
+		Name:        "runtime.resetSteps",
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			vm.ResetSteps()
 			return dune.NullValue, nil
 		},

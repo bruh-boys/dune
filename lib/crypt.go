@@ -147,13 +147,10 @@ var Crypt = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "crypto.signTempSHA1",
-		Arguments: 1,
+		Name:        "crypto.signTempSHA1",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			// untrusted users can check but not sign
 
 			if err := ValidateArgs(args, dune.String); err != nil {
@@ -187,12 +184,11 @@ var Crypt = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "crypto.setGlobalPassword",
-		Arguments: 1,
+		Name:        "crypto.setGlobalPassword",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
+
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}

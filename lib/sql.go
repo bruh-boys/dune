@@ -239,13 +239,10 @@ declare namespace sql {
 
 var SQL = []dune.NativeFunction{
 	{
-		Name:      "sql.open",
-		Arguments: -1,
+		Name:        "sql.open",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			l := len(args)
 			if l < 2 || l > 3 {
 				return dune.NullValue, fmt.Errorf("expected 2 or 3 parameters, got %d", l)
@@ -288,13 +285,10 @@ var SQL = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "sql.setWhitelistFuncs",
-		Arguments: 1,
+		Name:        "sql.setWhitelistFuncs",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.Array); err != nil {
 				return dune.NullValue, err
 			}

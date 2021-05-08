@@ -1079,6 +1079,12 @@ func (vm *VM) callNativeFunc(i int, args []Value, retAddress *Address, this Valu
 		return fmt.Errorf("function '%s' expects %d parameters, got %d", f.Name, l, len(args))
 	}
 
+	for _, perm := range f.Permissions {
+		if !vm.HasPermission(perm) {
+			return errors.New("unauthorized")
+		}
+	}
+
 	ret, err := f.Function(this, args, vm)
 	if err != nil {
 		return err

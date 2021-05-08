@@ -2,6 +2,7 @@ package lib
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/dunelang/dune"
 )
@@ -11,6 +12,14 @@ func init() {
 
 declare namespace reflect {
     export const program: runtime.Program
+
+	export interface Native {
+		name: string
+		permissions: string[]
+	}
+
+    export function nativeFunctions(): Native[]
+    export function nativeProperties(): Native[]
 
     export function is<T>(v: any, name: string): v is T
 
@@ -39,6 +48,22 @@ var Reflect = []dune.NativeFunction{
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			p := vm.Program
 			return dune.NewObject(&program{prog: p}), nil
+		},
+	},
+	{
+		Name:      "reflect.nativeFunctions",
+		Arguments: 0,
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			v := getNativeFuncions(false)
+			return v, nil
+		},
+	},
+	{
+		Name:      "reflect.nativeProperties",
+		Arguments: 0,
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			v := getNativeFuncions(true)
+			return v, nil
 		},
 	},
 	{
@@ -144,4 +169,38 @@ var Reflect = []dune.NativeFunction{
 			return v, nil
 		},
 	},
+}
+
+func getNativeFuncions(properties bool) dune.Value {
+	fns := dune.AllNativeFuncs()
+
+	var v []dune.Value
+
+	for _, f := range fns {
+		name := f.Name
+
+		if properties {
+			if !strings.HasPrefix(name, "->") {
+				continue
+			}
+			name = name[2:]
+		} else {
+			if strings.HasPrefix(name, "->") {
+				continue
+			}
+		}
+
+		m := make(map[dune.Value]dune.Value)
+		m[dune.NewString("name")] = dune.NewString(name)
+
+		perm := make([]dune.Value, len(f.Permissions))
+		for i, p := range f.Permissions {
+			perm[i] = dune.NewString(p)
+		}
+
+		m[dune.NewString("permissions")] = dune.NewArrayValues(perm)
+		v = append(v, dune.NewMapValues(m))
+	}
+
+	return dune.NewArrayValues(v)
 }

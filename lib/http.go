@@ -384,12 +384,10 @@ var HTTP = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "http.resetCacheBreaker",
-		Arguments: 0,
+		Name:        "http.resetCacheBreaker",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			cacheBreaker = RandString(9)
 			return dune.NullValue, nil
 		},

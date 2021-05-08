@@ -111,11 +111,9 @@ var OS = []dune.NativeFunction{
 		},
 	},
 	{
-		Name: "->os.userHomeDir",
+		Name:        "->os.userHomeDir",
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			d, err := os.UserHomeDir()
 			if err != nil {
 				return dune.NullValue, ErrUnauthorized
@@ -124,46 +122,34 @@ var OS = []dune.NativeFunction{
 		},
 	},
 	{
-		Name: "->os.stdout",
+		Name:        "->os.stdout",
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			f := &file{f: os.Stdout}
 			return dune.NewObject(f), nil
 		},
 	},
 	{
-		Name: "->os.stdin",
+		Name:        "->os.stdin",
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			f := &file{f: os.Stdin}
 			return dune.NewObject(f), nil
 		},
 	},
 	{
-		Name: "->os.stderr",
+		Name:        "->os.stderr",
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			f := &file{f: os.Stderr}
 			return dune.NewObject(f), nil
 		},
 	},
 	{
-		Name:      "os.mapPath",
-		Arguments: 1,
+		Name:        "os.mapPath",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
@@ -182,12 +168,10 @@ var OS = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "os.exit",
-		Arguments: -1,
+		Name:        "os.exit",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			if err := ValidateOptionalArgs(args, dune.Int); err != nil {
 				return dune.NullValue, err
 			}
@@ -202,13 +186,10 @@ var OS = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "os.exec",
-		Arguments: -1,
+		Name:        "os.exec",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			l := len(args)
 			if l == 0 {
 				return dune.NullValue, fmt.Errorf("expected at least 1 argument")
@@ -231,13 +212,10 @@ var OS = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "os.newCommand",
-		Arguments: -1,
+		Name:        "os.newCommand",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			l := len(args)
 			if l == 0 {
 				return dune.NullValue, fmt.Errorf("expected at least 1 argument")
@@ -485,12 +463,10 @@ var OS = []dune.NativeFunction{
 	},
 
 	{
-		Name:      "os.readLine",
-		Arguments: 0,
+		Name:        "os.readLine",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
 
 			r := bufio.NewReader(os.Stdin)
 			s, err := r.ReadString('\n')
@@ -514,12 +490,10 @@ var OS = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "os.getEnv",
-		Arguments: 1,
+		Name:        "os.getEnv",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}
@@ -528,12 +502,10 @@ var OS = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "os.setEnv",
-		Arguments: 2,
+		Name:        "os.setEnv",
+		Arguments:   2,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("trusted") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			if err := ValidateArgs(args, dune.String, dune.String); err != nil {
 				return dune.NullValue, err
 			}
