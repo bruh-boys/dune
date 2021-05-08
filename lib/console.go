@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 
@@ -64,10 +65,19 @@ var Console = []dune.NativeFunction{
 }
 
 func marshal(obj interface{}, vm *dune.VM) error {
-	b, err := json.MarshalIndent(obj, "", "    ")
-	if err != nil {
+	buf := &bytes.Buffer{}
+
+	encoder := json.NewEncoder(buf)
+	encoder.SetIndent("", "    ")
+	encoder.SetEscapeHTML(false)
+
+	if err := encoder.Encode(obj); err != nil {
 		return err
 	}
-	fmt.Fprintln(vm.GetStdout(), string(b))
+
+	// trim the last byte because encoder.Encode adds a '\n' at the end.
+	buf.Truncate(buf.Len() - 1)
+
+	fmt.Fprintln(vm.GetStdout(), buf.String())
 	return nil
 }
