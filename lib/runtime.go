@@ -99,6 +99,7 @@ declare namespace runtime {
 	
     export interface FunctionInfo {
         name: string
+		module: string
         index: number
 		arguments: number
 		optionalArguments: number
@@ -827,6 +828,26 @@ func (functionInfo) Type() string {
 	return "runtime.FunctionInfo"
 }
 
+func (f functionInfo) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+	switch name {
+	case "name":
+		return dune.NewString(f.fn.Name), nil
+	case "module":
+		return dune.NewString(f.fn.Module), nil
+	case "arguments":
+		return dune.NewInt(f.fn.Arguments), nil
+	case "optionalArguments":
+		return dune.NewInt(f.fn.OptionalArguments), nil
+	case "index":
+		return dune.NewInt(f.fn.Index), nil
+	case "exported":
+		return dune.NewBool(f.fn.Exported), nil
+	case "func":
+		return dune.NewFunction(f.fn.Index), nil
+	}
+	return dune.UndefinedValue, nil
+}
+
 func (f functionInfo) GetMethod(name string) dune.NativeMethod {
 	switch name {
 	case "attributes":
@@ -890,24 +911,6 @@ func (f functionInfo) string(args []dune.Value, vm *dune.VM) (dune.Value, error)
 	var b bytes.Buffer
 	dune.FprintFunction(&b, f.fn, f.p.prog)
 	return dune.NewString(b.String()), nil
-}
-
-func (f functionInfo) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
-	switch name {
-	case "name":
-		return dune.NewString(f.fn.Name), nil
-	case "arguments":
-		return dune.NewInt(f.fn.Arguments), nil
-	case "optionalArguments":
-		return dune.NewInt(f.fn.OptionalArguments), nil
-	case "index":
-		return dune.NewInt(f.fn.Index), nil
-	case "exported":
-		return dune.NewBool(f.fn.Exported), nil
-	case "func":
-		return dune.NewFunction(f.fn.Index), nil
-	}
-	return dune.UndefinedValue, nil
 }
 
 type libVM struct {
