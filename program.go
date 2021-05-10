@@ -107,7 +107,7 @@ func (i *Instruction) String() string {
 }
 
 func (i *Instruction) Format(padd bool) string {
-	op := i.Opcode.String()[3:]
+	op := strings.Title(i.Opcode.String()[3:])
 	return fmt.Sprintf("%-15s %6v %6v %6v", op, i.A, i.B, i.C)
 }
 
