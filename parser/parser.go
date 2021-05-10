@@ -102,7 +102,6 @@ func (p *parser) Parse(path string) (*ast.Module, error) {
 			if err != nil {
 				return nil, err
 			}
-
 			if _, err := p.FS.Stat(abs); err != nil {
 				return nil, err
 			}
@@ -316,7 +315,7 @@ func (p *parser) findSource(path, parentPath string) (string, bool, error) {
 	// try relative to the file where is defined
 
 	// try vendor
-	absExt, isTypeDef = p.findSourceFile(filepath.Join("vendor", file))
+	absExt, isTypeDef = p.findSourceFile(filepath.Join("vendor", path))
 	if isTypeDef {
 		return "", true, nil
 	}
