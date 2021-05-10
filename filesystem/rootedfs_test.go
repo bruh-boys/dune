@@ -5,7 +5,7 @@ import (
 )
 
 func TestRootedFSAbs(t *testing.T) {
-	v := NewMemFS()
+	v := NewVirtualFS()
 	assertErr(WritePath(v, "/demo/test/test.txt", []byte{}), t)
 
 	fs, err := NewRootedFS("/demo/", v)
@@ -36,7 +36,7 @@ func TestRootedFSAbs(t *testing.T) {
 }
 
 func TestRootedFS(t *testing.T) {
-	v := NewMemFS()
+	v := NewVirtualFS()
 	assertErr(WritePath(v, "/demo/test/foo/test.txt", []byte{}), t)
 	assertErr(WritePath(v, "/demo/test/test.txt", []byte{}), t)
 	assertErr(WritePath(v, "/demo/users/foo/data.txt", []byte{}), t)

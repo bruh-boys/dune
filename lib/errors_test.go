@@ -9,7 +9,7 @@ import (
 
 func TestErrorIs(t *testing.T) {
 	v := runTest(t, `
-		let fs = io.newMemFS()
+		let fs = io.newVirtualFS()
 
 		try {
 			fs.open("x")

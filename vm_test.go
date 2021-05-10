@@ -519,7 +519,7 @@ func TestStacktrace(t *testing.T) {
 }
 
 func TestStacktrace2(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "/main.ts", []byte(`
 		import * as foo from "other/path/bar"
 
@@ -1835,7 +1835,7 @@ func TestEnum4(t *testing.T) {
 }
 
 func TestEnum5(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import * as foo from "foo"
 		function main() {
@@ -1853,7 +1853,7 @@ func TestEnum5(t *testing.T) {
 }
 
 func TestEnum6(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import * as foo from "foo"
 		function main() {
@@ -1928,7 +1928,7 @@ func TestEnum10(t *testing.T) {
 }
 
 func TestEnumParser(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import * as lib1 from "lib1"
 
@@ -2068,7 +2068,7 @@ func TestClass2(t *testing.T) {
 }
 
 func TestClass3(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import * as foo from "foo"
 		function main() {
@@ -2087,7 +2087,7 @@ func TestClass3(t *testing.T) {
 	assertValueFS(t, fs, "main.ts", 5)
 }
 func TestClass4(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import * as foo from "foo"
 		function main() {
@@ -2187,7 +2187,7 @@ func TestClassInitializeFields(t *testing.T) {
 }
 
 func TestModuleImports1(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import * as foo from "foo"
 
@@ -2204,7 +2204,7 @@ func TestModuleImports1(t *testing.T) {
 }
 
 func TestModuleImports2(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "/dir1/main.ts", []byte(`
 		import * as foo from "/libs/foo"
 
@@ -2221,7 +2221,7 @@ func TestModuleImports2(t *testing.T) {
 }
 
 func TestModuleImports3(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "/dir1/main.ts", []byte(`
 		import * as foo from "../libs/foo"
 
@@ -2238,7 +2238,7 @@ func TestModuleImports3(t *testing.T) {
 }
 
 func TestModuleImports4(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "/dir1/main.ts", []byte(`
 		import * as foo from "../dir1/dir2/dir3/foo"
 
@@ -2263,7 +2263,7 @@ func TestModuleImports4(t *testing.T) {
 }
 
 func TestModuleImportsRelativeToModule(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "/dir1/main.ts", []byte(`
 		import * as foo from "../dir1/foo"
 
@@ -2288,7 +2288,7 @@ func TestModuleImportsRelativeToModule(t *testing.T) {
 }
 
 func TestModuleImports5(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "/dir1/main.ts", []byte(`
 		import * as foo from "../other/path/bar"
 
@@ -2313,7 +2313,7 @@ func TestModuleImports5(t *testing.T) {
 }
 
 func TestModuleImports6(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "/dir1/main.ts", []byte(`
 		import * as foo from "bar"
 
@@ -2338,7 +2338,7 @@ func TestModuleImports6(t *testing.T) {
 }
 
 func TestModuleImports7(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "/dir1/main.ts", []byte(`
 		import * as foo from "./bar"
 
@@ -2363,7 +2363,7 @@ func TestModuleImports7(t *testing.T) {
 }
 
 func TestModuleImportsFromOtherDir(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "/dir1/main.ts", []byte(`
 		import * as foo from "./bar"
 
@@ -2388,7 +2388,7 @@ func TestModuleImportsFromOtherDir(t *testing.T) {
 }
 
 func TestModuleForSideEffects(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import "foo"
 
@@ -2408,7 +2408,7 @@ func TestModuleForSideEffects(t *testing.T) {
 }
 
 func TestModuleForSideEffects2(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import "foo"
 
@@ -2428,7 +2428,7 @@ func TestModuleForSideEffects2(t *testing.T) {
 }
 
 func TestVisibility(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import * as foo from "foo"
 
@@ -2448,7 +2448,7 @@ func TestVisibility(t *testing.T) {
 }
 
 func TestModuleSameNames(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import * as foo from "bar"
 
@@ -2474,7 +2474,7 @@ func TestModuleSameNames(t *testing.T) {
 }
 
 func TestVendor(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import * as foo from "foo"
 		function main() {
@@ -2497,7 +2497,7 @@ func TestVendor(t *testing.T) {
 }
 
 func TestVendorRoot(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "dir/tsconfig.json", []byte(`
 		{
 			"compilerOptions": {
@@ -2534,7 +2534,7 @@ func TestVendorRoot(t *testing.T) {
 }
 
 func TestInit0(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import * as lib1 from "libs/lib1"
 
@@ -2561,7 +2561,7 @@ func TestInit0(t *testing.T) {
 }
 
 func TestInit1(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 	filesystem.WritePath(fs, "main.ts", []byte(`
 		import * as lib1 from "libs/lib1"
 		import * as lib2 from "libs/lib2"
@@ -2617,7 +2617,7 @@ func TestParseInterface(t *testing.T) {
 }
 
 func TestGlobalScope(t *testing.T) {
-	fs := filesystem.NewMemFS()
+	fs := filesystem.NewVirtualFS()
 
 	filesystem.WritePath(fs, "global.ts", []byte(`
 		declare global {
@@ -2791,7 +2791,7 @@ func TestAttributes(t *testing.T) {
 // }
 
 // func TestInline8(t *testing.T) {
-// 	fs := filesystem.NewMemFS()
+// 	fs := filesystem.NewVirtualFS()
 // 	filesystem.WritePath(fs, "main.ts", []byte(`
 // 		import * as foo from "foo"
 

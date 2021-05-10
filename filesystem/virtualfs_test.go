@@ -8,7 +8,7 @@ import (
 )
 
 func TestOpenForWrite(t *testing.T) {
-	fs := NewMemFS()
+	fs := NewVirtualFS()
 
 	f, err := fs.OpenForWrite("foo.txt")
 	if err != nil {
@@ -42,7 +42,7 @@ func TestOpenForWrite(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	fs := NewMemFS()
+	fs := NewVirtualFS()
 
 	err := fs.Write("foo.txt", []byte("whatever1"))
 	if err != nil {
@@ -70,7 +70,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestDelete2(t *testing.T) {
-	fs := NewMemFS()
+	fs := NewVirtualFS()
 
 	err := WritePath(fs, "foo/bar1.txt", []byte("whatever1"))
 	if err != nil {
@@ -103,7 +103,7 @@ func TestDelete2(t *testing.T) {
 }
 
 func TestRename(t *testing.T) {
-	fs := NewMemFS()
+	fs := NewVirtualFS()
 
 	err := fs.Write("foo.txt", []byte("whatever1"))
 	if err != nil {
@@ -127,7 +127,7 @@ func TestRename(t *testing.T) {
 }
 
 func TestVF1(t *testing.T) {
-	fs := NewMemFS()
+	fs := NewVirtualFS()
 
 	fi, err := fs.Stat("/")
 	if err != nil {
@@ -140,7 +140,7 @@ func TestVF1(t *testing.T) {
 }
 
 func TestVF2(t *testing.T) {
-	fs := NewMemFS()
+	fs := NewVirtualFS()
 
 	err := fs.Mkdir("/foo")
 	if err != nil {
@@ -163,7 +163,7 @@ func TestVF2(t *testing.T) {
 }
 
 func TestVF22(t *testing.T) {
-	fs := NewMemFS()
+	fs := NewVirtualFS()
 
 	if err := fs.MkdirAll("/foo/bar"); err != nil {
 		t.Fatal(err)
@@ -184,7 +184,7 @@ func TestVF22(t *testing.T) {
 }
 
 func TestVF3(t *testing.T) {
-	fs := NewMemFS()
+	fs := NewVirtualFS()
 
 	err := fs.Mkdir("/foo/")
 	if err != nil {
@@ -212,7 +212,7 @@ func TestVF3(t *testing.T) {
 }
 
 func TestVF4(t *testing.T) {
-	fs := NewMemFS()
+	fs := NewVirtualFS()
 
 	err := fs.Write("bar.txt", []byte("whatever"))
 	if err != nil {
@@ -241,7 +241,7 @@ func TestVF4(t *testing.T) {
 }
 
 func TestVF5(t *testing.T) {
-	fs := NewMemFS()
+	fs := NewVirtualFS()
 
 	err := fs.Write("foo.txt", []byte("whatever1"))
 	if err != nil {
@@ -269,7 +269,7 @@ func TestVF5(t *testing.T) {
 }
 
 func TestVF6(t *testing.T) {
-	fs := NewMemFS()
+	fs := NewVirtualFS()
 
 	err := fs.Mkdir("/foo/")
 	if err != nil {

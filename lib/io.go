@@ -39,11 +39,13 @@ declare namespace io {
 
     export function copy(dst: Writer, src: Reader): number
 
-    export function newMemFS(): FileSystem
+    export function newVirtualFS(): FileSystem
 
     export function newRootedFS(root: string, baseFS: FileSystem): FileSystem
 
     export function newRestrictedFS(baseFS: FileSystem): RestrictedFS
+
+    export function newReadOnlyFS(baseFS: FileSystem): FileSystem
 
     /** 
      * Sets the default data file system that will be returned by io.dataFS()
@@ -80,7 +82,7 @@ declare namespace io {
         append(path: string, data: string | byte[]): void
         mkdir(path: string): void
         stat(path: string): FileInfo
-        readDir(path: string): FileInfo[]
+        readDir(path?: string): FileInfo[]
         readNames(path: string, recursive?: boolean): string[]
 	}
 	
@@ -180,14 +182,31 @@ var IO = []dune.NativeFunction{
 		},
 	},
 	{
-		Name: "io.newMemFS",
+		Name: "io.newVirtualFS",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if err := ValidateArgs(args); err != nil {
 				return dune.NullValue, err
 			}
 
-			fs := filesystem.NewMemFS()
+			fs := filesystem.NewVirtualFS()
 			return dune.NewObject(NewFileSystem(fs)), nil
+		},
+	},
+	{
+		Name:      "io.newReadOnlyFS",
+		Arguments: 1,
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			if err := ValidateOptionalArgs(args, dune.Object); err != nil {
+				return dune.NullValue, err
+			}
+
+			fs, ok := args[0].ToObject().(*FileSystemObj)
+			if !ok {
+				return dune.NullValue, fmt.Errorf("invalid filesystem argument, got %v", args[1])
+			}
+
+			rfs := filesystem.NewReadOnlyFS(fs.FS)
+			return dune.NewObject(NewFileSystem(rfs)), nil
 		},
 	},
 }
@@ -974,11 +993,16 @@ func (f *FileSystemObj) stat(args []dune.Value, vm *dune.VM) (dune.Value, error)
 }
 
 func (f *FileSystemObj) readDir(args []dune.Value, vm *dune.VM) (dune.Value, error) {
-	if err := ValidateArgs(args, dune.String); err != nil {
+	if err := ValidateOptionalArgs(args, dune.String); err != nil {
 		return dune.NullValue, err
 	}
 
-	name := args[0].String()
+	var name string
+	if len(args) == 0 {
+		name = "."
+	} else {
+		name = args[0].String()
+	}
 
 	file, err := f.FS.Open(name)
 	if err != nil {

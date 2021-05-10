@@ -5,7 +5,7 @@ import (
 )
 
 func TestRestrictedFSAbs(t *testing.T) {
-	v := NewMemFS()
+	v := NewVirtualFS()
 	assertErr(WritePath(v, "/demo/test/test.txt", []byte{}), t)
 	assertErr(WritePath(v, "/demo/public/foo.txt", []byte{}), t)
 	assertErr(WritePath(v, "/demo/private/bar.txt", []byte{}), t)
@@ -37,7 +37,7 @@ func TestRestrictedFSAbs(t *testing.T) {
 }
 
 func TestRestrictedFSBlacklist(t *testing.T) {
-	v := NewMemFS()
+	v := NewVirtualFS()
 	assertErr(WritePath(v, "/demo/test/test.txt", []byte{}), t)
 	assertErr(WritePath(v, "/demo/foo.txt", []byte{}), t)
 

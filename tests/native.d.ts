@@ -774,7 +774,7 @@ declare namespace io {
 
     export function copy(dst: Writer, src: Reader): number
 
-    export function newMemFS(): FileSystem
+    export function newVirtualFS(): FileSystem
 
     export function newRootedFS(root: string, baseFS: FileSystem): FileSystem
 

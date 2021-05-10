@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func NewMemFS() *MemFS {
+func NewVirtualFS() *VirtualFS {
 	info := &vFileInfo{
 		name:    "/",
 		isDir:   true,
@@ -17,16 +17,16 @@ func NewMemFS() *MemFS {
 	}
 
 	f := &vFile{info: info, files: make(map[string]*vFile)}
-	return &MemFS{file: f, workdir: "/"}
+	return &VirtualFS{file: f, workdir: "/"}
 }
 
 // A tree of virtual files. A virtual file can be a directory or a individual file.
-type MemFS struct {
+type VirtualFS struct {
 	file    *vFile
 	workdir string
 }
 
-func (v *MemFS) Abs(name string) (string, error) {
+func (v *VirtualFS) Abs(name string) (string, error) {
 	if name == "" {
 		return "", fmt.Errorf("empty path")
 	}
@@ -44,15 +44,15 @@ func (v *MemFS) Abs(name string) (string, error) {
 	return name, nil
 }
 
-func (v *MemFS) SetHome(name string) error {
+func (v *VirtualFS) SetHome(name string) error {
 	return fmt.Errorf("not implemented")
 }
 
-func (v *MemFS) PrintPaths() {
+func (v *VirtualFS) PrintPaths() {
 	v.print(v.file.files, 1)
 }
 
-func (v *MemFS) print(files map[string]*vFile, indent int) {
+func (v *VirtualFS) print(files map[string]*vFile, indent int) {
 	for k, f := range files {
 		fmt.Print(strings.Repeat(" ", indent))
 		fmt.Print(k)
@@ -62,7 +62,7 @@ func (v *MemFS) print(files map[string]*vFile, indent int) {
 }
 
 // Copy copies recursively path src into dst.
-func (v *MemFS) CopyAt(dst, src string, fs FS) error {
+func (v *VirtualFS) CopyAt(dst, src string, fs FS) error {
 	fi, err := fs.Stat(src)
 	if err != nil {
 		return err
@@ -99,7 +99,7 @@ func (v *MemFS) CopyAt(dst, src string, fs FS) error {
 	return nil
 }
 
-func (v *MemFS) Chdir(name string) error {
+func (v *VirtualFS) Chdir(name string) error {
 	name, err := v.Abs(name)
 	if err != nil {
 		return err
@@ -118,7 +118,7 @@ func (v *MemFS) Chdir(name string) error {
 	return nil
 }
 
-func (v *MemFS) Getwd() (string, error) {
+func (v *VirtualFS) Getwd() (string, error) {
 	// check that  still exists
 	s, err := v.Stat(v.workdir)
 	if err != nil {
@@ -133,7 +133,7 @@ func (v *MemFS) Getwd() (string, error) {
 	return v.workdir, nil
 }
 
-func (v *MemFS) OpenForWrite(name string) (File, error) {
+func (v *VirtualFS) OpenForWrite(name string) (File, error) {
 	f, err := v.open(name, true)
 	if err != nil {
 		return nil, err
@@ -145,7 +145,7 @@ func (v *MemFS) OpenForWrite(name string) (File, error) {
 	return f, nil
 }
 
-func (v *MemFS) OpenForAppend(name string) (File, error) {
+func (v *VirtualFS) OpenForAppend(name string) (File, error) {
 	f, err := v.open(name, true)
 	if err != nil {
 		return nil, err
@@ -154,11 +154,11 @@ func (v *MemFS) OpenForAppend(name string) (File, error) {
 	return f, nil
 }
 
-func (v *MemFS) Open(name string) (File, error) {
+func (v *VirtualFS) Open(name string) (File, error) {
 	return v.open(name, false)
 }
 
-func (v *MemFS) OpenIfExists(name string) (File, error) {
+func (v *VirtualFS) OpenIfExists(name string) (File, error) {
 	f, err := v.open(name, false)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -169,7 +169,7 @@ func (v *MemFS) OpenIfExists(name string) (File, error) {
 	return f, nil
 }
 
-func (v *MemFS) open(name string, createIfNotExists bool) (File, error) {
+func (v *VirtualFS) open(name string, createIfNotExists bool) (File, error) {
 	name, err := v.Abs(name)
 	if err != nil {
 		return nil, err
@@ -204,7 +204,7 @@ func (v *MemFS) open(name string, createIfNotExists bool) (File, error) {
 	file.forAppend = false
 	return file, nil
 }
-func (v *MemFS) Write(name string, data []byte) error {
+func (v *VirtualFS) Write(name string, data []byte) error {
 	name, err := v.Abs(name)
 	if err != nil {
 		return err
@@ -235,7 +235,7 @@ func (v *MemFS) Write(name string, data []byte) error {
 	return nil
 }
 
-func (v *MemFS) Append(name string, data []byte) error {
+func (v *VirtualFS) Append(name string, data []byte) error {
 	name, err := v.Abs(name)
 	if err != nil {
 		return err
@@ -268,7 +268,7 @@ func (v *MemFS) Append(name string, data []byte) error {
 	return nil
 }
 
-func (v *MemFS) AppendPath(path string, data []byte) error {
+func (v *VirtualFS) AppendPath(path string, data []byte) error {
 	path, err := v.Abs(path)
 	if err != nil {
 		return err
@@ -284,7 +284,7 @@ func (v *MemFS) AppendPath(path string, data []byte) error {
 	return v.Append(path, data)
 }
 
-func (v *MemFS) getDir(name string) (File, error) {
+func (v *VirtualFS) getDir(name string) (File, error) {
 	// if we are opening a somthing in the root dir just return root
 	dir := filepath.Dir(name)
 	if dir == name {
@@ -294,7 +294,7 @@ func (v *MemFS) getDir(name string) (File, error) {
 	return v.Open(dir)
 }
 
-func (v *MemFS) Mkdir(name string) error {
+func (v *VirtualFS) Mkdir(name string) error {
 	if name == "/" {
 		return os.ErrExist
 	}
@@ -332,7 +332,7 @@ func (v *MemFS) Mkdir(name string) error {
 	return nil
 }
 
-func (v *MemFS) MkdirAll(name string) error {
+func (v *VirtualFS) MkdirAll(name string) error {
 	name, err := v.Abs(name)
 	if err != nil {
 		return err
@@ -380,7 +380,7 @@ func trimLastSlash(s string) string {
 	return s
 }
 
-func (v *MemFS) Stat(name string) (os.FileInfo, error) {
+func (v *VirtualFS) Stat(name string) (os.FileInfo, error) {
 	name, err := v.Abs(name)
 	if err != nil {
 		return nil, err
@@ -393,7 +393,7 @@ func (v *MemFS) Stat(name string) (os.FileInfo, error) {
 	return f.(*vFile).info, nil
 }
 
-func (v *MemFS) Rename(oldPath, newPath string) error {
+func (v *VirtualFS) Rename(oldPath, newPath string) error {
 	var err error
 	oldPath, err = v.Abs(oldPath)
 	if err != nil {
@@ -411,7 +411,7 @@ func (v *MemFS) Rename(oldPath, newPath string) error {
 	return v.RemoveAll(oldPath)
 }
 
-func (v *MemFS) RemoveAll(name string) error {
+func (v *VirtualFS) RemoveAll(name string) error {
 	name, err := v.Abs(name)
 	if err != nil {
 		return err
