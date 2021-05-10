@@ -415,10 +415,11 @@ func (p *Program) addConstant(v Value) *Address {
 func (p *Program) Strip() {
 	for i := range p.Functions {
 		f := p.Functions[i]
+		f.Positions = nil
 		if strings.Contains(f.Name, ".prototype.") {
 			continue
 		}
-		if !f.Exported && f.Name != "main" {
+		if f.Name != "main" {
 			f.Name = ""
 		}
 		for j := range f.Registers {
@@ -428,6 +429,7 @@ func (p *Program) Strip() {
 			}
 		}
 	}
+	p.Files = nil
 }
 
 func (p *Program) FileIndex(file string) int {

@@ -25,6 +25,7 @@ func printVersion() {
 func main() {
 	v := flag.Bool("v", false, "version")
 	c := flag.Bool("c", false, "compile")
+	s := flag.Bool("s", false, "strip")
 	e := flag.Bool("e", false, "eval")
 	o := flag.String("o", "", "output file")
 	d := flag.Bool("d", false, "decompile")
@@ -57,7 +58,7 @@ func main() {
 	}
 
 	if *d {
-		p, err := loadProgram(args[0])
+		p, err := loadProgram(args[0], *s)
 		if err != nil {
 			fatal(err)
 		}
@@ -66,7 +67,7 @@ func main() {
 	}
 
 	if *c {
-		p, err := loadProgram(args[0])
+		p, err := loadProgram(args[0], *s)
 		if err != nil {
 			fatal(err)
 		}
@@ -83,7 +84,7 @@ func main() {
 	}
 
 	if *r {
-		p, err := loadProgram(args[0])
+		p, err := loadProgram(args[0], *s)
 		if err != nil {
 			fatal(err)
 		}
@@ -155,7 +156,7 @@ func eval(code string) error {
 }
 
 func exec(programPath string, args []string) error {
-	p, err := loadProgram(programPath)
+	p, err := loadProgram(programPath, false)
 	if err != nil {
 		return err
 	}
@@ -175,12 +176,16 @@ func exec(programPath string, args []string) error {
 	return err
 }
 
-func loadProgram(path string) (*dune.Program, error) {
+func loadProgram(path string, strip bool) (*dune.Program, error) {
 	ext := filepath.Ext(path)
 
 	switch ext {
 	case ".ts":
-		return dune.Compile(filesystem.OS, path)
+		p, err := dune.Compile(filesystem.OS, path)
+		if strip && err == nil {
+			p.Strip()
+		}
+		return p, err
 	case ".bin":
 		f, err := os.Open(path)
 		if err != nil {
@@ -193,7 +198,10 @@ func loadProgram(path string) (*dune.Program, error) {
 				// if it is not a compiled program maybe is a source file with a different extension
 				return dune.Compile(filesystem.OS, path)
 			}
-			return p, fmt.Errorf("error loading %s: %w", path, err)
+			return nil, fmt.Errorf("error loading %s: %w", path, err)
+		}
+		if strip {
+			p.Strip()
 		}
 		return p, nil
 	default:
