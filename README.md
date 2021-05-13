@@ -168,13 +168,13 @@ Functions
 
 1F main
 -----------------------------
-  0     moveAndTest         2L     0L     3L   ;   /tmp/rand.ts:8
-  1     testJump            3L     1D     0D   ;   /tmp/rand.ts:8
-  2     move                2L     0K     --   ;   /tmp/rand.ts:8
-  3     callSingleArg      81N     1L     2L   ;   /tmp/rand.ts:8
-  4     callSingleArg     107N     4L     1L   ;   /tmp/rand.ts:9
-  5     callSingleArg     131N     --     4L   ;   /tmp/rand.ts:10
-  6     return              --     --     --   ;   /tmp/rand.ts:10
+  0     MoveAndTest         2L     0L     3L   ;   /tmp/rand.ts:8
+  1     TestJump            3L     1D     0D   ;   /tmp/rand.ts:8
+  2     Move                2L     0K     --   ;   /tmp/rand.ts:8
+  3     CallSingleArg      81N     1L     2L   ;   /tmp/rand.ts:8
+  4     CallSingleArg     107N     4L     1L   ;   /tmp/rand.ts:9
+  5     CallSingleArg     131N     --     4L   ;   /tmp/rand.ts:10
+  6     Return              --     --     --   ;   /tmp/rand.ts:10
 
   0L len 0-6
   1L n 0-6
@@ -187,7 +187,6 @@ Constants
 =============================
 0K string 15
 ```
-
 
 Embedding
 ---
