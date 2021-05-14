@@ -982,14 +982,21 @@ func (s *libDB) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 		if s.locked {
 			return fmt.Errorf(("the database is locked"))
 		}
-		if v.Type != dune.String {
+
+		switch v.Type {
+		case dune.Undefined, dune.Null:
+			s.db.Prefix = ""
+
+		case dune.String:
+			name := v.String()
+			if !IsIdent(name) {
+				return fmt.Errorf("invalid name. It can only contain alphanumeric values")
+			}
+			s.db.Prefix = name
+
+		default:
 			return fmt.Errorf("expected string, got %s", v.TypeName())
 		}
-		name := v.String()
-		if !IsIdent(name) {
-			return fmt.Errorf("invalid name. It can only contain alphanumeric values")
-		}
-		s.db.Prefix = name
 		return nil
 
 	case "namespace":
