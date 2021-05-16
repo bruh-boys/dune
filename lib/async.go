@@ -17,13 +17,10 @@ declare function go(f: Function): void
 
 var Async = []dune.NativeFunction{
 	{
-		Name:      "go",
-		Arguments: 1,
+		Name:        "go",
+		Arguments:   1,
+		Permissions: []string{"async"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("async") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			return launchGoroutine(args, vm, nil)
 		},
 	},

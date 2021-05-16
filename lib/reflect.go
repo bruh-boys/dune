@@ -43,8 +43,9 @@ declare namespace reflect {
 
 var Reflect = []dune.NativeFunction{
 	{
-		Name:      "->reflect.program",
-		Arguments: 0,
+		Name:        "->reflect.program",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			p := vm.Program
 			return dune.NewObject(&program{prog: p}), nil

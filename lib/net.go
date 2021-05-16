@@ -106,13 +106,10 @@ var Net = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "net.listen",
-		Arguments: 2,
+		Name:        "net.listen",
+		Arguments:   2,
+		Permissions: []string{"netListen"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("netListen") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.String, dune.String); err != nil {
 				return dune.NullValue, err
 			}
@@ -126,13 +123,10 @@ var Net = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "net.listenTCP",
-		Arguments: 2,
+		Name:        "net.listenTCP",
+		Arguments:   2,
+		Permissions: []string{"netListen"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("netListen") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgs(args, dune.String, dune.Object); err != nil {
 				return dune.NullValue, err
 			}
@@ -242,8 +236,9 @@ var Net = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "net.getIPAddress",
-		Arguments: 0,
+		Name:        "net.getIPAddress",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			addrs, err := net.InterfaceAddrs()
 			if err != nil {
@@ -262,8 +257,9 @@ var Net = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "net.getMacAddress",
-		Arguments: 0,
+		Name:        "net.getMacAddress",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			addrs, err := net.InterfaceAddrs()
 			if err != nil {

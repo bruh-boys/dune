@@ -95,7 +95,8 @@ var OS = []dune.NativeFunction{
 		},
 	},
 	{
-		Name: "os.hostName",
+		Name:        "os.hostName",
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			name, err := os.Hostname()
 			if err != nil {

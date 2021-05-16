@@ -114,8 +114,9 @@ var Log = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "logging.system",
-		Arguments: -1,
+		Name:        "logging.system",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if len(args) == 0 {
 				return dune.NullValue, fmt.Errorf("expected at least 1 parameter, got 0")
@@ -130,8 +131,9 @@ var Log = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "logging.newLogger",
-		Arguments: -1,
+		Name:        "logging.newLogger",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if err := ValidateOptionalArgs(args, dune.String, dune.Object); err != nil {
 				return dune.NullValue, err

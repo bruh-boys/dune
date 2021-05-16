@@ -56,8 +56,9 @@ var STMP = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "smtp.send",
-		Arguments: -1,
+		Name:        "smtp.send",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if err := ValidateOptionalArgs(args, dune.Object, dune.String, dune.String, dune.String, dune.Int, dune.Bool); err != nil {
 				return dune.NullValue, err

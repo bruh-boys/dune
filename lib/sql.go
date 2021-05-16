@@ -1017,7 +1017,7 @@ func (s *libDB) SetField(name string, v dune.Value, vm *dune.VM) error {
 		return nil
 
 	case "locked":
-		if !vm.HasPermission("dbAdministrator") {
+		if !vm.HasPermission("trusted") {
 			return ErrUnauthorized
 		}
 		switch v.Type {
@@ -1029,7 +1029,7 @@ func (s *libDB) SetField(name string, v dune.Value, vm *dune.VM) error {
 		return nil
 
 	case "readOnly":
-		if !vm.HasPermission("dbAdministrator") {
+		if !vm.HasPermission("trusted") {
 			return ErrUnauthorized
 		}
 		if s.locked {

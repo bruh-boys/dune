@@ -692,13 +692,10 @@ var Time = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "time.newTicker",
-		Arguments: 2,
+		Name:        "time.newTicker",
+		Arguments:   2,
+		Permissions: []string{"async"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("async") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			d, err := ToDuration(args[0])
 			if err != nil {
 				return dune.NullValue, err
@@ -731,13 +728,10 @@ var Time = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "time.newTimer",
-		Arguments: 2,
+		Name:        "time.newTimer",
+		Arguments:   2,
+		Permissions: []string{"async"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("async") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			d, err := ToDuration(args[0])
 			if err != nil {
 				return dune.NullValue, fmt.Errorf("expected time.Duration, got: %s", args[0].TypeName())

@@ -119,8 +119,9 @@ var Locale = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "locale.setDefaultLocalizer",
-		Arguments: 1,
+		Name:        "locale.setDefaultLocalizer",
+		Arguments:   1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			loc, ok := args[0].ToObjectOrNil().(*localizer)
 			if !ok {

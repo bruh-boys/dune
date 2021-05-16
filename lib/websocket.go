@@ -45,12 +45,10 @@ var upgrader = websocket.Upgrader{} // websockets: use default options
 
 var WebSocket = []dune.NativeFunction{
 	{
-		Name:      "websocket.upgrade",
-		Arguments: 1,
+		Name:        "websocket.upgrade",
+		Arguments:   1,
+		Permissions: []string{"networking"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("networking") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			if err := ValidateArgs(args, dune.Object); err != nil {
 				return dune.NullValue, err
 			}

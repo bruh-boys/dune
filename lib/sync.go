@@ -43,13 +43,10 @@ declare namespace sync {
 
 var Sync = []dune.NativeFunction{
 	{
-		Name:      "sync.newWaitGroup",
-		Arguments: -1,
+		Name:        "sync.newWaitGroup",
+		Arguments:   -1,
+		Permissions: []string{"sync"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("sync") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateOptionalArgs(args, dune.Int); err != nil {
 				return dune.NullValue, err
 			}
@@ -65,12 +62,10 @@ var Sync = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "sync.newChannel",
-		Arguments: -1,
+		Name:        "sync.newChannel",
+		Arguments:   -1,
+		Permissions: []string{"sync"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("sync") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			if err := ValidateOptionalArgs(args, dune.Int); err != nil {
 				return dune.NullValue, err
 			}
@@ -89,13 +84,10 @@ var Sync = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "sync.select",
-		Arguments: -1,
+		Name:        "sync.select",
+		Arguments:   -1,
+		Permissions: []string{"sync"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("sync") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			argLen := len(args)
 			if argLen == 0 || argLen > 2 {
 				return dune.NullValue, fmt.Errorf("expected 1 or 2 args, got %d", argLen)
@@ -143,26 +135,20 @@ var Sync = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "sync.newMutex",
-		Arguments: 0,
+		Name:        "sync.newMutex",
+		Arguments:   0,
+		Permissions: []string{"sync"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("sync") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			m := &mutex{mutex: &sync.Mutex{}}
 			return dune.NewObject(m), nil
 		},
 	},
 
 	{
-		Name:      "sync.execLocked",
-		Arguments: -1,
+		Name:        "sync.execLocked",
+		Arguments:   -1,
+		Permissions: []string{"sync"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("sync") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			l := len(args)
 			if l < 2 {
 				return dune.NullValue, fmt.Errorf("expected at least 2 parameter, got %d", l)

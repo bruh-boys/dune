@@ -393,12 +393,10 @@ var HTTP = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "http.newServer",
-		Arguments: 0,
+		Name:        "http.newServer",
+		Arguments:   0,
+		Permissions: []string{"netListen"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("netListen") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			s := &server{vm: vm, handler: -1}
 			return dune.NewObject(s), nil
 		},
@@ -460,13 +458,10 @@ var HTTP = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "http.newRequest",
-		Arguments: -1,
+		Name:        "http.newRequest",
+		Arguments:   -1,
+		Permissions: []string{"networking"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("networking") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			if err := ValidateArgRange(args, 2, 3); err != nil {
 				return dune.NullValue, err
 			}
@@ -559,13 +554,10 @@ var HTTP = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "http.get",
-		Arguments: -1,
+		Name:        "http.get",
+		Arguments:   -1,
+		Permissions: []string{"networking"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("networking") {
-				return dune.NullValue, ErrUnauthorized
-			}
-
 			client := &http.Client{}
 			timeout := 20 * time.Second
 
@@ -634,12 +626,10 @@ var HTTP = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "http.post",
-		Arguments: 2,
+		Name:        "http.post",
+		Arguments:   2,
+		Permissions: []string{"networking"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("networking") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			if err := ValidateArgs(args, dune.String, dune.Map); err != nil {
 				return dune.NullValue, err
 			}
@@ -669,12 +659,10 @@ var HTTP = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "http.getJSON",
-		Arguments: 1,
+		Name:        "http.getJSON",
+		Arguments:   1,
+		Permissions: []string{"networking"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if !vm.HasPermission("networking") {
-				return dune.NullValue, ErrUnauthorized
-			}
 			if err := ValidateArgs(args, dune.String); err != nil {
 				return dune.NullValue, err
 			}

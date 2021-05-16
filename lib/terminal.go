@@ -156,8 +156,9 @@ declare namespace terminal {
 
 var Terminal = []dune.NativeFunction{
 	{
-		Name:      "terminal.EventType",
-		Arguments: 0,
+		Name:        "terminal.EventType",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if err := termbox.Init(); err != nil {
 				return dune.NullValue, err
@@ -166,8 +167,9 @@ var Terminal = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "terminal.init",
-		Arguments: 0,
+		Name:        "terminal.init",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if err := termbox.Init(); err != nil {
 				return dune.NullValue, err
@@ -176,16 +178,18 @@ var Terminal = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "terminal.close",
-		Arguments: 0,
+		Name:        "terminal.close",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			termbox.Close()
 			return dune.NullValue, nil
 		},
 	},
 	{
-		Name:      "terminal.sync",
-		Arguments: 0,
+		Name:        "terminal.sync",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if err := termbox.Sync(); err != nil {
 				return dune.NullValue, err
@@ -194,8 +198,9 @@ var Terminal = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "terminal.flush",
-		Arguments: 0,
+		Name:        "terminal.flush",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if err := termbox.Flush(); err != nil {
 				return dune.NullValue, err
@@ -204,8 +209,9 @@ var Terminal = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "terminal.setInputMode",
-		Arguments: 2,
+		Name:        "terminal.setInputMode",
+		Arguments:   2,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if err := ValidateArgs(args, dune.Int); err != nil {
 				return dune.NullValue, err
@@ -218,8 +224,9 @@ var Terminal = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "terminal.setOutputMode",
-		Arguments: 2,
+		Name:        "terminal.setOutputMode",
+		Arguments:   2,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if err := ValidateArgs(args, dune.Int); err != nil {
 				return dune.NullValue, err
@@ -232,8 +239,9 @@ var Terminal = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "terminal.size",
-		Arguments: 0,
+		Name:        "terminal.size",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			w, h := termbox.Size()
 
@@ -246,8 +254,9 @@ var Terminal = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "terminal.clear",
-		Arguments: -1,
+		Name:        "terminal.clear",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if err := ValidateOptionalArgs(args, dune.Int, dune.Int); err != nil {
 				return dune.NullValue, err
@@ -273,8 +282,9 @@ var Terminal = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "terminal.setCursor",
-		Arguments: 2,
+		Name:        "terminal.setCursor",
+		Arguments:   2,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if err := ValidateArgs(args, dune.Int, dune.Int); err != nil {
 				return dune.NullValue, err
@@ -289,16 +299,18 @@ var Terminal = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "terminal.hideCursor",
-		Arguments: 0,
+		Name:        "terminal.hideCursor",
+		Arguments:   0,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			termbox.HideCursor()
 			return dune.NullValue, nil
 		},
 	},
 	{
-		Name:      "terminal.setCell",
-		Arguments: 5,
+		Name:        "terminal.setCell",
+		Arguments:   5,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if args[0].Type != dune.Int {
 				return dune.NullValue, fmt.Errorf("invalid x type: %s", args[0].Type)
@@ -339,8 +351,9 @@ var Terminal = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "terminal.pollEvent",
-		Arguments: -1,
+		Name:        "terminal.pollEvent",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			ev := termbox.PollEvent()
 			return dune.NewObject(termboxEvent{ev}), nil
