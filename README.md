@@ -54,12 +54,9 @@ s.start()
 Working with databases:
 
 ```typescript
-let db = sql.open("mysql", "test:123@unix(/var/run/mysqld/mysqld.sock)/")
-
+let db = sql.open("sqlite3", ":memory:")
 db.exec("CREATE TABLE people (id KEY, name TEXT)")
-
 db.exec("INSERT INTO people (name) VALUES (?)", "Bob")
-
 for (let r of db.query("SELECT id, name FROM people")) {
 	console.log(r.id, r.name)
 }
