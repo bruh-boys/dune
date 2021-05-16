@@ -7,6 +7,7 @@ import (
 	"io"
 
 	"github.com/dunelang/dune"
+	"github.com/dunelang/dune/ast"
 	"github.com/dunelang/dune/binary"
 	"github.com/dunelang/dune/filesystem"
 	"github.com/dunelang/dune/parser"
@@ -14,6 +15,12 @@ import (
 
 func init() {
 	dune.RegisterLib(Bytecode, `
+
+declare namespace ast {
+	export interface Program {
+		string(): string
+	}
+}
 	
 declare namespace bytecode {
     /**
@@ -27,6 +34,8 @@ declare namespace bytecode {
 	export function hash(path: string, fileSystem?: io.FileSystem): string
 
     export function compileStr(code: string): runtime.Program
+
+    export function parseStr(code: string): ast.Program
 
     /**
      * Load a binary program from the file system
@@ -102,6 +111,24 @@ var Bytecode = []dune.NativeFunction{
 			}
 
 			return dune.NewObject(&program{prog: p}), nil
+		},
+	},
+	{
+		Name:        "bytecode.parseStr",
+		Arguments:   -1,
+		Permissions: []string{"trusted"},
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			if err := ValidateArgs(args, dune.String); err != nil {
+				return dune.NullValue, err
+			}
+			code := args[0].String()
+
+			p, err := dune.ParseStr(code)
+			if err != nil {
+				return dune.NullValue, errors.New(err.Error())
+			}
+
+			return dune.NewObject(&astProgram{prog: p}), nil
 		},
 	},
 	{
@@ -206,6 +233,30 @@ var Bytecode = []dune.NativeFunction{
 			return dune.NullValue, nil
 		},
 	},
+}
+
+type astProgram struct {
+	prog *ast.Module
+}
+
+func (p *astProgram) Type() string {
+	return "ast.Program"
+}
+
+func (p *astProgram) GetMethod(name string) dune.NativeMethod {
+	switch name {
+	case "string":
+		return p.string
+	}
+	return nil
+}
+
+func (p *astProgram) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	s, err := ast.Sprint(p.prog)
+	if err != nil {
+		return dune.NullValue, err
+	}
+	return dune.NewString(s), nil
 }
 
 func compile(args []dune.Value, vm *dune.VM) (dune.Value, error) {
