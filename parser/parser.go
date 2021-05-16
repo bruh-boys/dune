@@ -18,12 +18,12 @@ import (
 
 var Optimizations = true
 
-func Parse(fs filesystem.FS, path string) (*ast.Module, error) {
+func Parse(fs filesystem.FS, path string) (*ast.Program, error) {
 	p := newParser(fs)
 	return p.Parse(path)
 }
 
-func ParseStr(code string) (*ast.Module, error) {
+func ParseStr(code string) (*ast.Program, error) {
 	r := strings.NewReader(code)
 	l := ast.New(r, "")
 	if err := l.Run(); err != nil {
@@ -85,7 +85,7 @@ func (p *parser) SetFS(fs filesystem.FS) {
 	p.FS = fs
 }
 
-func (p *parser) Parse(path string) (*ast.Module, error) {
+func (p *parser) Parse(path string) (*ast.Program, error) {
 	if p.FS == nil {
 		return nil, fmt.Errorf("there is no filesystem.FS")
 	}
@@ -148,7 +148,7 @@ func (p *parser) isTypeDefinitionFile(path string) bool {
 }
 
 // ParseStatements parses code directly. Filename is used to provide error lines.
-func (p *parser) ParseStatements(code, fileName string) (*ast.Module, error) {
+func (p *parser) ParseStatements(code, fileName string) (*ast.Program, error) {
 	r := strings.NewReader(code)
 
 	l := ast.New(r, fileName)
@@ -178,8 +178,8 @@ func (p *parser) ParseStatements(code, fileName string) (*ast.Module, error) {
 	return a, nil
 }
 
-func newAST() *ast.Module {
-	return &ast.Module{
+func newAST() *ast.Program {
+	return &ast.Program{
 		Modules: make(map[string]*ast.File),
 	}
 }
@@ -201,7 +201,7 @@ func unmarshalWithComments(b []byte) (map[string]interface{}, error) {
 	return m, nil
 }
 
-func (p *parser) parseImports(ast *ast.Module, file *ast.File) error {
+func (p *parser) parseImports(ast *ast.Program, file *ast.File) error {
 	if len(file.Imports) == 0 {
 		return nil
 	}

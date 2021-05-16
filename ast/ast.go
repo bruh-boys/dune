@@ -1,6 +1,6 @@
 package ast
 
-type Module struct {
+type Program struct {
 	File     *File
 	Modules  map[string]*File
 	BasePath string

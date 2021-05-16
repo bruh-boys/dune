@@ -88,7 +88,7 @@ type compiler struct {
 	selectors         []*selector
 }
 
-func (c *compiler) Compile(mod *ast.Module) (*Program, error) {
+func (c *compiler) Compile(mod *ast.Program) (*Program, error) {
 	compiled := make(map[string]bool)
 
 	// compile first the global namespace

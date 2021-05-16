@@ -236,7 +236,7 @@ var Bytecode = []dune.NativeFunction{
 }
 
 type astProgram struct {
-	prog *ast.Module
+	prog *ast.Program
 }
 
 func (p *astProgram) Type() string {

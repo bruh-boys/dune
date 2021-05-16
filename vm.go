@@ -38,11 +38,11 @@ func RunStr(code string) (Value, error) {
 	return vm.Run()
 }
 
-func Parse(fs filesystem.FS, path string) (*ast.Module, error) {
+func Parse(fs filesystem.FS, path string) (*ast.Program, error) {
 	return parser.Parse(fs, path)
 }
 
-func ParseStr(code string) (*ast.Module, error) {
+func ParseStr(code string) (*ast.Program, error) {
 	return parser.ParseStr(code)
 }
 
