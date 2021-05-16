@@ -341,7 +341,7 @@ func (r *routeMatch) Type() string {
 	return "routing.RouteMatch"
 }
 
-func (r *routeMatch) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (r *routeMatch) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "route":
 		if r.Route == nil {

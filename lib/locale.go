@@ -361,7 +361,7 @@ func (c *culture) Type() string {
 	return "locale.Culture"
 }
 
-func (c *culture) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (c *culture) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "readonly":
 		return dune.NewBool(c.readonly), nil
@@ -399,7 +399,7 @@ func (c *culture) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	}
 }
 
-func (c *culture) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (c *culture) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "readonly":
 		switch v.Type {
@@ -552,7 +552,7 @@ func (l *localizer) Type() string {
 	return "locale.Localizer"
 }
 
-func (l *localizer) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (l *localizer) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "culture":
 		return dune.NewObject(&culture{culture: l.culture}), nil
@@ -563,7 +563,7 @@ func (l *localizer) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	}
 }
 
-func (l *localizer) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (l *localizer) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "culture":
 		c, ok := v.ToObjectOrNil().(*culture)

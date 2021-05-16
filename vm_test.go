@@ -2970,7 +2970,7 @@ func TestNativeFunc(t *testing.T) {
 	`)
 }
 
-func TestNativeProperty(t *testing.T) {
+func TestNativeField(t *testing.T) {
 	libs := []NativeFunction{
 		{
 			Name: "->math.pi",
@@ -3036,7 +3036,7 @@ func TestNativeFuncError(t *testing.T) {
 
 type obj struct{}
 
-func (d obj) GetProperty(key string, vm *VM) (Value, error) {
+func (d obj) GetField(key string, vm *VM) (Value, error) {
 	switch key {
 	case "name":
 		return NewString("foo"), nil

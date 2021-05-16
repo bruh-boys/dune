@@ -1193,25 +1193,25 @@ func (vm *VM) setToObject(instr *Instruction) error {
 
 			// try if it is a class instance with a property setter
 			if instance, ok := obj.(*instance); ok {
-				if set, ok := instance.Setter(key, vm.Program); ok {
+				if set, ok := instance.PropertySetter(key, vm.Program); ok {
 					args := []Value{cv}
 					vm.callProgramFunc(set, Void, args, true, av, nil)
 					return nil
 				}
 			}
 
-			i, ok := obj.(PropertySetter)
+			i, ok := obj.(FieldSetter)
 			if !ok {
-				return vm.NewError("Readonly property or not a PropertySetter: %T", av.TypeName())
+				return vm.NewError("Readonly or nonexistent field: %T", av.TypeName())
 			}
-			if err := i.SetProperty(key, cv, vm); err != nil {
+			if err := i.SetField(key, cv, vm); err != nil {
 				return vm.WrapError(err)
 			}
 
 		case Null:
 			return vm.NewError("Can't set %s of null", bv.String())
 		default:
-			return vm.NewError("Readonly property or not Map or PropertySetter: %v", av.TypeName())
+			return vm.NewError("Readonly field or nonexistent field: %v", av.TypeName())
 		}
 	default:
 		return vm.NewError("Invalid index %s", bv.TypeName())
@@ -1382,15 +1382,15 @@ func (vm *VM) getFromObject(instr *Instruction, errIfNullOrUndefined bool) (bool
 
 			// try if it is a class instance with a property getter
 			if instance, ok := obj.(*instance); ok {
-				if get, ok := instance.Getter(key, vm.Program); ok {
+				if get, ok := instance.PropertyGetter(key, vm.Program); ok {
 					vm.callProgramFunc(get, instr.A, nil, true, bv, nil)
 					return true, nil
 				}
 			}
 
 			// try a native property
-			if i, ok := obj.(PropertyGetter); ok {
-				v, err := i.GetProperty(key, vm)
+			if i, ok := obj.(FieldGetter); ok {
+				v, err := i.GetField(key, vm)
 				if err != nil {
 					return false, vm.WrapError(err)
 				}

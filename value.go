@@ -709,12 +709,12 @@ type Callable interface {
 	GetMethod(name string) NativeMethod
 }
 
-type PropertyGetter interface {
-	GetProperty(string, *VM) (Value, error)
+type FieldGetter interface {
+	GetField(string, *VM) (Value, error)
 }
 
-type PropertySetter interface {
-	SetProperty(string, Value, *VM) error
+type FieldSetter interface {
+	SetField(string, Value, *VM) error
 }
 
 type IndexerGetter interface {

@@ -244,7 +244,7 @@ func (*zipFile) Type() string {
 	return "zip.File"
 }
 
-func (f *zipFile) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (f *zipFile) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "name":
 		return dune.NewString(f.f.Name), nil

@@ -139,7 +139,7 @@ func (t *xmlElement) Size() int {
 	return 1
 }
 
-func (t *xmlElement) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (t *xmlElement) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "tag":
 		return dune.NewString(t.element.Tag), nil

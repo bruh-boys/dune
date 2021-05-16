@@ -188,7 +188,7 @@ func (e fsEvent) Type() string {
 	return "fsnotify.Event"
 }
 
-func (e fsEvent) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (e fsEvent) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "name":
 		return dune.NewString(e.name), nil

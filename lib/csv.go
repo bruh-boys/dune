@@ -76,7 +76,7 @@ func (r *csvReader) Type() string {
 	return "csv.Reader"
 }
 
-func (r *csvReader) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (r *csvReader) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "comma":
 		return dune.NewString(string(r.r.Comma)), nil
@@ -86,7 +86,7 @@ func (r *csvReader) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (r *csvReader) SetProperty(key string, v dune.Value, vm *dune.VM) error {
+func (r *csvReader) SetField(key string, v dune.Value, vm *dune.VM) error {
 	switch key {
 	case "comma":
 		if v.Type != dune.String {
@@ -141,7 +141,7 @@ func (*csvWriter) Type() string {
 	return "csv.Writer"
 }
 
-func (w *csvWriter) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (w *csvWriter) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "comma":
 		return dune.NewString(string(w.w.Comma)), nil
@@ -149,7 +149,7 @@ func (w *csvWriter) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (w *csvWriter) SetProperty(key string, v dune.Value, vm *dune.VM) error {
+func (w *csvWriter) SetField(key string, v dune.Value, vm *dune.VM) error {
 	switch key {
 	case "comma":
 		if v.Type != dune.String {

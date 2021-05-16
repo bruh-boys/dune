@@ -214,7 +214,7 @@ func (*logger) Type() string {
 	return "logging.Logger"
 }
 
-func (t *logger) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (t *logger) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "path":
 		return dune.NewString(t.db.Path), nil
@@ -222,7 +222,7 @@ func (t *logger) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (t *logger) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (t *logger) SetField(name string, v dune.Value, vm *dune.VM) error {
 	if !vm.HasPermission("trusted") {
 		return ErrUnauthorized
 	}
@@ -384,7 +384,7 @@ func (d *dataPoint) String() string {
 	return d.d.String()
 }
 
-func (d *dataPoint) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (d *dataPoint) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "text":
 		return dune.NewString(d.d.Text), nil

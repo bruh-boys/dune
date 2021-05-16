@@ -87,7 +87,7 @@ func (c *websocketConn) Type() string {
 	return "http.WebsocketConnection"
 }
 
-func (c *websocketConn) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (c *websocketConn) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "guid":
 		return dune.NewString(c.guid), nil
@@ -95,7 +95,7 @@ func (c *websocketConn) GetProperty(name string, vm *dune.VM) (dune.Value, error
 	return dune.UndefinedValue, nil
 }
 
-func (c *websocketConn) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (c *websocketConn) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "guid":
 		if v.Type != dune.String {

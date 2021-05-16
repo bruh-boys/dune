@@ -127,7 +127,7 @@ func (e *VMError) stackLines() []string {
 	return lines
 }
 
-func (e *VMError) GetProperty(name string, vm *VM) (Value, error) {
+func (e *VMError) GetField(name string, vm *VM) (Value, error) {
 	switch name {
 	case "type":
 		return NewString(e.ErrorType), nil

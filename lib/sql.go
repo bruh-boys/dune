@@ -585,7 +585,7 @@ func (t sqlResult) Type() string {
 	return "sql.Result"
 }
 
-func (t sqlResult) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (t sqlResult) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "lastInsertId":
 		i, err := t.result.LastInsertId()
@@ -735,7 +735,7 @@ func (r dbReader) Close() error {
 	return r.r.Close()
 }
 
-func (r dbReader) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (r dbReader) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "columns":
 		cols, err := r.r.Columns()
@@ -825,7 +825,7 @@ func (t column) Type() string {
 	return "sql.Column"
 }
 
-func (t column) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (t column) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "name":
 		return dune.NewString(t.col.Name), nil
@@ -843,7 +843,7 @@ func (t columns) Type() string {
 	return "sql.Columns"
 }
 
-func (t columns) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (t columns) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "length":
 		return dune.NewInt(len(t.columns)), nil
@@ -901,7 +901,7 @@ func (s *libDB) Type() string {
 	return "sql.DB"
 }
 
-func (s *libDB) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (s *libDB) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "hasTransaction":
 		return dune.NewBool(s.db.HasTransaction()), nil
@@ -932,7 +932,7 @@ func (s *libDB) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (s *libDB) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (s *libDB) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "onExecuting":
 		if !vm.HasPermission("trusted") {
@@ -1938,7 +1938,7 @@ func (c schemaColumn) String() string {
 	return c.name + ":sql.SchemaColumn"
 }
 
-func (c schemaColumn) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (c schemaColumn) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "name":
 		return dune.NewString(c.name), nil
@@ -2570,7 +2570,7 @@ func (s deleteQuery) String() string {
 	return v.String()
 }
 
-func (s deleteQuery) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (s deleteQuery) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "hasWhere":
 		return dune.NewBool(s.query.WherePart != nil), nil
@@ -2787,7 +2787,7 @@ func (s insertQuery) String() string {
 	return v.String()
 }
 
-func (s insertQuery) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (s insertQuery) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "parameters":
 		return dune.NewArrayValues(getParamers(s.query)), nil
@@ -2843,7 +2843,7 @@ func (s updateQuery) String() string {
 	return v.String()
 }
 
-func (s updateQuery) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (s updateQuery) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "hasWhere":
 		return dune.NewBool(s.query.WherePart != nil), nil
@@ -3141,7 +3141,7 @@ func (s selectQuery) String() string {
 	return v.String()
 }
 
-func (s selectQuery) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (s selectQuery) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "columnsLength":
 		return dune.NewInt(len(s.query.Columns)), nil
@@ -3609,7 +3609,7 @@ func (t *table) Export(recursionLevel int) interface{} {
 	return t.dbxTable
 }
 
-func (t *table) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (t *table) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "length":
 		return dune.NewInt(len(t.dbxTable.Rows)), nil
@@ -3647,7 +3647,7 @@ func (r *rows) Values() ([]dune.Value, error) {
 	return values, nil
 }
 
-func (r *rows) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (r *rows) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "length":
 		return dune.NewInt(len(r.table.Rows)), nil
@@ -3691,7 +3691,7 @@ func (r *row) Values() ([]dune.Value, error) {
 	return values, nil
 }
 
-func (r *row) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (r *row) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	// first look for values from the database
 	if v, ok := r.dbxRow.Value(name); ok {
 		return convertDBValue(v), nil
@@ -3708,7 +3708,7 @@ func (r *row) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (r *row) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (r *row) SetField(name string, v dune.Value, vm *dune.VM) error {
 	i := r.dbxRow.ColumnIndex(name)
 	if i != -1 {
 		r.dbxRow.Values[i] = v.Export(0)

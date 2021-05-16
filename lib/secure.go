@@ -48,7 +48,7 @@ func (*SecureObject) Type() string {
 	return "secure.SecureObject"
 }
 
-func (p *SecureObject) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (p *SecureObject) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	if !p.read && !vm.HasPermission("trusted") {
 		return dune.NullValue, ErrUnauthorized
 	}
@@ -64,7 +64,7 @@ func (p *SecureObject) GetProperty(key string, vm *dune.VM) (dune.Value, error) 
 	return v, nil
 }
 
-func (p *SecureObject) SetProperty(key string, v dune.Value, vm *dune.VM) error {
+func (p *SecureObject) SetField(key string, v dune.Value, vm *dune.VM) error {
 	if !p.write && !vm.HasPermission("trusted") {
 		return ErrUnauthorized
 	}

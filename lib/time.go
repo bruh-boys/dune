@@ -996,7 +996,7 @@ func (t TimeObj) Compare(v dune.Value) int {
 	return 1
 }
 
-func (t TimeObj) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (t TimeObj) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "unix":
 		return dune.NewInt64(time.Time(t).Unix()), nil
@@ -1631,7 +1631,7 @@ func (t Duration) Export(recursionLevel int) interface{} {
 	return time.Duration(t)
 }
 
-func (t Duration) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (t Duration) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "hours":
 		return dune.NewFloat(time.Duration(t).Hours()), nil
@@ -1803,7 +1803,7 @@ func (l location) Type() string {
 	return "time.Location"
 }
 
-func (l location) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (l location) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "name":
 		name := l.l.String()

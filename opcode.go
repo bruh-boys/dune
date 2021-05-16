@@ -56,7 +56,7 @@ const (
 	op_calOptChain                        // call optional chaining: A funcIndex, B retAddress, C argsAddress. Reg0 stores the PC to jump if B is null.
 	op_callSingleArg                      // call with single argument: A funcIndex, B retAddress, C argsAddress
 	op_calOptChainSingleArg               // call optional with single argument: A funcIndex, B retAddress, C argsAddress. Reg0 stores the PC to jump if B is null.
-	op_readNativeProperty                 // Read native property: A := B
+	op_readNativeField                    // Read native property: A := B
 	op_return                             // return from a call: A dest
 	op_createClosure                      // create closure: A dest R(B value) funcIndex
 	op_throw                              // throw. A contains the error
@@ -65,7 +65,7 @@ const (
 	op_catchEnd                           // catch-end: set the last catch body as ended. It is only emmited if there is no finally
 	op_finallyEnd                         // finally-end: set the last finally body as ended.
 	op_tryExit                            // try exit: a continue inside try/catch inside a loop for example
-	op_deleteProperty                     // delete object property
+	op_deleteField                        // delete object property
 )
 
 const (
@@ -217,8 +217,8 @@ func exec(i *Instruction, vm *VM) int {
 	case op_calOptChainSingleArg:
 		return exec_calOptChainSingleArg(i, vm)
 
-	case op_readNativeProperty:
-		return exec_readNativeProperty(i, vm)
+	case op_readNativeField:
+		return exec_readNativeField(i, vm)
 
 	case op_return:
 		return exec_return(i, vm)
@@ -244,8 +244,8 @@ func exec(i *Instruction, vm *VM) int {
 	case op_tryExit:
 		return exec_tryExit(vm)
 
-	case op_deleteProperty:
-		return exec_deleteProperty(i, vm)
+	case op_deleteField:
+		return exec_deleteField(i, vm)
 
 	default:
 		panic(fmt.Sprintf("Invalid opcode: %v", i))
@@ -1518,7 +1518,7 @@ func exec_length(instr *Instruction, vm *VM) int {
 }
 
 // Read native property A := B
-func exec_readNativeProperty(instr *Instruction, vm *VM) int {
+func exec_readNativeField(instr *Instruction, vm *VM) int {
 	n := vm.get(instr.B)
 
 	i := n.ToNativeFunction()
@@ -1915,7 +1915,7 @@ func exec_return(instr *Instruction, vm *VM) int {
 	return vm_continue
 }
 
-func exec_deleteProperty(instr *Instruction, vm *VM) int {
+func exec_deleteField(instr *Instruction, vm *VM) int {
 	obj := vm.get(instr.A)
 	if obj.Type != Map {
 		return vm_next

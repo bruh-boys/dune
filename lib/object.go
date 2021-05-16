@@ -185,8 +185,8 @@ var libMap = []dune.NativeFunction{
 				return dune.NewBool(ok), nil
 
 			case dune.Object:
-				if o, ok := a.ToObject().(dune.PropertyGetter); ok {
-					v, err := o.GetProperty(b.String(), vm)
+				if o, ok := a.ToObject().(dune.FieldGetter); ok {
+					v, err := o.GetField(b.String(), vm)
 					if err != nil {
 						return dune.NullValue, err
 					}

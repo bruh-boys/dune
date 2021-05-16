@@ -339,9 +339,9 @@ func (i *VarDeclStmt) declNode() {}
 func (i *VarDeclStmt) stmtNode() {}
 
 type DeleteStmt struct {
-	Object   string
-	Property string
-	Pos      Position
+	Object string
+	Field  string
+	Pos    Position
 }
 
 func (i *DeleteStmt) Position() Position {

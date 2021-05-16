@@ -195,7 +195,7 @@ func (k *rsaPrivateKey) Type() string {
 	return "RSA_Private_Key"
 }
 
-func (k *rsaPrivateKey) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (k *rsaPrivateKey) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "publicKey":
 		return dune.NewObject(&rsaPublicKey{&k.key.PublicKey}), nil

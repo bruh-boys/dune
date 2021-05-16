@@ -986,7 +986,7 @@ func (termboxEvent) Type() string {
 	return "terminal.Event"
 }
 
-func (e termboxEvent) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (e termboxEvent) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "type":
 		return dune.NewInt(int(e.event.Type)), nil

@@ -197,7 +197,7 @@ func (f *xlsxFile) Type() string {
 	return "xlsx.Reader"
 }
 
-func (x *xlsxFile) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (x *xlsxFile) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "sheets":
 		xSheets := x.obj.Sheets
@@ -288,7 +288,7 @@ func (x *xlsxSheet) Type() string {
 	return "xlsx.Sheet"
 }
 
-func (x *xlsxSheet) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (x *xlsxSheet) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "rows":
 		if x.rows == nil {
@@ -339,7 +339,7 @@ func (x *xlsxRow) Type() string {
 	return "xlsx.Row"
 }
 
-func (x *xlsxRow) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (x *xlsxRow) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "cells":
 		xCells := x.obj.Cells
@@ -354,7 +354,7 @@ func (x *xlsxRow) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (x *xlsxRow) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (x *xlsxRow) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "height":
 		switch v.Type {
@@ -446,7 +446,7 @@ func (x *xlsxCell) getDate(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	return dune.NewObject(TimeObj(t)), nil
 }
 
-func (x *xlsxCell) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (x *xlsxCell) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 
 	case "numberFormat":
@@ -489,7 +489,7 @@ func (x *xlsxCell) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (x *xlsxCell) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (x *xlsxCell) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "error":
 		return x.setValue(v, vm)
@@ -540,7 +540,7 @@ func (x *xlsxCol) Type() string {
 	return "xlsx.Col"
 }
 
-func (x *xlsxCol) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (x *xlsxCol) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "width":
 		return dune.NewFloat(x.obj.Width), nil
@@ -548,7 +548,7 @@ func (x *xlsxCol) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (x *xlsxCol) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (x *xlsxCol) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "width":
 		switch v.Type {
@@ -572,7 +572,7 @@ func (x *xlsxStyle) Type() string {
 	return "xlsx.Style"
 }
 
-func (x *xlsxStyle) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (x *xlsxStyle) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "alignment":
 		return dune.NewObject(&xlsxAlignment{&x.obj.Alignment}), nil
@@ -586,7 +586,7 @@ func (x *xlsxStyle) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (x *xlsxStyle) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (x *xlsxStyle) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "alignment":
 		a, ok := v.ToObjectOrNil().(*xlsxAlignment)
@@ -627,7 +627,7 @@ func (x *xlsxAlignment) Type() string {
 	return "xlsx.Alignment"
 }
 
-func (x *xlsxAlignment) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (x *xlsxAlignment) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "horizontal":
 		return dune.NewString(x.obj.Horizontal), nil
@@ -637,7 +637,7 @@ func (x *xlsxAlignment) GetProperty(key string, vm *dune.VM) (dune.Value, error)
 	return dune.UndefinedValue, nil
 }
 
-func (x *xlsxAlignment) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (x *xlsxAlignment) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "horizontal":
 		if v.Type != dune.String {
@@ -664,7 +664,7 @@ func (x *xlsxFont) Type() string {
 	return "xlsx.Font"
 }
 
-func (x *xlsxFont) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (x *xlsxFont) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "bold":
 		return dune.NewBool(x.obj.Bold), nil
@@ -674,7 +674,7 @@ func (x *xlsxFont) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (x *xlsxFont) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (x *xlsxFont) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "bold":
 		if v.Type != dune.Bool {

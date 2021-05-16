@@ -364,7 +364,7 @@ func (b Buffer) Write(p []byte) (n int, err error) {
 	return b.Buf.Write(p)
 }
 
-func (b Buffer) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (b Buffer) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "length":
 		return dune.NewInt(b.Buf.Len()), nil
@@ -1160,7 +1160,7 @@ func (f fileInfo) Type() string {
 	return "os.FileInfo"
 }
 
-func (f fileInfo) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (f fileInfo) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "name":
 		return dune.NewString(f.fi.Name()), nil

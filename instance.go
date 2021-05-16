@@ -28,7 +28,7 @@ func (i *instance) String() string {
 	return "[" + i.class.Name + "]"
 }
 
-func (i *instance) Getter(name string, p *Program) (*Function, bool) {
+func (i *instance) PropertyGetter(name string, p *Program) (*Function, bool) {
 	for _, i := range i.class.Getters {
 		f := p.Functions[i]
 		if f.Name == name {
@@ -38,7 +38,7 @@ func (i *instance) Getter(name string, p *Program) (*Function, bool) {
 	return nil, false
 }
 
-func (i *instance) Setter(name string, p *Program) (*Function, bool) {
+func (i *instance) PropertySetter(name string, p *Program) (*Function, bool) {
 	for _, i := range i.class.Setters {
 		f := p.Functions[i]
 		if f.Name == name {
@@ -71,7 +71,7 @@ func (i *instance) isSelfPC(vm *VM) bool {
 	return f.IsClass && i.class == vm.Program.Classes[f.Class]
 }
 
-func (i *instance) GetProperty(name string, vm *VM) (Value, error) {
+func (i *instance) GetField(name string, vm *VM) (Value, error) {
 	// look for a method passed as a value.
 	f, ok := i.Function(name, vm.Program)
 	if ok {
@@ -103,7 +103,7 @@ func (i *instance) GetProperty(name string, vm *VM) (Value, error) {
 	return v, nil
 }
 
-func (i *instance) SetProperty(name string, v Value, vm *VM) error {
+func (i *instance) SetField(name string, v Value, vm *VM) error {
 	if !i.isSelfPC(vm) {
 		var ok bool
 		for _, f := range i.class.Fields {

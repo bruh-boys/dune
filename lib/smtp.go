@@ -113,7 +113,7 @@ func (SmtMessage) Type() string {
 	return "smtp.Message"
 }
 
-func (m *SmtMessage) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (m *SmtMessage) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "from":
 		return dune.NewString(m.From.Address), nil
@@ -146,7 +146,7 @@ func (m *SmtMessage) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (m *SmtMessage) SetProperty(key string, v dune.Value, vm *dune.VM) error {
+func (m *SmtMessage) SetField(key string, v dune.Value, vm *dune.VM) error {
 	switch key {
 	case "from":
 		if v.Type != dune.String {

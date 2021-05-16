@@ -784,7 +784,7 @@ func (s *server) Type() string {
 	return "http.Server"
 }
 
-func (s *server) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (s *server) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "address":
 		return dune.NewString(s.address), nil
@@ -812,7 +812,7 @@ func (s *server) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (s *server) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (s *server) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "address":
 		if v.Type != dune.String {
@@ -1081,7 +1081,7 @@ func (c *cookie) String() string {
 	return fmt.Sprintf("{ name: '%s', path: '%s', value: '%s', expires: '%v' }", c.name, c.path, c.value, c.expires)
 }
 
-func (c *cookie) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (c *cookie) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "domain":
 		return dune.NewString(c.name), nil
@@ -1103,7 +1103,7 @@ func (c *cookie) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (c *cookie) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (c *cookie) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "domain":
 		if v.Type != dune.String {
@@ -1183,7 +1183,7 @@ func (r *response) Type() string {
 	return "http.Response"
 }
 
-func (r *response) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (r *response) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "handled":
 		return dune.NewBool(r.handled), nil
@@ -1195,7 +1195,7 @@ func (r *response) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (r *response) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (r *response) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "handled":
 		if v.Type != dune.Bool {
@@ -1356,7 +1356,7 @@ func (r *request) Type() string {
 	return "http.Request"
 }
 
-func (r *request) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (r *request) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "body":
 		return dune.NewObject(&readerCloser{r.request.Body}), nil
@@ -1397,7 +1397,7 @@ func (r *request) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (r *request) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (r *request) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "method":
 		if v.Type != dune.String {
@@ -1829,7 +1829,7 @@ func (f formFile) Type() string {
 	return "multipart.File"
 }
 
-func (f formFile) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (f formFile) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "name":
 		return dune.NewString(f.name), nil
@@ -2097,7 +2097,7 @@ func (*URL) Type() string {
 	return "http.URL"
 }
 
-func (u *URL) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (u *URL) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "path":
 		if !vm.HasPermission("trusted") {
@@ -2124,7 +2124,7 @@ func (u *URL) SetProperty(name string, v dune.Value, vm *dune.VM) error {
 	return ErrReadOnlyOrUndefined
 }
 
-func (u *URL) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (u *URL) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "scheme":
 		return dune.NewString(u.url.Scheme), nil
@@ -2199,7 +2199,7 @@ func (*responseWriter) Type() string {
 	return "http.ResponseWriter"
 }
 
-func (r *responseWriter) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (r *responseWriter) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "status":
 		rc, ok := r.writer.(*httptest.ResponseRecorder)
@@ -2213,7 +2213,7 @@ func (r *responseWriter) GetProperty(name string, vm *dune.VM) (dune.Value, erro
 	return dune.UndefinedValue, nil
 }
 
-func (r *responseWriter) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (r *responseWriter) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "handled":
 		if v.Type != dune.Bool {

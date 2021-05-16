@@ -519,7 +519,7 @@ func (p *program) Type() string {
 	return "runtime.Program"
 }
 
-func (p *program) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (p *program) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "constants":
 		return dune.NewArrayValues(p.prog.Constants), nil
@@ -828,7 +828,7 @@ func (functionInfo) Type() string {
 	return "runtime.FunctionInfo"
 }
 
-func (f functionInfo) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (f functionInfo) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "name":
 		return dune.NewString(f.fn.Name), nil
@@ -921,7 +921,7 @@ func (m *libVM) Type() string {
 	return "runtime.VirtualMachine"
 }
 
-func (m *libVM) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (m *libVM) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "context":
 		return vm.Context, nil
@@ -960,7 +960,7 @@ func (m *libVM) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (m *libVM) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (m *libVM) SetField(name string, v dune.Value, vm *dune.VM) error {
 	if !vm.HasPermission("trusted") {
 		return ErrUnauthorized
 	}

@@ -304,7 +304,7 @@ func (c *certificate) Type() string {
 	return "tls.Certificate"
 }
 
-func (c *certificate) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (c *certificate) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "cert":
 		return dune.NewBytes(c.cert), nil
@@ -341,7 +341,7 @@ func (t *tlsConfig) GetMethod(name string) dune.NativeMethod {
 	return nil
 }
 
-func (t *tlsConfig) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (t *tlsConfig) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "insecureSkipVerify":
 		return dune.NewBool(t.conf.InsecureSkipVerify), nil
@@ -354,7 +354,7 @@ func (t *tlsConfig) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (t *tlsConfig) SetProperty(name string, v dune.Value, vm *dune.VM) error {
+func (t *tlsConfig) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
 	case "insecureSkipVerify":
 		if v.Type != dune.Bool {

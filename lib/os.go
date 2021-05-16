@@ -546,7 +546,7 @@ func (c *command) GetMethod(name string) dune.NativeMethod {
 	return nil
 }
 
-func (c *command) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
+func (c *command) GetField(key string, vm *dune.VM) (dune.Value, error) {
 	switch key {
 	case "stdin":
 		return dune.NewObject(c.command.Stdin), nil
@@ -567,7 +567,7 @@ func (c *command) GetProperty(key string, vm *dune.VM) (dune.Value, error) {
 	return dune.UndefinedValue, nil
 }
 
-func (c *command) SetProperty(key string, v dune.Value, vm *dune.VM) error {
+func (c *command) SetField(key string, v dune.Value, vm *dune.VM) error {
 	switch key {
 	case "stdin":
 		if v.Type != dune.Object {

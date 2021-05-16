@@ -518,7 +518,7 @@ func (*tcpAddr) Type() string {
 	return "net.TCPAddr"
 }
 
-func (a *tcpAddr) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (a *tcpAddr) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "IP":
 		ip := &IP{ip: a.addr.IP}
@@ -576,7 +576,7 @@ func (c *tcpConn) Close() error {
 	return c.conn.Close()
 }
 
-func (c *tcpConn) GetProperty(name string, vm *dune.VM) (dune.Value, error) {
+func (c *tcpConn) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "localAddr":
 		a := c.conn.LocalAddr()

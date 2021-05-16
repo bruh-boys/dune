@@ -1960,9 +1960,9 @@ func (p *parser) parseDeleteStmt() (*ast.DeleteStmt, error) {
 	}
 
 	exp := &ast.DeleteStmt{
-		Object:   t1.Str,
-		Property: t2.Str,
-		Pos:      td.Pos,
+		Object: t1.Str,
+		Field:  t2.Str,
+		Pos:    td.Pos,
 	}
 
 	return exp, nil

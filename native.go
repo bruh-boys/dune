@@ -10,8 +10,8 @@ var typeDefs = []string{header}
 
 type NativeObject interface {
 	GetMethod(name string) NativeMethod
-	GetProperty(name string, vm *VM) (Value, error)
-	SetProperty(name string, v Value, vm *VM) error
+	GetField(name string, vm *VM) (Value, error)
+	SetField(name string, v Value, vm *VM) error
 }
 
 // NativeFunction is a function written in Go as opposed to an interpreted function

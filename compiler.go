@@ -14,14 +14,14 @@ import (
 const GlobalNamespace = "--globalnamespace"
 
 var builtinFuncs = []string{"go", "defer", "panic", "T"}
-var builtinProperties []string
+var builtinFields []string
 
 func AddBuiltinFunc(name string) {
 	builtinFuncs = append(builtinFuncs, name)
 }
 
-func AddBuiltinProperty(name string) {
-	builtinProperties = append(builtinProperties, name)
+func AddBuiltinField(name string) {
+	builtinFields = append(builtinFields, name)
 }
 
 func Compile(fs filesystem.FS, path string) (*Program, error) {
@@ -51,7 +51,7 @@ func NewCompiler() *compiler {
 		program:           program,
 		functions:         make(map[string]*functionInfo),
 		builtinFuncs:      builtinFuncs,
-		builtinProperties: builtinProperties,
+		builtinProperties: builtinFields,
 		currentClass:      -1,
 	}
 
@@ -488,9 +488,9 @@ func (c *compiler) compileDeleteStmt(t *ast.DeleteStmt) error {
 		i = c.getUnresolved(t.Object, t.Pos)
 	}
 
-	k := c.program.addConstant(NewString(t.Property))
+	k := c.program.addConstant(NewString(t.Field))
 
-	c.emit(op_deleteProperty, i, k, Void, t.Pos)
+	c.emit(op_deleteField, i, k, Void, t.Pos)
 
 	return nil
 }
@@ -1899,7 +1899,7 @@ func (c *compiler) compileSelectorExpr(t *ast.SelectorExpr, dest *Address) (*Add
 			return addr, nil
 		}
 
-		addr, err = c.compileNativeProperty(ident.Name, t.Sel.Name, dest, t.Position())
+		addr, err = c.compileNativeField(ident.Name, t.Sel.Name, dest, t.Position())
 		if err != nil {
 			return Void, err
 		}
@@ -1908,12 +1908,12 @@ func (c *compiler) compileSelectorExpr(t *ast.SelectorExpr, dest *Address) (*Add
 		}
 
 		// if it is a built-in native property
-		builtInProperty := "->" + ident.Name
-		f, ok := allNativeMap[builtInProperty]
+		builtInField := "->" + ident.Name
+		f, ok := allNativeMap[builtInField]
 		if ok {
 			addr := NewAddress(AddrNativeFunc, f.Index)
 			x = c.newTempRegister()
-			c.emit(op_readNativeProperty, x, addr, Void, t.X.Position())
+			c.emit(op_readNativeField, x, addr, Void, t.X.Position())
 		}
 	}
 
@@ -2026,7 +2026,7 @@ func (c *compiler) compileNativeFunction(pkg, name string, dest *Address, pos as
 	return dest, nil
 }
 
-func (c *compiler) compileNativeProperty(pkg, name string, dest *Address, pos ast.Position) (*Address, error) {
+func (c *compiler) compileNativeField(pkg, name string, dest *Address, pos ast.Position) (*Address, error) {
 	fullName := "->" + pkg + "." + name
 
 	f, ok := allNativeMap[fullName]
@@ -2040,7 +2040,7 @@ func (c *compiler) compileNativeProperty(pkg, name string, dest *Address, pos as
 		dest = c.newTempRegister()
 	}
 
-	c.emit(op_readNativeProperty, dest, addr, Void, pos)
+	c.emit(op_readNativeField, dest, addr, Void, pos)
 	return dest, nil
 }
 
@@ -2578,7 +2578,7 @@ func (c *compiler) findRegister(name string, fi *functionInfo) (*Address, error)
 	// search built-in properties
 	for _, k := range c.builtinProperties {
 		if name == k {
-			return c.compileNativeProperty("", name, Void, ast.Position{})
+			return c.compileNativeField("", name, Void, ast.Position{})
 		}
 	}
 
