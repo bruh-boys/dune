@@ -191,6 +191,12 @@ func writeClass(w io.Writer, classes []*dune.Class, key byte) error {
 		if err := writeClassFunctions(w, c.Functions, key); err != nil {
 			return err
 		}
+		if err := writeClassFunctions(w, c.Setters, key); err != nil {
+			return err
+		}
+		if err := writeClassFunctions(w, c.Getters, key); err != nil {
+			return err
+		}
 	}
 
 	return nil

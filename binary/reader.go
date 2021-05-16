@@ -237,6 +237,12 @@ func readClasses(r io.Reader, key byte, p *dune.Program) error {
 		if class.Functions, err = readClassFunctions(r, key); err != nil {
 			return err
 		}
+		if class.Setters, err = readClassFunctions(r, key); err != nil {
+			return err
+		}
+		if class.Getters, err = readClassFunctions(r, key); err != nil {
+			return err
+		}
 		p.Classes = append(p.Classes, class)
 	}
 

@@ -272,6 +272,8 @@ type ClassDeclStmt struct {
 	Exported   bool
 	Fields     []*VarDeclStmt
 	Functions  []*FuncDeclStmt
+	Getters    []*FuncDeclStmt
+	Setters    []*FuncDeclStmt
 	Attributes []string
 }
 

@@ -230,3 +230,57 @@ func TestIgnoreTypeBugfix3(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestParseClassProperty(t *testing.T) {
+	a, err := ParseStr(`
+		class foo {
+			private get bar() {}
+			private set bar2(v) {} 
+		}
+	`)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	class, ok := a.File.Stms[0].(*ast.ClassDeclStmt)
+	if !ok {
+		t.Fatalf("Expected VarDeclStmt, got %T", a.File.Stms[0])
+	}
+
+	if len(class.Getters) != 1 {
+		t.Fatal("expected one getter")
+	}
+
+	if len(class.Setters) != 1 {
+		t.Fatal("expected one setter")
+	}
+}
+
+func TestParseClassProperty2(t *testing.T) {
+	a, err := ParseStr(`
+		class foo {
+			get() {}
+			set bar(v) {} 
+		}
+	`)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	class, ok := a.File.Stms[0].(*ast.ClassDeclStmt)
+	if !ok {
+		t.Fatalf("Expected VarDeclStmt, got %T", a.File.Stms[0])
+	}
+
+	if len(class.Functions) != 1 {
+		t.Fatal("expected one func")
+	}
+
+	if len(class.Getters) != 0 {
+		t.Fatal("expected 0 getter")
+	}
+
+	if len(class.Setters) != 1 {
+		t.Fatal("expected one setter")
+	}
+}

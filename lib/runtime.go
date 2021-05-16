@@ -909,7 +909,7 @@ func (f functionInfo) attribute(args []dune.Value, vm *dune.VM) (dune.Value, err
 
 func (f functionInfo) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	var b bytes.Buffer
-	dune.FprintFunction(&b, f.fn, f.p.prog)
+	dune.FprintFunction(&b, "", f.fn, f.p.prog)
 	return dune.NewString(b.String()), nil
 }
 

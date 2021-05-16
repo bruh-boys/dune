@@ -706,25 +706,51 @@ func (p *parser) parseClassDeclStmt() (*ast.ClassDeclStmt, error) {
 			switch t.Str {
 			case "private":
 				private = true
-				t = p.next()
+				p.next()
 
 			case "exported":
 				return nil, NewError(t.Pos, "Unexpected 'exported'. Members are exported by default")
 			}
 
+			switch p.peek().Str {
+			case "get":
+				if p.peekTwo().Type != ast.LPAREN {
+					t = p.next()
+					f, err := p.parseGetterDeclStmt(!private, t)
+					if err != nil {
+						return nil, err
+					}
+					c.Getters = append(c.Getters, f)
+					continue
+				}
+			case "set":
+				if p.peekTwo().Type != ast.LPAREN {
+					t = p.next()
+					f, err := p.parseSetterDeclStmt(!private, t)
+					if err != nil {
+						return nil, err
+					}
+					c.Setters = append(c.Setters, f)
+					continue
+				}
+			}
+
 			if p.peekTwo().Type == ast.LPAREN {
-				f, err := p.parseFuncDeclStmt(!private, t)
+				fn, err := p.parseFuncDeclStmt(!private, t)
 				if err != nil {
 					return nil, err
 				}
-				c.Functions = append(c.Functions, f)
+				c.Functions = append(c.Functions, fn)
 			} else {
-				f, err := p.parseVarDeclStmt(false)
+				field, err := p.parseVarDeclStmt(false)
 				if err != nil {
 					return nil, err
 				}
-				f.Exported = !private
-				c.Fields = append(c.Fields, f)
+				if field.Name == "constructor" {
+					return nil, NewError(t.Pos, "invalid field name")
+				}
+				field.Exported = !private
+				c.Fields = append(c.Fields, field)
 			}
 
 		case ast.RBRACE:
@@ -848,6 +874,40 @@ func (p *parser) parseEnumDeclStmt(exported bool) (*ast.EnumDeclStmt, error) {
 	p.ignore(ast.SEMICOLON, 1)
 
 	return enum, nil
+}
+
+func (p *parser) parseGetterDeclStmt(exported bool, t *ast.Token) (*ast.FuncDeclStmt, error) {
+	f, err := p.parseFuncDeclStmt(exported, t)
+	if err != nil {
+		return nil, err
+	}
+
+	if f.Name == "constructor" {
+		return nil, NewError(t.Pos, "Invalid getter name")
+	}
+
+	if len(f.Args.List) != 0 {
+		return nil, NewError(t.Pos, "Getters can't have arguments")
+	}
+
+	return f, nil
+}
+
+func (p *parser) parseSetterDeclStmt(exported bool, t *ast.Token) (*ast.FuncDeclStmt, error) {
+	f, err := p.parseFuncDeclStmt(exported, t)
+	if err != nil {
+		return nil, err
+	}
+
+	if f.Name == "constructor" {
+		return nil, NewError(t.Pos, "Invalid setter name")
+	}
+
+	if len(f.Args.List) != 1 {
+		return nil, NewError(t.Pos, "Setters must have one argument")
+	}
+
+	return f, nil
 }
 
 func (p *parser) parseFuncDeclStmt(exported bool, t *ast.Token) (*ast.FuncDeclStmt, error) {

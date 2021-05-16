@@ -28,6 +28,26 @@ func (i *instance) String() string {
 	return "[" + i.class.Name + "]"
 }
 
+func (i *instance) Getter(name string, p *Program) (*Function, bool) {
+	for _, i := range i.class.Getters {
+		f := p.Functions[i]
+		if f.Name == name {
+			return f, true
+		}
+	}
+	return nil, false
+}
+
+func (i *instance) Setter(name string, p *Program) (*Function, bool) {
+	for _, i := range i.class.Setters {
+		f := p.Functions[i]
+		if f.Name == name {
+			return f, true
+		}
+	}
+	return nil, false
+}
+
 func (i *instance) Function(name string, p *Program) (*Function, bool) {
 	for _, i := range i.class.Functions {
 		f := p.Functions[i]
@@ -52,11 +72,11 @@ func (i *instance) isSelfPC(vm *VM) bool {
 }
 
 func (i *instance) GetProperty(name string, vm *VM) (Value, error) {
-	// first look for a method
+	// look for a method passed as a value.
 	f, ok := i.Function(name, vm.Program)
 	if ok {
 		if !f.Exported && !i.isSelfPC(vm) {
-			return NullValue, vm.NewError("Attempted to access a private method: %s", name)
+			return NullValue, vm.NewError("nonexistent or private method %s", name)
 		}
 		m := &Method{FuncIndex: f.Index, ThisObject: NewObject(i)}
 		return NewObject(m), nil
@@ -71,7 +91,7 @@ func (i *instance) GetProperty(name string, vm *VM) (Value, error) {
 			}
 		}
 		if !ok {
-			return NullValue, vm.NewError("Attempted to access a private field: %s", name)
+			return NullValue, vm.NewError("nonexistent or private field %s", name)
 		}
 	}
 
@@ -93,7 +113,7 @@ func (i *instance) SetProperty(name string, v Value, vm *VM) error {
 			}
 		}
 		if !ok {
-			return vm.NewError("Attempted to access a private field: %s", name)
+			return vm.NewError("nonexistent or private field %s", name)
 		}
 	}
 

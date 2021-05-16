@@ -2216,6 +2216,28 @@ func (c *compiler) compileClassDeclStmt(t *ast.ClassDeclStmt) error {
 		cl.Functions = append(cl.Functions, fi.function.Index)
 	}
 
+	for _, f := range t.Getters {
+		f.ReceiverType = name
+		fi, err := c.compileFuncDecl(f, true)
+		if err != nil {
+			return err
+		}
+		fi.function.IsClass = true
+		fi.function.Class = index
+		cl.Getters = append(cl.Getters, fi.function.Index)
+	}
+
+	for _, f := range t.Setters {
+		f.ReceiverType = name
+		fi, err := c.compileFuncDecl(f, true)
+		if err != nil {
+			return err
+		}
+		fi.function.IsClass = true
+		fi.function.Class = index
+		cl.Setters = append(cl.Setters, fi.function.Index)
+	}
+
 	if !constructorCompiled && len(t.Fields) > 0 {
 		f := &ast.FuncDeclStmt{
 			Name:         "constructor",

@@ -1188,11 +1188,23 @@ func (vm *VM) setToObject(instr *Instruction) error {
 			m.Map[bv] = cv
 			m.Unlock()
 		case Object:
-			i, ok := av.ToObject().(PropertySetter)
+			obj := av.ToObject()
+			key := bv.String()
+
+			// try if it is a class instance with a property setter
+			if instance, ok := obj.(*instance); ok {
+				if set, ok := instance.Setter(key, vm.Program); ok {
+					args := []Value{cv}
+					vm.callProgramFunc(set, Void, args, true, av, nil)
+					return nil
+				}
+			}
+
+			i, ok := obj.(PropertySetter)
 			if !ok {
 				return vm.NewError("Readonly property or not a PropertySetter: %T", av.TypeName())
 			}
-			if err := i.SetProperty(bv.String(), cv, vm); err != nil {
+			if err := i.SetProperty(key, cv, vm); err != nil {
 				return vm.WrapError(err)
 			}
 
@@ -1368,6 +1380,15 @@ func (vm *VM) getFromObject(instr *Instruction, errIfNullOrUndefined bool) (bool
 				}
 			}
 
+			// try if it is a class instance with a property getter
+			if instance, ok := obj.(*instance); ok {
+				if get, ok := instance.Getter(key, vm.Program); ok {
+					vm.callProgramFunc(get, instr.A, nil, true, bv, nil)
+					return true, nil
+				}
+			}
+
+			// try a native property
 			if i, ok := obj.(PropertyGetter); ok {
 				v, err := i.GetProperty(key, vm)
 				if err != nil {

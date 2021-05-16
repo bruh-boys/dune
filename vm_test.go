@@ -2124,6 +2124,87 @@ func TestClass5(t *testing.T) {
 	}
 }
 
+func TestClassProperty1(t *testing.T) {
+	assertValue(t, 2, `
+		class Foo {
+			get bar() { return 2 }
+		}
+		return new Foo().bar
+	`)
+}
+
+func TestClassProperty2(t *testing.T) {
+	assertValue(t, 2, `
+		class Foo {
+			get bar() { throw "fail" }
+		}
+		try {
+			return new Foo().bar
+		} catch {
+			return 2
+		}
+	`)
+}
+
+func TestClassProperty3(t *testing.T) {
+	assertValue(t, 2, `
+		class Foo {
+			get bar() { 
+				try {
+					throw "fail"
+				} catch {
+					return 2
+				}
+			}
+		}
+		return new Foo().bar
+	`)
+}
+
+func TestClassProperty4(t *testing.T) {
+	assertValue(t, 2, `
+		class Foo {
+			_bar
+			set bar(v) { this._bar = v }
+		}
+		let foo = new Foo()
+		foo.bar = 2
+		return foo._bar
+	`)
+}
+
+func TestClassProperty5(t *testing.T) {
+	assertValue(t, 2, `
+		class Foo {
+			private _bar
+			get bar() { return this._bar }
+			set bar(v) { this._bar = v }
+		}
+		let foo = new Foo()
+		foo.bar = 2
+		return foo.bar
+	`)
+}
+
+func TestClassProperty6(t *testing.T) {
+	assertValue(t, 2, `
+		class Foo {
+			private _bar
+			get bar() { return this._bar }
+			set bar(v) { 
+				try {
+					throw "fail"
+				} catch {
+					this._bar = 2
+				}
+			}
+		}
+		let foo = new Foo()
+		foo.bar = 5
+		return foo.bar
+	`)
+}
+
 func TestClassPrivateField(t *testing.T) {
 	p := compileTest(t, `
 			class Foo {
@@ -2136,7 +2217,7 @@ func TestClassPrivateField(t *testing.T) {
 	// Print(p)
 
 	_, err := vm.Run()
-	if err == nil || !strings.Contains(err.Error(), "private field") {
+	if err == nil || !strings.Contains(err.Error(), "nonexistent or private field") {
 		t.Fatal(err)
 	}
 }
@@ -2154,7 +2235,7 @@ func TestClassSetPrivateField(t *testing.T) {
 	// Print(p)
 
 	_, err := vm.Run()
-	if err == nil || !strings.Contains(err.Error(), "private field") {
+	if err == nil || !strings.Contains(err.Error(), "nonexistent or private field") {
 		t.Fatal(err)
 	}
 }
@@ -2172,7 +2253,7 @@ func TestClassPrivateMethod(t *testing.T) {
 	// Print(p)
 
 	_, err := vm.Run()
-	if err == nil || !strings.Contains(err.Error(), "private method") {
+	if err == nil || !strings.Contains(err.Error(), "nonexistent or private method") {
 		t.Fatal(err)
 	}
 }

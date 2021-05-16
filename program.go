@@ -144,6 +144,8 @@ type Class struct {
 	Exported   bool
 	Module     string
 	Fields     []*Field
+	Getters    []int
+	Setters    []int
 	Functions  []int
 	Attributes []string
 }
@@ -535,7 +537,7 @@ func Print(p *Program) {
 }
 
 func PrintFunction(f *Function, p *Program) {
-	FprintFunction(os.Stdout, f, p)
+	FprintFunction(os.Stdout, "", f, p)
 }
 
 func Sprint(p *Program) (string, error) {
@@ -566,7 +568,7 @@ func Fprint(w io.Writer, p *Program) {
 			if f.IsClass {
 				continue
 			}
-			FprintFunction(w, f, p)
+			FprintFunction(w, "", f, p)
 		}
 	}
 
@@ -576,8 +578,14 @@ func Fprint(w io.Writer, p *Program) {
 		fmt.Fprint(w, separator1)
 		for i, c := range p.Classes {
 			fmt.Fprintf(w, "\n%dC Class %s", i, c.Name)
+			for _, f := range c.Getters {
+				FprintFunction(w, "get", p.Functions[f], p)
+			}
+			for _, f := range c.Setters {
+				FprintFunction(w, "set", p.Functions[f], p)
+			}
 			for _, f := range c.Functions {
-				FprintFunction(w, p.Functions[f], p)
+				FprintFunction(w, "", p.Functions[f], p)
 			}
 		}
 	}
@@ -607,12 +615,16 @@ func Fprint(w io.Writer, p *Program) {
 	fmt.Fprint(w, "\n")
 }
 
-func FprintFunction(w io.Writer, f *Function, p *Program) {
+func FprintFunction(w io.Writer, prefix string, f *Function, p *Program) {
 	name := f.Name
 
 	if f.IsClass {
 		cl := p.Classes[f.Class]
-		name = fmt.Sprintf("%s.%s", cl.Name, name)
+		if prefix != "" {
+			name = fmt.Sprintf("%s %s.%s", prefix, cl.Name, name)
+		} else {
+			name = fmt.Sprintf("%s.%s", cl.Name, name)
+		}
 	}
 
 	fmt.Fprintf(w, "\n%dF %s", f.Index, name)

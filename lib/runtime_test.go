@@ -478,7 +478,7 @@ func TestOutOfClassLambda(t *testing.T) {
 		t.Fatal("expected to fail")
 	}
 
-	if !strings.Contains(err.Error(), "access a private method") {
+	if !strings.Contains(err.Error(), "nonexistent or private method") {
 		t.Fatal(err)
 	}
 }

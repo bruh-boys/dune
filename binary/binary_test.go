@@ -47,6 +47,39 @@ func TestClasses(t *testing.T) {
 	assertValue(t, 5, p)
 }
 
+func TestClassesWithProperties(t *testing.T) {
+	p := compile(t, `
+		function main() { 
+			let foo = new Foo()
+			foo.bar = 5
+			return foo.bar
+		}
+
+		class Foo {
+			private _bar
+			get bar () {
+				return this._bar
+			}
+			set bar(v) {
+				this._bar = v
+			}
+		}
+	`)
+
+	var buf bytes.Buffer
+
+	err := Write(&buf, p)
+	if err != nil {
+		t.Fatal("Write: " + err.Error())
+	}
+
+	if p, err = Read(&buf); err != nil {
+		t.Fatal("Read: " + err.Error())
+	}
+
+	assertValue(t, 5, p)
+}
+
 func TestEnum(t *testing.T) {
 	p := compile(t, `
 		function main() { 
