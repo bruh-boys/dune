@@ -116,6 +116,7 @@ declare namespace runtime {
 		maxFrames: number
 		maxSteps: number
 		fileSystem: io.FileSystem
+		stdout: io.Writer
 		localizer: locale.Localizer
 		readonly steps: number
 		readonly allocations: number
@@ -1002,6 +1003,14 @@ func (m *libVM) SetField(name string, v dune.Value, vm *dune.VM) error {
 			return ErrInvalidType
 		}
 		m.vm.FileSystem = fs.FS
+		return nil
+
+	case "stdout":
+		w, ok := v.ToObjectOrNil().(io.Writer)
+		if !ok {
+			return ErrInvalidType
+		}
+		m.vm.Stdout = w
 		return nil
 
 	case "language":
