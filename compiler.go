@@ -1482,7 +1482,9 @@ func (c *compiler) compileMapDeclExpr(t *ast.MapDeclExpr, dest *Address) (*Addre
 func (c *compiler) compileIndexExpr(t *ast.IndexExpr, dest *Address) (*Address, error) {
 	if t.First {
 		c.openOptChainScope()
-		defer c.closeOptChainScope(dest)
+		defer func() {
+			c.closeOptChainScope(dest)
+		}()
 	}
 
 	left, err := c.compileExpr(t.Left, Void)
@@ -1938,7 +1940,9 @@ func (c *compiler) compileSelectorExpr(t *ast.SelectorExpr, dest *Address) (*Add
 
 	if t.First {
 		c.openOptChainScope()
-		defer c.closeOptChainScope(dest)
+		defer func() {
+			c.closeOptChainScope(dest)
+		}()
 	}
 
 	if x == nil {
@@ -2097,7 +2101,9 @@ func (c *compiler) compileTailCallStmt(t *ast.CallExpr) error {
 func (c *compiler) compileCallExpr(t *ast.CallExpr, dest *Address, retVal bool) (*Address, error) {
 	if t.First {
 		c.openOptChainScope()
-		defer c.closeOptChainScope(dest)
+		defer func() {
+			c.closeOptChainScope(dest)
+		}()
 	}
 
 	// if it is a method m is the constant of the method name

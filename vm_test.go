@@ -1630,7 +1630,7 @@ func TestOptionalChaining7(t *testing.T) {
 }
 
 func TestOptionalChaining8(t *testing.T) {
-	assertValue(t, nil, `
+	assertValue(t, UndefinedValue, `
 		let a 
 		return a?.fn?.().foo()
 	`)
@@ -1672,7 +1672,7 @@ func TestOptionalChaining13(t *testing.T) {
 }
 
 func TestOptionalChaining14(t *testing.T) {
-	assertValue(t, nil, `
+	assertValue(t, UndefinedValue, `
 		let a
 		return a?.bar()
 	`)
@@ -1782,6 +1782,20 @@ func TestOptionalChainLoop7(t *testing.T) {
 			a = v.b?.[0]?.[0]
 		}
 		return a
+	`)
+}
+
+func TestOptionalChainLoop8(t *testing.T) {
+	// check that the old value is overwriten with null
+	assertValue(t, true, `
+		let aa = ["1", "2"]
+		let bb: any = { "1": [1, 1] }
+		let x
+		for (let a of aa) {
+			let c = bb[a]
+			x = [a, c?.length]
+		}
+		return x[1] == undefined
 	`)
 }
 
