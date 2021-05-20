@@ -71,11 +71,6 @@ let vm = runtime.newVM(p)
 vm.run()
 ```
 
-Trusted machines are unrestricted:
-```typescript
-vm.trusted = true
-```
-
 Programs can request permissions with directives:
 ```typescript
 // [permissions networking]
