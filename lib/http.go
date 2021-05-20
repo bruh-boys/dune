@@ -397,7 +397,15 @@ var HTTP = []dune.NativeFunction{
 		Arguments:   0,
 		Permissions: []string{"netListen"},
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			s := &server{vm: vm, handler: -1}
+			s := &server{
+				vm:                vm,
+				handler:           -1,
+				readHeaderTimeout: 5 * time.Second,
+				readTimeout:       5 * time.Second,
+				writeTimeout:      5 * time.Second,
+				idleTimeout:       5 * time.Second,
+			}
+
 			return dune.NewObject(s), nil
 		},
 	},
