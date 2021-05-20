@@ -100,16 +100,16 @@ type VM struct {
 	Stdout         io.Writer
 	Stderr         io.Writer
 
-	fp          int
-	steps       int64
-	allocations int64
-	initialized bool
-	callStack   []*stackFrame
-	tryCatchs   []*tryCatch
-	reg0        *Address
-	reg1        *Address
-	reg2        *Address
-	frameCache  []*stackFrame
+	fp           int
+	steps        int64
+	allocations  int64
+	initialized  bool
+	callStack    []*stackFrame
+	tryCatchs    []*tryCatch
+	optchainPC   *Address
+	optchainDest *Address
+	optchainSrc  *Address
+	frameCache   []*stackFrame
 }
 
 func (vm *VM) GetStdin() io.Reader {
@@ -1001,19 +1001,19 @@ func (vm *VM) call(a, b *Address, args []Value, optional bool) int {
 }
 
 func (vm *VM) closeOptChain() {
-	vm.incPC(int(vm.reg0.Value))
+	vm.incPC(int(vm.optchainPC.Value))
 
-	if vm.reg1 != nil && vm.reg1.Kind != AddrVoid {
+	if vm.optchainDest != nil && vm.optchainDest.Kind != AddrVoid {
 		var v Value
-		if vm.reg2 != nil && vm.reg2.Kind != AddrVoid {
-			v = vm.get(vm.reg2)
+		if vm.optchainSrc != nil && vm.optchainSrc.Kind != AddrVoid {
+			v = vm.get(vm.optchainSrc)
 		}
-		vm.set(vm.reg1, v)
+		vm.set(vm.optchainDest, v)
 	}
 
-	vm.reg0 = nil
-	vm.reg1 = nil
-	vm.reg2 = nil
+	vm.optchainPC = nil
+	vm.optchainDest = nil
+	vm.optchainSrc = nil
 }
 
 func (vm *VM) callProgramFunc(f *Function, retAddr *Address, args []Value, isMethod bool, this Value, closures []*closureRegister) int {
@@ -1236,7 +1236,7 @@ func (vm *VM) getFromObject(instr *Instruction, errIfNullOrUndefined bool) (bool
 		} else {
 			// set the address of the null or undefined value to
 			// set the optchain result
-			vm.reg2 = instr.B
+			vm.optchainSrc = instr.B
 			return false, nil
 		}
 	}

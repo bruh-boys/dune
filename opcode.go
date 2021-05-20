@@ -901,8 +901,8 @@ func exec_exponentiate(instr *Instruction, vm *VM) int {
 }
 
 func exec_setRegister(instr *Instruction, vm *VM) int {
-	vm.reg0 = instr.A
-	vm.reg1 = instr.B
+	vm.optchainPC = instr.A
+	vm.optchainDest = instr.B
 	return vm_next
 }
 
