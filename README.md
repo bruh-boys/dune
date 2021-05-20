@@ -4,14 +4,11 @@ Dune combines the simplicity, reliability and efficiency of [Go](https://golang.
 
 It is evolving so expect frequent breaking changes.
 
-## Install 
 
-Download a [release](https://github.com/dunelang/dune/releases) or get it from source
-
+Try it [online](https://dunelang.com/), download the latest [release](https://github.com/dunelang/dune/releases) or get it from source:
 ```
 go get github.com/dunelang/dune/cmd/dune
 ```
-
 
 REPL:
 ```
