@@ -28,6 +28,7 @@ interface String {
 }
 
 declare namespace strings {
+    export function sanitize(a: string): string
     export function equalFold(a: string, b: string): boolean
     export function isChar(value: string): boolean
     export function isDigit(value: string): boolean
@@ -99,6 +100,26 @@ interface String {
 }
 
 var Strings = []dune.NativeFunction{
+	{
+		Name:      "strings.sanitize",
+		Arguments: 1,
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			if err := ValidateArgs(args, dune.String); err != nil {
+				return dune.NullValue, err
+			}
+
+			s := args[0].String()
+
+			buf := make([]rune, 0, len(s))
+			for _, r := range s {
+				if isAlphanumeric(r, 1) {
+					buf = append(buf, r)
+				}
+			}
+
+			return dune.NewString(string(buf)), nil
+		},
+	},
 	{
 		Name:      "strings.newReader",
 		Arguments: 1,
