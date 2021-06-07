@@ -20,6 +20,7 @@ declare namespace fsnotify {
 
 	export interface Watcher {
 		add(path: string, recursive?: boolean): void
+		close(): void
 	}
  
 	export interface Event {
@@ -134,7 +135,11 @@ func (w *fsWatcher) start(fn dune.Value, vm *dune.VM) {
 }
 
 func (w *fsWatcher) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
-	if err := ValidateArgs(args, dune.String); err != nil {
+	if err := ValidateOptionalArgs(args, dune.String, dune.Bool); err != nil {
+		return dune.NullValue, err
+	}
+
+	if err := ValidateArgRange(args, 1, 2); err != nil {
 		return dune.NullValue, err
 	}
 
@@ -150,9 +155,23 @@ func (w *fsWatcher) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	// if it is a directory add it recursively
-	if err := filepath.Walk(dir, w.watchDir); err != nil {
+	var recursive bool
+	if len(args) > 1 {
+		recursive = args[1].ToBool()
+	} else {
+		recursive = true
+	}
+
+	if !recursive {
+		err := w.watcher.Add(dir)
 		return dune.NullValue, err
+	}
+
+	if recursive {
+		// if it is a directory add it recursively
+		if err := filepath.Walk(dir, w.watchDir); err != nil {
+			return dune.NullValue, err
+		}
 	}
 
 	return dune.NullValue, nil
