@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/dunelang/dune"
 
@@ -102,25 +103,52 @@ func (w *fsWatcher) GetMethod(name string) dune.NativeMethod {
 }
 
 func (w *fsWatcher) start(fn dune.Value, vm *dune.VM) {
+	var buf []fsEvent
+	var timer *time.Timer
+
 	go func() {
 		for {
 			if w.closed {
 				break
 			}
 
+		OUTER:
 			select {
 			// watch for events
 			case event := <-w.watcher.Events:
 				if w.closed {
 					return
 				}
-				e := fsEvent{
-					name:      event.Name,
-					operation: int(event.Op),
+
+				op := int(event.Op)
+
+				for _, e := range buf {
+					if event.Name == e.name && op == e.operation {
+						break OUTER
+					}
 				}
 
-				if err := runAsyncFuncOrClosure(vm, fn, dune.NewObject(e)); err != nil {
-					fmt.Fprintln(vm.GetStdout(), err)
+				e := fsEvent{
+					name:      event.Name,
+					operation: op,
+				}
+
+				buf = append(buf, e)
+
+				if timer != nil {
+					timer.Reset(100 * time.Millisecond)
+				} else {
+					timer = time.NewTimer(100 * time.Millisecond)
+					go func() {
+						<-timer.C
+						for _, event := range buf {
+							if err := runAsyncFuncOrClosure(vm, fn, dune.NewObject(event)); err != nil {
+								fmt.Fprintln(vm.GetStdout(), err)
+							}
+						}
+						buf = nil
+						timer = nil
+					}()
 				}
 
 			// watch for errors
@@ -143,15 +171,15 @@ func (w *fsWatcher) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	dir := args[0].String()
+	path := args[0].String()
 
-	fi, err := os.Stat(dir)
+	fi, err := os.Stat(path)
 	if err != nil {
 		return dune.NullValue, err
 	}
 
 	if !fi.Mode().IsDir() {
-		err := w.watcher.Add(dir)
+		err := w.watcher.Add(path)
 		return dune.NullValue, err
 	}
 
@@ -163,13 +191,13 @@ func (w *fsWatcher) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	}
 
 	if !recursive {
-		err := w.watcher.Add(dir)
+		err := w.watcher.Add(path)
 		return dune.NullValue, err
 	}
 
 	if recursive {
 		// if it is a directory add it recursively
-		if err := filepath.Walk(dir, w.watchDir); err != nil {
+		if err := filepath.Walk(path, w.watchDir); err != nil {
 			return dune.NullValue, err
 		}
 	}
