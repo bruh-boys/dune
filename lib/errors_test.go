@@ -45,7 +45,7 @@ func TestErrorWrap(t *testing.T) {
 	}
 }
 
-func _TestErrorWrap2(t *testing.T) {
+func TestErrorWrap2(t *testing.T) {
 	v := runTest(t, `return fmt.typeErrorf("io", "ERROR %s", errors.newTypeError("io", "Snap!"))`)
 
 	err, ok := v.ToObjectOrNil().(*dune.VMError)
