@@ -270,11 +270,11 @@ func (p *parser) parseImports(ast *ast.Program, file *ast.File) error {
 func (p *parser) findSource(path, parentPath string) (string, bool, error) {
 	// if the path is absolute then try it directly
 	if filepath.IsAbs(path) {
-		file, isTypeDef := p.findSourceFile(path)
-		if isTypeDef {
-			return "", true, nil
-		}
-		if file != "" {
+		file, isTypeDef, ok := p.findSourceFile(path)
+		if ok {
+			if isTypeDef {
+				return "", true, nil
+			}
 			return file, false, nil
 		}
 	}
@@ -289,11 +289,11 @@ func (p *parser) findSource(path, parentPath string) (string, bool, error) {
 			return "", false, err
 		}
 
-		absExt, isTypeDef := p.findSourceFile(file)
-		if isTypeDef {
-			return "", true, nil
-		}
-		if absExt != "" {
+		absExt, isTypeDef, ok := p.findSourceFile(file)
+		if ok {
+			if isTypeDef {
+				return "", true, nil
+			}
 			return absExt, false, nil
 		}
 	}
@@ -304,40 +304,40 @@ func (p *parser) findSource(path, parentPath string) (string, bool, error) {
 		return "", false, err
 	}
 
-	absExt, isTypeDef := p.findSourceFile(file)
-	if isTypeDef {
-		return "", true, nil
-	}
-	if absExt != "" {
+	absExt, isTypeDef, ok := p.findSourceFile(file)
+	if ok {
+		if isTypeDef {
+			return "", true, nil
+		}
 		return absExt, false, nil
 	}
 
 	// try relative to the file where is defined
 
 	// try vendor
-	absExt, isTypeDef = p.findSourceFile(filepath.Join("vendor", path))
-	if isTypeDef {
-		return "", true, nil
-	}
-	if absExt != "" {
+	absExt, isTypeDef, ok = p.findSourceFile(filepath.Join("/vendor", path))
+	if ok {
+		if isTypeDef {
+			return "", true, nil
+		}
 		return absExt, false, nil
 	}
 
 	return "", false, os.ErrNotExist
 }
 
-func (p *parser) findSourceFile(absPath string) (file string, isTypeDef bool) {
+func (p *parser) findSourceFile(absPath string) (file string, isTypeDef bool, ok bool) {
 	file = absPath + ".d.ts"
 	if filesystem.Exists(p.FS, file) {
-		return file, true
+		return file, true, true
 	}
 
 	file = absPath + ".ts"
 	if filesystem.Exists(p.FS, file) {
-		return file, false
+		return file, false, true
 	}
 
-	return "", false
+	return "", false, false
 }
 
 func (p *parser) readSource(path string) (string, error) {
