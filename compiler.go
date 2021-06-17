@@ -1707,14 +1707,14 @@ func (c *compiler) compileAndOrExpr(t *ast.BinaryExpr, jType jumpType, dest *Add
 		return Void, err
 	}
 
-	if dest == Void {
-		dest = c.newTempRegister()
-	}
+	// use a temp register to compute the expression to avoid overwriting dest in
+	// case it is the right hand of the expression
+	tmp := c.newTempRegister()
 
 	leftSet := c.newTempRegister()
 
 	// set if left is true or has a value
-	c.emit(op_moveAndTest, dest, left, leftSet, t.Left.Position())
+	c.emit(op_moveAndTest, tmp, left, leftSet, t.Left.Position())
 
 	x := NewAddress(AddrData, int(jType))
 
@@ -1729,10 +1729,16 @@ func (c *compiler) compileAndOrExpr(t *ast.BinaryExpr, jType jumpType, dest *Add
 	}
 
 	// set if left is true or has a value
-	c.emit(op_move, dest, right, Void, t.Left.Position())
+	c.emit(op_move, tmp, right, Void, t.Left.Position())
 
 	// set the number of jumps for the right hand
 	jump.B = NewAddress(AddrData, c.pc()-start)
+
+	if dest == Void {
+		dest = c.newTempRegister()
+	}
+
+	c.emit(op_move, dest, tmp, Void, t.Left.Position())
 
 	return dest, nil
 }
@@ -1743,12 +1749,12 @@ func (c *compiler) compileNullCoalesceExpr(t *ast.BinaryExpr, dest *Address) (*A
 		return Void, err
 	}
 
-	if dest == Void {
-		dest = c.newTempRegister()
-	}
+	// use a temp register to compute the expression to avoid overwriting dest in
+	// case it is the right hand of the expression
+	tmp := c.newTempRegister()
 
 	// set if left is true or has a value
-	c.emit(op_move, dest, left, Void, t.Left.Position())
+	c.emit(op_move, tmp, left, Void, t.Left.Position())
 
 	x := NewAddress(AddrData, int(jumpIfNotNull))
 
@@ -1763,10 +1769,16 @@ func (c *compiler) compileNullCoalesceExpr(t *ast.BinaryExpr, dest *Address) (*A
 	}
 
 	// set if left is true or has a value
-	c.emit(op_move, dest, right, Void, t.Left.Position())
+	c.emit(op_move, tmp, right, Void, t.Left.Position())
 
 	// set the number of jumps for the right hand
 	jump.B = NewAddress(AddrData, c.pc()-start)
+
+	if dest == Void {
+		dest = c.newTempRegister()
+	}
+
+	c.emit(op_move, dest, tmp, Void, t.Left.Position())
 
 	return dest, nil
 }

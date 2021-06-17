@@ -215,6 +215,14 @@ func TestBitShiftPrecendence(t *testing.T) {
 `)
 }
 
+func TestNullCoalesceDontOverwrite(t *testing.T) {
+	assertValue(t, 3, `
+		let a = 3
+		let b = null
+		return b ?? a
+`)
+}
+
 func TestNullCoalesceDontEvalRight(t *testing.T) {
 	assertValue(t, 0, `
 		return 0 ?? foo()
@@ -222,6 +230,14 @@ func TestNullCoalesceDontEvalRight(t *testing.T) {
 		function foo() {
 			throw "fail"
 		}
+`)
+}
+
+func TestLORDontOverwrite(t *testing.T) {
+	assertValue(t, 3, `
+		let a = 3
+		let b = null
+		return b || a
 `)
 }
 
