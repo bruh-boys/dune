@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/dunelang/dune"
+	"github.com/dunelang/dune/ast"
 	"github.com/dunelang/dune/binary"
 	"github.com/dunelang/dune/filesystem"
 	"github.com/dunelang/dune/parser"
@@ -29,6 +30,7 @@ func main() {
 	e := flag.Bool("e", false, "eval")
 	o := flag.String("o", "", "output file")
 	d := flag.Bool("d", false, "decompile")
+	a := flag.Bool("a", false, "show AST")
 	r := flag.Bool("r", false, "list resources")
 	n := flag.Bool("n", false, "no optimizations")
 	i := flag.Bool("i", false, "generate native.d.ts and tsconfig.json")
@@ -63,6 +65,15 @@ func main() {
 			fatal(err)
 		}
 		dune.Print(p)
+		return
+	}
+
+	if *a {
+		at, err := parser.Parse(filesystem.OS, args[0])
+		if err != nil {
+			fatal(err)
+		}
+		ast.Print(at)
 		return
 	}
 
