@@ -1453,25 +1453,12 @@ func (t TimeObj) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, fmt.Errorf("expected 1 argument, got %d", len(args))
 	}
 
-	var a = args[0]
-	var ad time.Duration
-
-	switch a.Type {
-	case dune.Int:
-		dd, err := ToDuration(a)
-		if err != nil {
-			return dune.NullValue, err
-		}
-		ad = dd
-	case dune.Object:
-		dur, ok := a.ToObject().(Duration)
-		if !ok {
-			return dune.NullValue, fmt.Errorf("expected duration, got %s", a.TypeName())
-		}
-		ad = time.Duration(dur)
+	dd, err := ToDuration(args[0])
+	if err != nil {
+		return dune.NullValue, err
 	}
 
-	d := time.Time(t).Add(ad)
+	d := time.Time(t).Add(dd)
 
 	return dune.NewObject(TimeObj(d)), nil
 }
