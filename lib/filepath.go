@@ -13,6 +13,10 @@ func init() {
 
 declare namespace filepath {
     /**
+     * Clean returns the shortest path name equivalent to path
+     */
+	export function clean(path: string): string 
+    /**
      * Returns the extension of a path
      */
 	export function ext(path: string): string 
@@ -49,6 +53,17 @@ declare namespace filepath {
 }
 
 var FilePath = []dune.NativeFunction{
+	{
+		Name:      "filepath.clean",
+		Arguments: 1,
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			if err := ValidateArgs(args, dune.String); err != nil {
+				return dune.NullValue, err
+			}
+			v := filepath.Clean(args[0].String())
+			return dune.NewString(v), nil
+		},
+	},
 	{
 		Name:      "filepath.join",
 		Arguments: -1,

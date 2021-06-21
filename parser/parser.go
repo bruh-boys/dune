@@ -315,7 +315,7 @@ func (p *parser) findSource(path, parentPath string) (string, bool, error) {
 	// try relative to the file where is defined
 
 	// try vendor
-	absExt, isTypeDef, ok = p.findSourceFile(filepath.Join("/vendor", path))
+	absExt, isTypeDef, ok = p.findSourceFile(filepath.Join("vendor", path))
 	if ok {
 		if isTypeDef {
 			return "", true, nil
