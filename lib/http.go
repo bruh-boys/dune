@@ -213,7 +213,8 @@ declare namespace http {
         status: number
         handled: boolean
         proto: string
-		body(): string
+        body: io.ReaderCloser
+		string(): string
 		json(): any
 		bytes(): byte[]
 		cookies(): Cookie[]
@@ -227,7 +228,9 @@ declare namespace http {
 
         handled: boolean
 
-		body(): string
+        body: io.buffer
+
+		string(): string
 		json(): any
 		bytes(): byte[]
 		
@@ -1186,6 +1189,8 @@ func (r *response) GetField(name string, vm *dune.VM) (dune.Value, error) {
 		return dune.NewInt(r.r.StatusCode), nil
 	case "proto":
 		return dune.NewString(r.r.Proto), nil
+	case "body":
+		return dune.NewObject(&readerCloser{r.r.Body}), nil
 	}
 	return dune.UndefinedValue, nil
 }
@@ -1208,8 +1213,8 @@ func (r *response) GetMethod(name string) dune.NativeMethod {
 		return r.headers
 	case "header":
 		return r.header
-	case "body":
-		return r.body
+	case "string":
+		return r.string
 	case "json":
 		return r.json
 	case "bytes":
@@ -1282,7 +1287,7 @@ func (r *response) header(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	return dune.NewArrayValues(values), nil
 }
 
-func (r *response) body(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func (r *response) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgRange(args, 0, 0); err != nil {
 		return dune.NullValue, err
 	}
@@ -2202,6 +2207,13 @@ func (r *responseWriter) GetField(name string, vm *dune.VM) (dune.Value, error) 
 			return dune.NewInt(rc.Code), nil
 		}
 		return dune.NewInt(r.status), nil
+	case "body":
+		rc, ok := r.writer.(*httptest.ResponseRecorder)
+		if !ok {
+			return dune.NullValue, fmt.Errorf("the response is not a recorder")
+		}
+		b := Buffer{rc.Body}
+		return dune.NewObject(b), nil
 	case "handled":
 		return dune.NewBool(r.handled), nil
 	}
@@ -2266,8 +2278,8 @@ func (r *responseWriter) GetMethod(name string) dune.NativeMethod {
 	case "writeJSONError":
 		r.handled = true
 		return r.writeJSONError
-	case "body":
-		return r.body
+	case "string":
+		return r.string
 	case "json":
 		return r.json
 	case "bytes":
@@ -2422,7 +2434,7 @@ func (r *responseWriter) header(args []dune.Value, vm *dune.VM) (dune.Value, err
 	return dune.NewArrayValues(values), nil
 }
 
-func (r *responseWriter) body(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func (r *responseWriter) string(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	if err := ValidateArgRange(args, 0, 0); err != nil {
 		return dune.NullValue, err
 	}
