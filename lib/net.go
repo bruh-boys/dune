@@ -1,7 +1,9 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"net"
 	"strings"
 	"time"
@@ -373,6 +375,9 @@ func (c netConn) read(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	b := args[0].ToBytes()
 	n, err := c.conn.Read(b)
 	if err != nil {
+		if errors.Is(err, io.EOF) {
+			return dune.NewInt(0), nil
+		}
 		return dune.NullValue, err
 	}
 	return dune.NewInt(n), nil
@@ -627,6 +632,9 @@ func (c *tcpConn) read(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	b := args[0].ToBytes()
 	n, err := c.conn.Read(b)
 	if err != nil {
+		if errors.Is(err, io.EOF) {
+			return dune.NewInt(0), nil
+		}
 		return dune.NullValue, err
 	}
 	return dune.NewInt(n), nil

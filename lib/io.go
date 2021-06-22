@@ -2,6 +2,7 @@ package lib
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -259,6 +260,9 @@ func (r *readerCloser) read(args []dune.Value, vm *dune.VM) (dune.Value, error) 
 
 	n, err := r.r.Read(buf)
 	if err != nil {
+		if errors.Is(err, io.EOF) {
+			return dune.NewInt(0), nil
+		}
 		return dune.NullValue, err
 	}
 
@@ -298,6 +302,9 @@ func (r *reader) read(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	n, err := r.r.Read(buf)
 	if err != nil {
+		if errors.Is(err, io.EOF) {
+			return dune.NewInt(0), nil
+		}
 		return dune.NullValue, err
 	}
 
@@ -820,6 +827,9 @@ func (f *file) read(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	n, err := f.f.Read(buf)
 	if err != nil {
+		if errors.Is(err, io.EOF) {
+			return dune.NewInt(0), nil
+		}
 		return dune.NullValue, err
 	}
 
