@@ -90,27 +90,41 @@ func launchGoroutine(args []dune.Value, vm *dune.VM, t *waitGroup) (dune.Value, 
 		}()
 
 	case dune.Object:
-		c, ok := a.ToObjectOrNil().(*dune.Closure)
-		if !ok {
+		if c, ok := a.ToObjectOrNil().(*dune.Closure); ok {
+			if t != nil {
+				t.w.Add(1)
+			}
+			go func() {
+				_, err := m.RunClosure(c)
+				if err != nil {
+					fmt.Fprintln(vm.GetStderr(), err)
+				}
+				if t != nil {
+					t.w.Done()
+					if t.limit != nil {
+						<-t.limit
+					}
+				}
+			}()
+		} else if c, ok := a.ToObjectOrNil().(*dune.Method); ok {
+			if t != nil {
+				t.w.Add(1)
+			}
+			go func() {
+				_, err := m.RunMethod(c)
+				if err != nil {
+					fmt.Fprintln(vm.GetStderr(), err)
+				}
+				if t != nil {
+					t.w.Done()
+					if t.limit != nil {
+						<-t.limit
+					}
+				}
+			}()
+		} else {
 			return dune.NullValue, fmt.Errorf("%v is not a function", a.TypeName())
 		}
-
-		if t != nil {
-			t.w.Add(1)
-		}
-
-		go func() {
-			_, err := m.RunClosure(c)
-			if err != nil {
-				fmt.Fprintln(vm.GetStderr(), err)
-			}
-			if t != nil {
-				t.w.Done()
-				if t.limit != nil {
-					<-t.limit
-				}
-			}
-		}()
 
 	default:
 		return dune.NullValue, fmt.Errorf("%v is not a function", a.TypeName())
