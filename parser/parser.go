@@ -97,13 +97,17 @@ func (p *parser) Parse(path string) (*ast.Program, error) {
 
 	if _, err := p.FS.Stat(abs); err != nil {
 		if os.IsNotExist(err) {
-			// try vendor
-			abs, err = p.FS.Abs(filepath.Join("vendor", path))
-			if err != nil {
+			// try vendor but if it doesn't exist don't return the vendor error
+			abs, err2 := p.FS.Abs(filepath.Join("vendor", path))
+			if err2 != nil {
 				return nil, err
 			}
-			if _, err := p.FS.Stat(abs); err != nil {
-				return nil, err
+			_, err2 = p.FS.Stat(abs)
+			if err2 != nil {
+				if os.IsNotExist(err2) {
+					return nil, err
+				}
+				return nil, err2
 			}
 		} else {
 			return nil, err
