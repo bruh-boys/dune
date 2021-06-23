@@ -188,15 +188,51 @@ func exec(programPath string, args []string) error {
 }
 
 func loadProgram(path string, strip bool) (*dune.Program, error) {
+	path, ok := find(path)
+	if !ok {
+		return nil, os.ErrNotExist
+	}
+	return doLoadProgram(path, strip)
+}
+
+func find(path string) (string, bool) {
+	if filesystem.Exists(filesystem.OS, path) {
+		return path, true
+	}
+
+	if filepath.Base(path) == path && filepath.Ext(path) == "" {
+		dirs := os.Getenv("DUNE_DIRS")
+		if dirs != "" {
+			for _, dir := range strings.Split(dirs, ";") {
+				t, ok := testPath(dir, path)
+				if ok {
+					return t, true
+				}
+			}
+		}
+	}
+
+	return "", false
+}
+
+func testPath(dir, path string) (string, bool) {
+	t := filepath.Join(dir, path+".ts")
+	if filesystem.Exists(filesystem.OS, t) {
+		return t, true
+	}
+
+	t = filepath.Join(dir, path+".bin")
+	if filesystem.Exists(filesystem.OS, t) {
+		return t, true
+	}
+
+	return "", false
+}
+
+func doLoadProgram(path string, strip bool) (*dune.Program, error) {
 	ext := filepath.Ext(path)
 
 	switch ext {
-	case ".ts":
-		p, err := dune.Compile(filesystem.OS, path)
-		if strip && err == nil {
-			p.Strip()
-		}
-		return p, err
 	case ".bin":
 		f, err := os.Open(path)
 		if err != nil {
@@ -205,18 +241,22 @@ func loadProgram(path string, strip bool) (*dune.Program, error) {
 		defer f.Close()
 		p, err := binary.Read(f)
 		if err != nil {
-			if err == binary.ErrInvalidHeader {
-				// if it is not a compiled program maybe is a source file with a different extension
-				return dune.Compile(filesystem.OS, path)
-			}
 			return nil, fmt.Errorf("error loading %s: %w", path, err)
 		}
 		if strip {
 			p.Strip()
 		}
 		return p, nil
+
 	default:
-		return nil, os.ErrNotExist
+		p, err := dune.Compile(filesystem.OS, path)
+		if err != nil {
+			return nil, fmt.Errorf("error loading %s: %w", path, err)
+		}
+		if strip {
+			p.Strip()
+		}
+		return p, err
 	}
 }
 
