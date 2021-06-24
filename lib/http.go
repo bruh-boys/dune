@@ -622,10 +622,14 @@ var HTTP = []dune.NativeFunction{
 
 			b, err := ioutil.ReadAll(resp.Body)
 
-			resp.Body.Close()
+			err2 := resp.Body.Close()
 
 			if err != nil {
 				return dune.NullValue, err
+			}
+
+			if err2 != nil {
+				return dune.NullValue, err2
 			}
 
 			if !isHTTPSuccess(resp.StatusCode) {
