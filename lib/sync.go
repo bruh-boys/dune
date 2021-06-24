@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"time"
 
 	"github.com/dunelang/dune"
 )
@@ -36,12 +37,47 @@ declare namespace sync {
         receive(): any
         close(): void
     }
+
+	export function withDeadline(d: time.Duration, fn: (dl: Deadline) => void): void
+
+	export interface Deadline {
+		extend(d: time.Duration): void
+		cancel(): void
+	}
 }
 
 	`)
 }
 
 var Sync = []dune.NativeFunction{
+	{
+		Name:        "sync.withDeadline",
+		Arguments:   2,
+		Permissions: []string{"sync"},
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			d, err := ToDuration(args[0])
+			if err != nil {
+				return dune.NullValue, err
+			}
+
+			v := args[1]
+			switch v.Type {
+			case dune.Func:
+			case dune.Object:
+			default:
+				return dune.NullValue, fmt.Errorf("%v is not a function", v.TypeName())
+			}
+
+			WithDeadline(d, func(dl *Deadline) {
+				obj := dune.NewObject(dl)
+				if err := runAsyncFuncOrClosure(vm, v, obj); err != nil {
+					fmt.Fprintln(vm.GetStderr(), err)
+				}
+			})
+
+			return dune.NullValue, err
+		},
+	},
 	{
 		Name:        "sync.newWaitGroup",
 		Arguments:   -1,
@@ -334,4 +370,82 @@ func (t *waitGroup) wait(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	t.w.Wait()
 	return dune.NullValue, nil
+}
+
+type Deadline struct {
+	limit  time.Time
+	ticker *time.Ticker
+	done   chan bool
+}
+
+func (dl *Deadline) Type() string {
+	return "sync.Deadline"
+}
+
+func (dl *Deadline) GetMethod(name string) dune.NativeMethod {
+	switch name {
+	case "extend":
+		return dl.extend
+	case "cancel":
+		return dl.cancel
+	}
+	return nil
+}
+
+func (dl *Deadline) extend(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	if len(args) != 1 {
+		return dune.NullValue, fmt.Errorf("expected 2 arguments, got %d", len(args))
+	}
+
+	dd, err := ToDuration(args[0])
+	if err != nil {
+		return dune.NullValue, err
+	}
+
+	dl.Extend(dd)
+	return dune.NullValue, nil
+}
+
+func (dl *Deadline) cancel(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	if len(args) != 0 {
+		return dune.NullValue, fmt.Errorf("expected 0 arguments, got %d", len(args))
+	}
+
+	dl.Cancel()
+	return dune.NullValue, nil
+}
+
+func (dl *Deadline) Extend(d time.Duration) {
+	dl.limit = dl.limit.Add(d)
+}
+
+func (dl *Deadline) Cancel() {
+	dl.done <- true
+}
+
+func WithDeadline(d time.Duration, fn func(dl *Deadline)) {
+	ticker := time.NewTicker(d)
+
+	dl := &Deadline{
+		limit:  time.Now().Add(d),
+		ticker: ticker,
+		done:   make(chan bool),
+	}
+
+	go func() {
+		fn(dl)
+		dl.done <- true
+	}()
+
+	for {
+		select {
+		case <-dl.done:
+			return
+		case t := <-ticker.C:
+			if !t.Before(dl.limit) {
+				ticker.Stop()
+				return
+			}
+		}
+	}
 }
