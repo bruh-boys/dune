@@ -38,7 +38,7 @@ declare namespace sync {
         close(): void
     }
 
-	export function withDeadline(d: time.Duration, fn: (dl: Deadline) => void): void
+	export function withDeadline(d: time.Duration | number, fn: (dl: Deadline) => void): void
 
 	export interface Deadline {
 		extend(d: time.Duration): void
@@ -68,11 +68,9 @@ var Sync = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("%v is not a function", v.TypeName())
 			}
 
-			WithDeadline(d, func(dl *Deadline) {
+			err = WithDeadline(d, func(dl *Deadline) error {
 				obj := dune.NewObject(dl)
-				if err := runAsyncFuncOrClosure(vm, v, obj); err != nil {
-					fmt.Fprintln(vm.GetStderr(), err)
-				}
+				return runAsyncFuncOrClosure(vm, v, obj)
 			})
 
 			return dune.NullValue, err
@@ -423,7 +421,7 @@ func (dl *Deadline) Cancel() {
 	dl.done <- true
 }
 
-func WithDeadline(d time.Duration, fn func(dl *Deadline)) {
+func WithDeadline(d time.Duration, fn func(dl *Deadline) error) error {
 	ticker := time.NewTicker(d)
 
 	dl := &Deadline{
@@ -432,19 +430,21 @@ func WithDeadline(d time.Duration, fn func(dl *Deadline)) {
 		done:   make(chan bool),
 	}
 
+	var err error
+
 	go func() {
-		fn(dl)
+		err = fn(dl)
 		dl.done <- true
 	}()
 
 	for {
 		select {
 		case <-dl.done:
-			return
+			return err
 		case t := <-ticker.C:
 			if !t.Before(dl.limit) {
 				ticker.Stop()
-				return
+				return err
 			}
 		}
 	}
