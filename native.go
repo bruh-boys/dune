@@ -95,36 +95,10 @@ interface byte { }
 
 declare const Symbol: symbol
 
-interface Symbol {
-    iterator: symbol
-}
-
-interface IteratorReturnResult<TReturn> {
-    done: true;
-    value: TReturn;
-}
-
-type IteratorResult<T, TReturn = any> = IteratorReturnResult<TReturn>;
-
-interface Iterator<T, TReturn = any, TNext = undefined> {
-    next(...args: [] | [TNext]): IteratorResult<T, TReturn>;
-    return?(value?: TReturn): IteratorResult<T, TReturn>;
-    throw?(e?: any): IteratorResult<T, TReturn>;
-}
-
-interface Iterable<T> {
-    [Symbol.iterator](): Iterator<T>;
-}
-
-interface IterableIterator<T> extends Iterator<T> {
-    [Symbol.iterator](): IterableIterator<T>;
-}
-
 declare const Array: any
 
 interface Array<T> {
     [n: number]: T
-    [Symbol.iterator](): IterableIterator<T>
     slice(start?: number, count?: number): Array<T>
     range(start?: number, end?: number): Array<T>
     append(v: T[]): T[]
@@ -138,7 +112,4 @@ interface Array<T> {
     join(sep: string): T
     sort(comprarer: (a: T, b: T) => boolean): void
 }
-
-
-
 `

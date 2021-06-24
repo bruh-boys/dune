@@ -228,7 +228,7 @@ declare namespace http {
 
         handled: boolean
 
-        body: io.buffer
+        body: io.Buffer
 
 		string(): string
 		json(): any

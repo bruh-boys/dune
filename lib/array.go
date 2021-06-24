@@ -10,7 +10,6 @@ import (
 
 func init() {
 	dune.RegisterLib(libArray, `
- 
 interface Array<T> {
     [n: number]: T
     slice(start?: number, count?: number): Array<T>
