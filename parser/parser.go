@@ -1973,16 +1973,14 @@ func (p *parser) parseDeleteStmt() (*ast.DeleteStmt, error) {
 }
 
 func (p *parser) parseTypeof() (*ast.TypeofExpr, error) {
-	return nil, NewError(p.peek().Pos, "The typeof operator is not valid. Use reflect.typeOf")
+	p.next()
 
-	// p.next()
+	exp, err := p.parseFactor()
+	if err != nil {
+		return nil, err
+	}
 
-	// exp, err := p.parseFactor()
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// return &ast.TypeofExpr{Expr: exp}, nil
+	return &ast.TypeofExpr{Expr: exp}, nil
 }
 
 func (p *parser) parseLabelStmt(name string) (ast.Stmt, error) {

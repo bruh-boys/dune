@@ -65,11 +65,12 @@ func _() {
 	_ = x[op_finallyEnd-54]
 	_ = x[op_tryExit-55]
 	_ = x[op_deleteField-56]
+	_ = x[op_typeof-57]
 }
 
-const _Opcode_name = "op_loadConstantop_moveop_moveAndTestop_addop_subtractop_multiplyop_divideop_moduloop_exponentiateop_binaryOrop_andop_xorop_leftShiftop_rightShiftop_incop_decop_unmop_notop_bitwiseNotop_setRegisterop_newClassop_newClassSingleArgop_newArrayop_newMapop_keysop_valuesop_lengthop_getEnumValueop_getIndexOrKeyop_getOptChainop_setIndexOrKeyop_spreadop_jumpop_jumpBackop_jumpIfEqualop_jumpIfNotEqualop_testJumpop_equalop_notEqualop_strictEqualop_strictNotEqualop_lessop_lessOrEqualop_callop_calOptChainop_callSingleArgop_calOptChainSingleArgop_readNativeFieldop_returnop_createClosureop_throwop_tryop_tryEndop_catchEndop_finallyEndop_tryExitop_deleteField"
+const _Opcode_name = "op_loadConstantop_moveop_moveAndTestop_addop_subtractop_multiplyop_divideop_moduloop_exponentiateop_binaryOrop_andop_xorop_leftShiftop_rightShiftop_incop_decop_unmop_notop_bitwiseNotop_setRegisterop_newClassop_newClassSingleArgop_newArrayop_newMapop_keysop_valuesop_lengthop_getEnumValueop_getIndexOrKeyop_getOptChainop_setIndexOrKeyop_spreadop_jumpop_jumpBackop_jumpIfEqualop_jumpIfNotEqualop_testJumpop_equalop_notEqualop_strictEqualop_strictNotEqualop_lessop_lessOrEqualop_callop_calOptChainop_callSingleArgop_calOptChainSingleArgop_readNativeFieldop_returnop_createClosureop_throwop_tryop_tryEndop_catchEndop_finallyEndop_tryExitop_deleteFieldop_typeof"
 
-var _Opcode_index = [...]uint16{0, 15, 22, 36, 42, 53, 64, 73, 82, 97, 108, 114, 120, 132, 145, 151, 157, 163, 169, 182, 196, 207, 227, 238, 247, 254, 263, 272, 287, 303, 317, 333, 342, 349, 360, 374, 391, 402, 410, 421, 435, 452, 459, 473, 480, 494, 510, 533, 551, 560, 576, 584, 590, 599, 610, 623, 633, 647}
+var _Opcode_index = [...]uint16{0, 15, 22, 36, 42, 53, 64, 73, 82, 97, 108, 114, 120, 132, 145, 151, 157, 163, 169, 182, 196, 207, 227, 238, 247, 254, 263, 272, 287, 303, 317, 333, 342, 349, 360, 374, 391, 402, 410, 421, 435, 452, 459, 473, 480, 494, 510, 533, 551, 560, 576, 584, 590, 599, 610, 623, 633, 647, 656}
 
 func (i Opcode) String() string {
 	if i >= Opcode(len(_Opcode_index)-1) {

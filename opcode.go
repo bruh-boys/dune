@@ -66,6 +66,7 @@ const (
 	op_finallyEnd                         // finally-end: set the last finally body as ended.
 	op_tryExit                            // try exit: a continue inside try/catch inside a loop for example
 	op_deleteField                        // delete object property
+	op_typeof                             // typeof operator: set in A the type of B according to javascript rules
 )
 
 const (
@@ -246,6 +247,9 @@ func exec(i *Instruction, vm *VM) int {
 
 	case op_deleteField:
 		return exec_deleteField(i, vm)
+
+	case op_typeof:
+		return exec_typeof(i, vm)
 
 	default:
 		panic(fmt.Sprintf("Invalid opcode: %v", i))
@@ -1927,5 +1931,36 @@ func exec_deleteField(instr *Instruction, vm *VM) int {
 	m.Lock()
 	delete(m.Map, property)
 	m.Unlock()
+	return vm_next
+}
+
+func exec_typeof(instr *Instruction, vm *VM) int {
+	v := vm.get(instr.B)
+
+	switch v.Type {
+	case Undefined:
+		vm.set(instr.A, NewString("undefined"))
+	case Null:
+		vm.set(instr.A, NewString("null"))
+	case String, Rune:
+		vm.set(instr.A, NewString("string"))
+	case Int, Float:
+		vm.set(instr.A, NewString("number"))
+	case Bool:
+		vm.set(instr.A, NewString("boolean"))
+	case Func:
+		vm.set(instr.A, NewString("function"))
+	case Object:
+		switch v.ToObject().(type) {
+		case Method, Closure, NativeFunction, NativeMethod:
+			vm.set(instr.A, NewString("function"))
+		default:
+			vm.set(instr.A, NewString("object"))
+		}
+
+	default:
+		vm.set(instr.A, NewString("object"))
+	}
+
 	return vm_next
 }

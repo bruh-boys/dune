@@ -2025,32 +2025,37 @@ func TestDelete(t *testing.T) {
 	`)
 }
 
-// func TestTypeof1(t *testing.T) {
-// 	assertValue(t, "number", `
-// 		let a = 1
-// 		return typeof a
-// 	`)
-// }
+func TestTypeof1(t *testing.T) {
+	assertValue(t, "number", `
+		let a = 1
+		return typeof 1
+	`)
+}
 
-// func TestTypeof2(t *testing.T) {
-// 	assertValue(t, "number", `
-// 		let a = 1.1
-// 		return typeof a
-// 	`)
-// }
+func TestTypeof2(t *testing.T) {
+	assertValue(t, "number", `
+		return typeof 1.1
+	`)
+}
 
-// func TestTypeof3(t *testing.T) {
-// 	assertValue(t, "string", `
-// 		let a = ""
-// 		return typeof a
-// 	`)
-// }
-// func TestTypeof4(t *testing.T) {
-// 	assertValue(t, true, `
-// 		let a = ""
-// 		return typeof a == "string" || 33
-// 	`)
-// }
+func TestTypeof3(t *testing.T) {
+	assertValue(t, "string", `
+		return typeof ""
+	`)
+}
+
+func TestTypeof4(t *testing.T) {
+	assertValue(t, "boolean", `
+		return typeof true
+	`)
+}
+
+func TestTypeof5(t *testing.T) {
+	assertValue(t, "function", `
+		let x = () => 33
+		return typeof x
+	`)
+}
 
 func TestClass0(t *testing.T) {
 	assertValue(t, "John", `

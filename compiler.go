@@ -1192,11 +1192,25 @@ func (c *compiler) compileExpr(t ast.Expr, dest *Address) (*Address, error) {
 		return c.compileCallExpr(t, dest, true)
 	case *ast.NewInstanceExpr:
 		return c.compileNewInstanceExpr(t, dest)
-	// case *ast.TypeofExpr:
-	// 	return c.compileTypeofExpr(t, dest)
+	case *ast.TypeofExpr:
+		return c.compileTypeofExpr(t, dest)
 	default:
 		panic(fmt.Sprintf("not implemented: %T", t))
 	}
+}
+
+func (c *compiler) compileTypeofExpr(t *ast.TypeofExpr, dest *Address) (*Address, error) {
+	v, err := c.compileExpr(t.Expr, Void)
+	if err != nil {
+		return nil, err
+	}
+
+	if dest == Void {
+		dest = c.newTempRegister()
+	}
+
+	c.emit(op_typeof, dest, v, Void, t.Position())
+	return dest, nil
 }
 
 func (c *compiler) compileFuncDeclExpr(t *ast.FuncDeclExpr, dest *Address) (*Address, error) {
