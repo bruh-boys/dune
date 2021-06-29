@@ -91,7 +91,7 @@ var OS = []dune.NativeFunction{
 	{
 		Name: "->os.ErrNotExist",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			return dune.NewString(os.ErrNotExist.Error()), nil
+			return dune.NewString("no such file or directory"), nil
 		},
 	},
 	{
