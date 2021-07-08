@@ -294,3 +294,12 @@ func TestParseVariadicArg(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestParseLambdaNullableArg(t *testing.T) {
+	_, err := ParseStr(`
+		type foo = (arg?: any) => void
+	`)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

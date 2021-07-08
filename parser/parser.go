@@ -2298,8 +2298,12 @@ loop:
 		t := p.peek()
 		switch t.Type {
 		case ast.LPAREN:
-			if p.peekTwo().Type == ast.IDENT && p.peekThree().Type != ast.COLON {
-				return p.ignoreCompositeType()
+			if p.peekTwo().Type == ast.IDENT {
+				switch p.peekThree().Type {
+				case ast.COLON, ast.QUESTION:
+				default:
+					return p.ignoreCompositeType()
+				}
 			}
 			if err := p.ignoreLambda(); err != nil {
 				return err
