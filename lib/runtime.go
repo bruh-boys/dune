@@ -64,6 +64,7 @@ declare namespace runtime {
 	export const vm: VirtualMachine
 
     export function runFunc(func: string, ...args: any[]): any
+	export function runFunc(fn: Function, ...args: any[]): any
 
     export const hasResources: boolean
     export function resources(name: string): string[]
@@ -129,7 +130,7 @@ declare namespace runtime {
 		initialize(): any[]
 		run(...args: any[]): any
 		runFunc(name: string, ...args: any[]): any
-		runFunc(index: number, ...args: any[]): any
+		runFunc(fn: Function, ...args: any[]): any
 		getValue(name: string): any
 		getGlobals(): any[]
 		stackTrace(): string
@@ -181,13 +182,15 @@ var Runtime = []dune.NativeFunction{
 			}
 
 			a := args[0]
-			if a.Type != dune.String {
-				return dune.NullValue, fmt.Errorf("function name must be a string, got %v", a.Type)
+
+			switch a.Type {
+			case dune.String:
+				return vm.RunFunc(a.String(), args[1:]...)
+			case dune.Func:
+				return vm.RunFuncIndex(a.ToFunction(), args[1:]...)
+			default:
+				return dune.NullValue, fmt.Errorf("invalid function argument type, got %v", a.Type)
 			}
-
-			funcName := a.String()
-
-			return vm.RunFunc(funcName, args[1:]...)
 		},
 	},
 	{
@@ -1167,13 +1170,13 @@ func (m *libVM) runFunc(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			return dune.NullValue, fmt.Errorf("%s: %w", name, dune.ErrFunctionNotExist)
 		}
 		index = f.Index
-	case dune.Int:
+	case dune.Int, dune.Func:
 		index = int(args[0].ToInt())
 		if len(m.vm.Program.Functions) <= index {
 			return dune.NullValue, fmt.Errorf("%d: %w", index, dune.ErrFunctionNotExist)
 		}
 	default:
-		return dune.NullValue, fmt.Errorf("argument 1 must be a string (function name), got %s", args[0].TypeName())
+		return dune.NullValue, fmt.Errorf("invalid function argument type, got %v", args[0].TypeName())
 	}
 
 	if !m.vm.Initialized() {
