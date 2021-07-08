@@ -210,7 +210,7 @@ func (v Value) ToString() string {
 
 func (v Value) ToInt() int64 {
 	switch v.Type {
-	case Int:
+	case Int, Func:
 		return v.object.(int64)
 	case Float:
 		return int64(v.object.(float64))
