@@ -284,3 +284,13 @@ func TestParseClassProperty2(t *testing.T) {
 		t.Fatal("expected one setter")
 	}
 }
+
+func TestParseVariadicArg(t *testing.T) {
+	_, err := ParseStr(`
+		let foo: any
+		foo.bar((...args: any[]) => { })
+	`)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

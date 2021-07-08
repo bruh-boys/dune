@@ -2812,6 +2812,9 @@ func (p *parser) parseValueExpression() (ast.Expr, error) {
 				// its a lambda with format: "(t) => ..."
 				return p.parseLambda()
 			}
+		case ast.PERIOD:
+			// its a lambda with format: "(...) => ..."
+			return p.parseLambda()
 		}
 	case ast.IDENT:
 		// its a lambda with format: "t => ..."
