@@ -424,6 +424,9 @@ func (dl *Deadline) Cancel() {
 func WithDeadline(d time.Duration, fn func(dl *Deadline) error) error {
 	ticker := time.NewTicker(d)
 
+	// always stop the ticker or it will leak!
+	defer ticker.Stop()
+
 	dl := &Deadline{
 		limit:  time.Now().Add(d),
 		ticker: ticker,
@@ -443,7 +446,6 @@ func WithDeadline(d time.Duration, fn func(dl *Deadline) error) error {
 			return err
 		case t := <-ticker.C:
 			if !t.Before(dl.limit) {
-				ticker.Stop()
 				return err
 			}
 		}
