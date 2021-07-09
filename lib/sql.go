@@ -88,6 +88,7 @@ declare namespace sql {
         size: number
         decimals: number
         nullable: boolean
+		unsigned: boolean
     }
 
     export interface Reader {
@@ -1814,7 +1815,6 @@ func (s *libDB) columns(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	default:
 		return dune.NullValue, fmt.Errorf("invalid table: %s", args[0])
-
 	}
 
 	if dbName != "" {
@@ -1928,6 +1928,7 @@ type schemaColumn struct {
 	size     int
 	decimals int
 	nullable bool
+	unsigned bool
 }
 
 func (schemaColumn) Type() string {
@@ -1948,8 +1949,8 @@ func (c schemaColumn) GetField(name string, vm *dune.VM) (dune.Value, error) {
 		return dune.NewBool(c.nullable), nil
 	case "size":
 		return dune.NewInt(c.size), nil
-	case "decimals":
-		return dune.NewInt(c.decimals), nil
+	case "unsigned":
+		return dune.NewBool(c.unsigned), nil
 	}
 	return dune.UndefinedValue, nil
 }
@@ -1982,12 +1983,15 @@ func newColumn(c dbx.SchemaColumn) (schemaColumn, error) {
 		}
 	}
 
+	unsigned := strings.Contains(t, "unsigned")
+
 	col := schemaColumn{
 		name:     c.Name,
 		nullable: c.Nullable,
 		typeName: t,
 		size:     size,
 		decimals: decimals,
+		unsigned: unsigned,
 	}
 
 	return col, nil
