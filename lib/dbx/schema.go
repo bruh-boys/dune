@@ -117,8 +117,7 @@ func (db *DB) Tables() ([]string, error) {
 
 	case "mysql":
 		q := `SHOW TABLES`
-		name := db.Database
-		if name != "" {
+		if db.Database != "" {
 			q += " FROM " + db.fullDatabaseName()
 		}
 		return db.dbTables(q)
@@ -156,7 +155,16 @@ func (db *DB) Columns(table string) ([]SchemaColumn, error) {
 	switch db.Driver {
 	case "sqlite3":
 		if db.Database != "" {
-			table = db.Database + "_" + table
+			i := strings.IndexRune(table, '.')
+			if i != -1 {
+				prefix := table[:i]
+				if prefix != db.Database {
+					return nil, fmt.Errorf("invalid database %s", prefix)
+				}
+				table = prefix + "_" + table[i+1:]
+			} else {
+				table = db.Database + "_" + table
+			}
 		}
 		return db.sqliteColumns(table)
 
