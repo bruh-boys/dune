@@ -1382,7 +1382,7 @@ declare namespace runtime {
 
 
 declare namespace secure {
-	export function newSecureObject(read: boolean, write: boolean): any 
+	export function newObject(read: boolean, write: boolean): any 
 }
 
 
