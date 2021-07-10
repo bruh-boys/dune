@@ -962,7 +962,7 @@ func (f *FileSystemObj) readNames(args []dune.Value, vm *dune.VM) (dune.Value, e
 
 // ReadNames reads the directory and file names contained in dirname.
 func ReadNames(fs filesystem.FS, dirname string, recursive bool) ([]string, error) {
-	n, err := readNames(fs, dirname, true, recursive)
+	n, err := readNames(fs, dirname, recursive)
 	if err != nil {
 		return nil, err
 	}
@@ -970,7 +970,7 @@ func ReadNames(fs filesystem.FS, dirname string, recursive bool) ([]string, erro
 	return n, nil
 }
 
-func readNames(fs filesystem.FS, dirname string, removeTopDir, recursive bool) ([]string, error) {
+func readNames(fs filesystem.FS, dirname string, recursive bool) ([]string, error) {
 	f, err := fs.Open(dirname)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -992,17 +992,10 @@ func readNames(fs filesystem.FS, dirname string, removeTopDir, recursive bool) (
 		names = append(names, name)
 
 		if recursive && l.IsDir() {
-			sub, err := readNames(fs, name, false, true)
+			sub, err := readNames(fs, name, true)
 			if err != nil {
 				return nil, err
 			}
-
-			//			if removeTopDir {
-			//				for i, v := range sub {
-			//					j := strings.IndexRune(v, os.PathSeparator) + 1
-			//					sub[i] = v[j:]
-			//				}
-			//			}
 
 			names = append(names, sub...)
 		}
