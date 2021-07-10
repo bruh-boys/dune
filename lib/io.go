@@ -48,6 +48,8 @@ declare namespace io {
 
     export function newReadOnlyFS(baseFS: FileSystem): FileSystem
 
+    export function newLayerFS(baseFS: FileSystem): LayerFS
+
     /** 
      * Sets the default data file system that will be returned by io.dataFS()
      */
@@ -90,6 +92,10 @@ declare namespace io {
 	export interface RestrictedFS extends FileSystem {
 		addToWhitelist(path: string): void
 		addToBlacklist(path: string): void
+	}
+
+	export interface LayerFS extends FileSystem {
+        writeLayer(path: string, data: string | io.Reader | byte[]): void
 	}
 
     export interface File {
@@ -207,6 +213,23 @@ var IO = []dune.NativeFunction{
 			}
 
 			rfs := filesystem.NewReadOnlyFS(fs.FS)
+			return dune.NewObject(NewFileSystem(rfs)), nil
+		},
+	},
+	{
+		Name:      "io.newLayerFS",
+		Arguments: 1,
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			if err := ValidateOptionalArgs(args, dune.Object); err != nil {
+				return dune.NullValue, err
+			}
+
+			fs, ok := args[0].ToObject().(*FileSystemObj)
+			if !ok {
+				return dune.NullValue, fmt.Errorf("invalid filesystem argument, got %v", args[1])
+			}
+
+			rfs := filesystem.NewLayerFS(fs.FS)
 			return dune.NewObject(NewFileSystem(rfs)), nil
 		},
 	},
@@ -577,6 +600,8 @@ func (f *FileSystemObj) GetMethod(name string) dune.NativeMethod {
 		return f.addToWhitelist
 	case "addToBlacklist":
 		return f.addToBlacklist
+	case "writeLayer":
+		return f.writeLayer
 	case "getWd":
 		return f.getWd
 	}
@@ -1044,6 +1069,32 @@ func (f *FileSystemObj) mkdir(args []dune.Value, vm *dune.VM) (dune.Value, error
 	name := args[0].String()
 
 	if err := f.FS.MkdirAll(name); err != nil {
+		return dune.NullValue, err
+	}
+
+	return dune.NullValue, nil
+}
+
+func (f *FileSystemObj) writeLayer(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	if len(args) != 2 {
+		return dune.NullValue, fmt.Errorf("expected 2 arguments, got %d", len(args))
+	}
+	if args[0].Type != dune.String {
+		return dune.NullValue, fmt.Errorf("expected argument 1 to be a string, got %d", args[0].Type)
+	}
+	name := args[0].String()
+
+	layerFS, ok := f.FS.(*filesystem.LayerFS)
+	if !ok {
+		return dune.NullValue, fmt.Errorf("this fs is not a LayerFS")
+	}
+
+	file, err := layerFS.OpenForWriteLayer(name)
+	if err != nil {
+		return dune.NullValue, err
+	}
+
+	if err := Write(file, args[1], vm); err != nil {
 		return dune.NullValue, err
 	}
 
