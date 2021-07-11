@@ -41,7 +41,7 @@ declare namespace sync {
 	export function withDeadline(d: time.Duration | number, fn: (dl: Deadline) => void): void
 
 	export interface Deadline {
-		extend(d: time.Duration): void
+		extend(d: time.Duration | number): void
 		cancel(): void
 	}
 }
