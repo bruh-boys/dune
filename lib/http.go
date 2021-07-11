@@ -531,6 +531,12 @@ var HTTP = []dune.NativeFunction{
 						reader = strings.NewReader(form.Encode())
 						contentType = "application/x-www-form-urlencoded"
 					}
+				case dune.Object:
+					r, ok := v.ToObject().(io.Reader)
+					if !ok {
+						return dune.NullValue, fmt.Errorf("invalid argument 3 type: got %v", v.TypeName())
+					}
+					reader = r
 				default:
 					return dune.NullValue, fmt.Errorf("expected argument 3 to be object, got %v", v.Type)
 				}
@@ -542,7 +548,9 @@ var HTTP = []dune.NativeFunction{
 			}
 			switch method {
 			case "POST", "PUT", "PATCH":
-				r.Header.Add("Content-Type", contentType)
+				if contentType != "" {
+					r.Header.Add("Content-Type", contentType)
+				}
 			case "GET":
 				if queryMap != nil {
 					q := r.URL.Query()
