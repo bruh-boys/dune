@@ -889,10 +889,10 @@ func parseInLocation(l *time.Location, this dune.Value, args []dune.Value, vm *d
 	var format string
 
 	if len(args) == 2 {
-		farg := args[1]
-		switch farg.Type {
+		formatArg := args[1]
+		switch formatArg.Type {
 		case dune.String:
-			format = farg.String()
+			format = formatArg.String()
 		case dune.Null:
 		default:
 			return dune.NullValue, ErrInvalidType

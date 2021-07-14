@@ -397,8 +397,12 @@ func (c *Culture) ParseNumber(v string) (float64, error) {
 }
 
 func (c *Culture) ParseDate(value, format string, loc *time.Location) (time.Time, error) {
-	var formats []string
+	if strings.ContainsRune(value, '/') {
+		// normaleze token separators. Dune and Go use dashes
+		value = strings.ReplaceAll(value, "/", "-")
+	}
 
+	var formats []string
 	if format != "" {
 		formats = []string{format}
 	} else {
@@ -417,15 +421,25 @@ func (c *Culture) ParseDate(value, format string, loc *time.Location) (time.Time
 		goFormat := toGoDateFormat(f)
 		t, err := time.ParseInLocation(goFormat, value, loc)
 		if err == nil {
-			// GO BUG?? Sometimes it creates a timezone without name!!
-			if t.Location().String() == "" {
-				t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), loc)
-			}
-			return t, nil
+			return checkLocation(t, loc), nil
 		}
 	}
 
+	// try the default ISO format just in case
+	t, err := time.ParseInLocation(time.RFC3339, value, loc)
+	if err == nil {
+		return checkLocation(t, loc), nil
+	}
+
 	return time.Time{}, dune.NewTypeError("parse", "Error parsing date: %s", value)
+}
+
+func checkLocation(t time.Time, loc *time.Location) time.Time {
+	// GO BUG?? Sometimes it creates a timezone without name!!
+	if t.Location().String() == "" {
+		t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), loc)
+	}
+	return t
 }
 
 func toGoDateFormat(format string) string {
