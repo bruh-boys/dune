@@ -711,7 +711,14 @@ func getSqlParams(args []dune.Value) []interface{} {
 		case dune.Null, dune.Undefined:
 			// leave it nil
 		default:
-			params[i] = v.Export(0)
+			value := v.Export(0)
+			switch t := value.(type) {
+			case time.Time:
+				// convert all dates for the database into to UTC.
+				// The mysql driver does this automatically but the sqlite not.
+				value = t.UTC()
+			}
+			params[i] = value
 		}
 	}
 
