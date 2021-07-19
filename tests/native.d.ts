@@ -364,7 +364,7 @@ declare namespace filepath {
     /**
      * Returns name of the file without the directory and extension.
      */
-    export function nameWithoutExt(path: string): string
+    export function baseWithoutExt(path: string): string
 
     /**
      * Returns directory part of the path.

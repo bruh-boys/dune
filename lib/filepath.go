@@ -34,7 +34,7 @@ declare namespace filepath {
     /**
      * Returns name of the file without the directory and extension.
      */
-    export function nameWithoutExt(path: string): string
+    export function baseWithoutExt(path: string): string
 
     /**
      * Returns directory part of the path.
@@ -148,7 +148,7 @@ var FilePath = []dune.NativeFunction{
 		},
 	},
 	{
-		Name:      "filepath.nameWithoutExt",
+		Name:      "filepath.baseWithoutExt",
 		Arguments: 1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			if err := ValidateArgs(args, dune.String); err != nil {

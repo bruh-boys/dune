@@ -546,6 +546,7 @@ var HTTP = []dune.NativeFunction{
 			if err != nil {
 				return dune.NullValue, err
 			}
+
 			switch method {
 			case "POST", "PUT", "PATCH":
 				if contentType != "" {
