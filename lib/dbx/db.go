@@ -19,6 +19,8 @@ type DB struct {
 	Namespace string
 	Prefix    string
 	ReadOnly  bool
+	NestedTx  bool
+	nestedTx  int // to keep track of the number of nested transactions
 	tx        *sql.Tx
 }
 
@@ -49,6 +51,7 @@ func (db *DB) Open(database string) *DB {
 		Driver:   db.Driver,
 		Prefix:   db.Prefix,
 		ReadOnly: db.ReadOnly,
+		NestedTx: db.NestedTx,
 		DB:       db.DB,
 	}
 }
@@ -83,8 +86,21 @@ func (db *DB) Begin() error {
 	db.Lock()
 	defer db.Unlock()
 
-	if db.tx != nil {
-		return fmt.Errorf("there is a transaction open")
+	if db.NestedTx {
+		if db.tx == nil && db.nestedTx > 0 {
+			return fmt.Errorf("sqx: Previous transaction still open")
+		}
+
+		if db.tx != nil {
+			db.nestedTx++
+			return nil
+		}
+
+		db.nestedTx++
+	} else {
+		if db.tx != nil {
+			return fmt.Errorf("there is a transaction open")
+		}
 	}
 
 	t, err := db.DB.Begin()
@@ -100,14 +116,31 @@ func (db *DB) Rollback() error {
 	db.Lock()
 	defer db.Unlock()
 
-	if db.tx == nil {
-		return fmt.Errorf("no transaction open")
-	}
+	if db.NestedTx {
+		if db.tx != nil {
+			err := db.tx.Rollback()
+			db.tx = nil
+			if err != nil {
+				return err
+			}
+		}
 
-	err := db.tx.Rollback()
-	db.tx = nil
-	if err != nil {
-		return err
+		if db.nestedTx == 0 {
+			// there is an error. It should have an nested value
+			return fmt.Errorf("no transaction open.3")
+		}
+
+		db.nestedTx--
+	} else {
+		if db.tx == nil {
+			return fmt.Errorf("no transaction open")
+		}
+
+		err := db.tx.Rollback()
+		db.tx = nil
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -116,6 +149,18 @@ func (db *DB) Rollback() error {
 func (db *DB) Commit() error {
 	db.Lock()
 	defer db.Unlock()
+
+	if db.NestedTx {
+		if db.nestedTx == 0 {
+			return fmt.Errorf("no transaction open")
+		}
+
+		db.nestedTx--
+
+		if db.nestedTx > 0 {
+			return nil
+		}
+	}
 
 	if db.tx == nil {
 		return fmt.Errorf("no transaction open")

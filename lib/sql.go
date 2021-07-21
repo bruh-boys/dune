@@ -41,6 +41,7 @@ declare namespace sql {
         readOnly: boolean
 		locked: boolean
         driver: DriverType
+		nestTransactions: boolean
 		hasTransaction: boolean
 		
 		initMultiDB(): void
@@ -913,6 +914,8 @@ func (s *libDB) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "hasTransaction":
 		return dune.NewBool(s.db.HasTransaction()), nil
+	case "nestTransactions":
+		return dune.NewBool(s.db.NestedTx), nil
 	case "database":
 		if !vm.HasPermission("trusted") {
 			return dune.NullValue, ErrUnauthorized
@@ -942,6 +945,18 @@ func (s *libDB) GetField(name string, vm *dune.VM) (dune.Value, error) {
 
 func (s *libDB) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
+	case "nestTransactions":
+		if !vm.HasPermission("trusted") {
+			return ErrUnauthorized
+		}
+		switch v.Type {
+		case dune.Bool, dune.Undefined, dune.Null:
+		default:
+			return fmt.Errorf("expected bool, got %s", v.TypeName())
+		}
+		s.db.NestedTx = v.ToBool()
+		return nil
+
 	case "onExecuting":
 		if !vm.HasPermission("trusted") {
 			return ErrUnauthorized
