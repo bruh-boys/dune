@@ -164,7 +164,14 @@ func newMapValue(m map[Value]Value) *MapValue {
 }
 
 func NewMap(size int) Value {
-	o := newMapValue(make(map[Value]Value, size))
+	var m map[Value]Value
+	if size == 0 {
+		m = make(map[Value]Value)
+	} else {
+		m = make(map[Value]Value, size)
+	}
+
+	o := newMapValue(m)
 	return Value{Type: Map, object: o}
 }
 
