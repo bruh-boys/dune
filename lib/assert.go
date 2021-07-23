@@ -15,6 +15,7 @@ func init() {
 declare namespace assert {
     export function contains(search: string, value: string): void
     export function equal(a: any, b: any, errorMessage?: string): void
+    export function isTrue(a: boolean): void
     export function isNull(a: any): void
 	export function isNotNull(a: any): void
 	export function exception(msg: string, func: Function): void
@@ -77,6 +78,22 @@ var Assert = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("values are different: %v, %v", serializeOrErr(a), serializeOrErr(b))
 			}
 			return dune.NullValue, nil
+		},
+	},
+	{
+		Name:      "assert.isTrue",
+		Arguments: 1,
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			a := args[0]
+
+			switch a.Type {
+			case dune.Bool:
+				if a.ToBool() {
+					return dune.TrueValue, nil
+				}
+			}
+
+			return dune.FalseValue, nil
 		},
 	},
 	{
