@@ -1499,12 +1499,14 @@ var libArray = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected 0 or 1 args, got %d", len(args))
 			}
 
-			s := make([]string, len(a))
+			s := make([]string, 0, len(a))
+
 			for i, v := range a {
 				switch v.Type {
-				case dune.String, dune.Rune, dune.Int, dune.Float,
-					dune.Bool, dune.Null, dune.Undefined:
-					s[i] = v.String()
+				case dune.String, dune.Rune, dune.Int, dune.Float, dune.Bool:
+					s = append(s, v.String())
+
+				case dune.Null, dune.Undefined:
 
 				default:
 					return dune.NullValue, fmt.Errorf("invalid type at index %d, expected string, got %s", i, v.TypeName())
