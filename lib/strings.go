@@ -650,21 +650,7 @@ var Strings = []dune.NativeFunction{
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			ln := len(args)
 
-			if ln > 0 {
-				if args[0].Type != dune.String {
-					return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", args[0].TypeName())
-				}
-			}
-
-			if ln > 1 {
-				if args[1].Type != dune.Int {
-					return dune.NullValue, fmt.Errorf("expected arg 2 to be int, got %s", args[1].TypeName())
-				}
-			}
-
-			sep := args[0].String()
 			s := this.String()
-
 			var i int
 			if len(args) > 1 {
 				i = int(args[1].ToInt())
@@ -673,7 +659,21 @@ var Strings = []dune.NativeFunction{
 				}
 				s = s[i:]
 			}
-			return dune.NewInt(strings.Index(s, sep) + i), nil
+
+			if ln > 1 {
+				if args[1].Type != dune.Int {
+					return dune.NullValue, fmt.Errorf("expected arg 2 to be int, got %s", args[1].TypeName())
+				}
+			}
+
+			switch args[0].Type {
+			case dune.String:
+				return dune.NewInt(strings.Index(s, args[0].String()) + i), nil
+			case dune.Rune:
+				return dune.NewInt(strings.IndexRune(s, args[0].ToRune()) + i), nil
+			default:
+				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", args[0].TypeName())
+			}
 		},
 	},
 	{
