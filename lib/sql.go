@@ -41,6 +41,7 @@ declare namespace sql {
         readOnly: boolean
 		locked: boolean
         driver: DriverType
+		ignoreTransactions: boolean
 		nestTransactions: boolean
 		hasTransaction: boolean
 		
@@ -914,6 +915,8 @@ func (s *libDB) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "hasTransaction":
 		return dune.NewBool(s.db.HasTransaction()), nil
+	case "ignoreTransactions":
+		return dune.NewBool(s.db.IgnoreTx), nil
 	case "nestTransactions":
 		return dune.NewBool(s.db.NestedTx), nil
 	case "database":
@@ -945,6 +948,18 @@ func (s *libDB) GetField(name string, vm *dune.VM) (dune.Value, error) {
 
 func (s *libDB) SetField(name string, v dune.Value, vm *dune.VM) error {
 	switch name {
+	case "ignoreTransactions":
+		if !vm.HasPermission("trusted") {
+			return ErrUnauthorized
+		}
+		switch v.Type {
+		case dune.Bool, dune.Undefined, dune.Null:
+		default:
+			return fmt.Errorf("expected bool, got %s", v.TypeName())
+		}
+		s.db.IgnoreTx = v.ToBool()
+		return nil
+
 	case "nestTransactions":
 		if !vm.HasPermission("trusted") {
 			return ErrUnauthorized

@@ -19,6 +19,7 @@ type DB struct {
 	Namespace string
 	Prefix    string
 	ReadOnly  bool
+	IgnoreTx  bool
 	NestedTx  bool
 	nestedTx  int // to keep track of the number of nested transactions
 	tx        *sql.Tx
@@ -51,6 +52,7 @@ func (db *DB) Open(database string) *DB {
 		Driver:   db.Driver,
 		Prefix:   db.Prefix,
 		ReadOnly: db.ReadOnly,
+		IgnoreTx: db.IgnoreTx,
 		NestedTx: db.NestedTx,
 		DB:       db.DB,
 	}
@@ -83,6 +85,10 @@ func (db *DB) connection() connection {
 }
 
 func (db *DB) Begin() error {
+	if db.IgnoreTx {
+		return nil
+	}
+
 	db.Lock()
 	defer db.Unlock()
 
@@ -113,6 +119,10 @@ func (db *DB) Begin() error {
 }
 
 func (db *DB) Rollback() error {
+	if db.IgnoreTx {
+		return nil
+	}
+
 	db.Lock()
 	defer db.Unlock()
 
@@ -147,6 +157,10 @@ func (db *DB) Rollback() error {
 }
 
 func (db *DB) Commit() error {
+	if db.IgnoreTx {
+		return nil
+	}
+
 	db.Lock()
 	defer db.Unlock()
 
