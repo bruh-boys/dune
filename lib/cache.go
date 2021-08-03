@@ -21,6 +21,7 @@ declare namespace caching {
         save(key: string, v: any): void
         delete(key: string): void
         keys(): string[]
+		values(): any[]
         items(): Map<any>
         clear(): void
     }
@@ -91,6 +92,8 @@ func (c *cacheObj) GetMethod(name string) dune.NativeMethod {
 		return c.clear
 	case "keys":
 		return c.keys
+	case "values":
+		return c.values
 	case "items":
 		return c.items
 	}
@@ -108,6 +111,24 @@ func (c *cacheObj) keys(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	for i, k := range keys {
 		m[i] = dune.NewString(k)
+	}
+
+	return dune.NewArrayValues(m), nil
+}
+
+func (c *cacheObj) values(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	if err := ValidateArgs(args); err != nil {
+		return dune.NullValue, err
+	}
+
+	items := c.cache.Items()
+
+	m := make([]dune.Value, len(items))
+
+	i := 0
+	for _, v := range items {
+		m[i] = v.Object.(dune.Value)
+		i++
 	}
 
 	return dune.NewArrayValues(m), nil
