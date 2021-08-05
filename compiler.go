@@ -1998,10 +1998,6 @@ func (c *compiler) compileSelectorExpr(t *ast.SelectorExpr, dest *Address) (*Add
 	return dest, nil
 }
 
-func (c *compiler) isOpenOptChainScope() bool {
-	return len(c.selectors) > 0
-}
-
 func (c *compiler) openOptChainScope() {
 	c.selectors = append(c.selectors, &selector{})
 }

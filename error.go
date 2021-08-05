@@ -114,18 +114,18 @@ func (e *VMError) Stack() string {
 	return b.String()
 }
 
-func (e *VMError) stackLines() []string {
-	lines := make([]string, len(e.TraceLines))
+// func (e *VMError) stackLines() []string {
+// 	lines := make([]string, len(e.TraceLines))
 
-	for _, s := range e.TraceLines {
-		if s.Function == "" && s.File == "" && s.Line == 0 {
-			continue // this is an empty position
-		}
-		lines = append(lines, s.String())
-	}
+// 	for _, s := range e.TraceLines {
+// 		if s.Function == "" && s.File == "" && s.Line == 0 {
+// 			continue // this is an empty position
+// 		}
+// 		lines = append(lines, s.String())
+// 	}
 
-	return lines
-}
+// 	return lines
+// }
 
 func (e *VMError) GetField(name string, vm *VM) (Value, error) {
 	switch name {
