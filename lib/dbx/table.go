@@ -322,9 +322,20 @@ func Convert(v interface{}, t ColType) (interface{}, error) {
 		default:
 			return nil, fmt.Errorf("can't convert type %T to float", v)
 		}
-	case Time, Date, DateTime:
+	case Time:
 		switch v := v.(type) {
-		case []byte:
+		case []uint8:
+			t, err := ParseTime(v)
+			if err != nil {
+				return nil, err
+			}
+			return t, nil
+		default:
+			return nil, fmt.Errorf("can't convert type %T to time", v)
+		}
+	case Date, DateTime:
+		switch v := v.(type) {
+		case []uint8:
 			t, err := ParseDateTime(string(v))
 			if err != nil {
 				return nil, err
@@ -357,6 +368,16 @@ func ParseInt(v interface{}) (int, error) {
 	}
 }
 
+func ParseTime(v []uint8) (time.Duration, error) {
+	// ASCII numbers 48-57
+	// The format is 16:56:28
+
+	hour := time.Duration((int(v[0])-48)*10+(int(v[1])-48)) * time.Hour
+	min := time.Duration((int(v[3])-48)*10+(int(v[4])-48)) * time.Minute
+	sec := time.Duration((int(v[6])-48)*10+(int(v[7])-48)) * time.Second
+	return hour + min + sec, nil
+}
+
 func ParseDateTime(v interface{}) (time.Time, error) {
 	switch t := v.(type) {
 	case nil:
@@ -381,6 +402,8 @@ func ParseDateTimeStr(str string) (time.Time, error) {
 		}
 		return time.Parse("2006-01-02", str)
 	}
+
+	fmt.Println(">>>", l, str)
 
 	var format string
 	switch str[10] {

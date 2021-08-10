@@ -883,6 +883,8 @@ func convertDBValue(v interface{}) dune.Value {
 	switch t := v.(type) {
 	case time.Time:
 		return dune.NewObject(TimeObj(t))
+	case time.Duration:
+		return dune.NewObject(Duration(t))
 	default:
 		return dune.NewValue(v)
 	}
