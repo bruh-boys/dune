@@ -412,7 +412,7 @@ var Time = []dune.NativeFunction{
 
 			d := time.Duration(h)*time.Hour + time.Duration(m)*time.Minute + time.Duration(s)*time.Second
 
-			return dune.NewObject(d), nil
+			return dune.NewObject(Duration(d)), nil
 		},
 	},
 	{
@@ -1613,6 +1613,19 @@ func (t Duration) Export(recursionLevel int) interface{} {
 	return time.Duration(t)
 }
 
+func (t Duration) MarshalJSON() ([]byte, error) {
+	s, err := formatDuration("T", time.Duration(t))
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+	buf.WriteRune('"')
+	buf.WriteString(s)
+	buf.WriteRune('"')
+	return buf.Bytes(), nil
+}
+
 func (t Duration) GetField(name string, vm *dune.VM) (dune.Value, error) {
 	switch name {
 	case "hours":
@@ -1657,13 +1670,22 @@ func (t Duration) format(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 
 	d := time.Duration(t)
 
-	switch args[0].String() {
+	s, err := formatDuration(args[0].String(), d)
+	if err != nil {
+		return dune.NullValue, err
+	}
+
+	return dune.NewString(s), nil
+}
+
+func formatDuration(format string, d time.Duration) (string, error) {
+	switch format {
 	case "t":
-		return dune.NewString(fmt.Sprintf("%02d:%02d", int(d.Hours()), int(d.Minutes())%60)), nil
+		return fmt.Sprintf("%02d:%02d", int(d.Hours()), int(d.Minutes())%60), nil
 	case "T":
-		return dune.NewString(fmt.Sprintf("%02d:%02d:%02d", int(d.Hours()), int(d.Minutes())%60, int(d.Seconds())%60)), nil
+		return fmt.Sprintf("%02d:%02d:%02d", int(d.Hours()), int(d.Minutes())%60, int(d.Seconds())%60), nil
 	default:
-		return dune.NullValue, fmt.Errorf("invalid format %s", args[0].String())
+		return "", fmt.Errorf("invalid format %s", format)
 	}
 }
 
