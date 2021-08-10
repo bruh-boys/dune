@@ -403,8 +403,6 @@ func ParseDateTimeStr(str string) (time.Time, error) {
 		return time.Parse("2006-01-02", str)
 	}
 
-	fmt.Println(">>>", l, str)
-
 	var format string
 	switch str[10] {
 	case 'T':
