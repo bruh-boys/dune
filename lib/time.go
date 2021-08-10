@@ -83,7 +83,7 @@ declare namespace time {
     export function date(year?: number, month?: number, day?: number, hour?: number, min?: number, sec?: number, loc?: Location): Time
 
 	export function parseDuration(s: string): Duration
-	export function parseTime(s: string): number
+	export function parseTime(s: string): Duration
 	
     export function duration(nanoseconds: number | Duration): Duration
     export function toDuration(hour: number, minute?: number, second?: number): Duration
@@ -167,6 +167,7 @@ declare namespace time {
         add(other: number | Duration): Duration
         sub(other: number | Duration): Duration
         multiply(other: number | Duration): Duration
+		format(v: "t" | "T"): string
     }
 
     export interface Period {
@@ -409,9 +410,9 @@ var Time = []dune.NativeFunction{
 				}
 			}
 
-			ms := h*60*60*1000 + m*60*1000 + s*1000
+			d := time.Duration(h)*time.Hour + time.Duration(m)*time.Minute + time.Duration(s)*time.Second
 
-			return dune.NewInt(ms), nil
+			return dune.NewObject(d), nil
 		},
 	},
 	{
@@ -1643,8 +1644,27 @@ func (t Duration) GetMethod(name string) dune.NativeMethod {
 		return t.sub
 	case "multiply":
 		return t.multiply
+	case "format":
+		return t.format
 	}
 	return nil
+}
+
+func (t Duration) format(args []dune.Value, vm *dune.VM) (dune.Value, error) {
+	if err := ValidateArgs(args, dune.String); err != nil {
+		return dune.NullValue, err
+	}
+
+	d := time.Duration(t)
+
+	switch args[0].String() {
+	case "t":
+		return dune.NewString(fmt.Sprintf("%02d:%02d", int(d.Hours()), int(d.Minutes())%60)), nil
+	case "T":
+		return dune.NewString(fmt.Sprintf("%02d:%02d:%02d", int(d.Hours()), int(d.Minutes())%60, int(d.Seconds())%60)), nil
+	default:
+		return dune.NullValue, fmt.Errorf("invalid format %s", args[0].String())
+	}
 }
 
 func (t Duration) add(args []dune.Value, vm *dune.VM) (dune.Value, error) {
