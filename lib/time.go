@@ -1613,6 +1613,18 @@ func (t Duration) Export(recursionLevel int) interface{} {
 	return time.Duration(t)
 }
 
+func (t Duration) String() string {
+	d := time.Duration(t)
+
+	s, err := formatDuration("T", d)
+	if err != nil {
+		// this should never fail, but just in case
+		return d.String()
+	}
+
+	return s
+}
+
 func (t Duration) MarshalJSON() ([]byte, error) {
 	s, err := formatDuration("T", time.Duration(t))
 	if err != nil {
