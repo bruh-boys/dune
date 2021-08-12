@@ -1269,6 +1269,8 @@ func (p *Parser) parseColumnType(c *CreateColumn) error {
 	switch t.Type {
 	case INTEGER:
 		c.Type = Int
+	case BIGINT:
+		c.Type = BigInt
 	case DECIMAL:
 		c.Type = Decimal
 	case CHAR:

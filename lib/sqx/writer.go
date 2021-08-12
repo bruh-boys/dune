@@ -771,7 +771,7 @@ func (p *writer) writeCreateColumnSqlite3(c *CreateColumn) error {
 	}
 
 	switch c.Type {
-	case Int:
+	case Int, BigInt:
 		p.buf.WriteString(" INTEGER")
 	case Decimal:
 		p.buf.WriteString(" REAL")
@@ -832,6 +832,8 @@ func (p *writer) writeCreateColumnMySQL(c *CreateColumn) error {
 	switch c.Type {
 	case Int:
 		p.buf.WriteString(" int")
+	case BigInt:
+		p.buf.WriteString(" bigint")
 	case Decimal:
 		p.buf.WriteString(" decimal")
 	case Char:

@@ -198,6 +198,7 @@ type ColumnType byte
 
 const (
 	Int ColumnType = iota
+	BigInt
 	Decimal
 	Char
 	Varchar
@@ -670,6 +671,7 @@ var reservedWords = map[string]Type{
 	"EXISTS":     EXISTS,
 	"CONSTRAINT": CONSTRAINT,
 	"INT":        INTEGER,
+	"BIGINT":     BIGINT,
 	"DECIMAL":    DECIMAL,
 	"CHAR":       CHAR,
 	"VARCHAR":    VARCHAR,
@@ -740,6 +742,7 @@ const (
 	EXISTS
 	CONSTRAINT
 	INTEGER
+	BIGINT
 	DECIMAL
 	CHAR
 	VARCHAR
