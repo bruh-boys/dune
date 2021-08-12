@@ -1190,6 +1190,14 @@ func (p *Parser) parseCreateColumn() (*CreateColumn, error) {
 		c.Unsigned = true
 	}
 
+	t := p.peek()
+	if t.Str == "AUTO_INCREMENT" {
+		if !strings.EqualFold(name, "id") {
+			return nil, newError(t, "AUTO_INCREMENT is only supported on ID columns: %s", name)
+		}
+		p.next()
+	}
+
 	nullable := true
 	if p.peek().Type == NOT {
 		p.next()
@@ -1198,14 +1206,6 @@ func (p *Parser) parseCreateColumn() (*CreateColumn, error) {
 	if p.peek().Type == NULL {
 		p.next()
 		c.Nullable = nullable
-	}
-
-	t := p.peek()
-	if t.Str == "AUTO_INCREMENT" {
-		if !strings.EqualFold(name, "id") {
-			return nil, newError(t, "AUTO_INCREMENT is only supported on ID columns: %s", name)
-		}
-		p.next()
 	}
 
 	t = p.peek()
