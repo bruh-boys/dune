@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dunelang/dune"
@@ -350,31 +351,19 @@ var Time = []dune.NativeFunction{
 			}
 
 			s := args[0].String()
-			ln := len(s)
-			if ln < 2 {
-				return dune.NullValue, dune.NewTypeError("parse", "invalid duration. Format is for example: 1s or 2d")
+
+			if strings.ContainsRune(s, ':') {
+				d, err := parseTime(s)
+				if err != nil {
+					return dune.NullValue, err
+				}
+				return dune.NewObject(d), nil
 			}
 
-			v, err := strconv.Atoi(s[:ln-1])
+			d, err := time.ParseDuration(s)
 			if err != nil {
-				return dune.NullValue, dune.NewTypeError("parse", "invalid duration for %s: must be an int", s)
+				return dune.NullValue, err
 			}
-
-			var d time.Duration
-
-			switch s[ln-1:] {
-			case "s":
-				d = time.Duration(v) * time.Second
-			case "m":
-				d = time.Duration(v) * time.Minute
-			case "h":
-				d = time.Duration(v) * time.Hour
-			case "d":
-				d = time.Duration(v) * time.Hour * 24
-			default:
-				return dune.NullValue, dune.NewTypeError("parse", "invalid duration: %s", s)
-			}
-
 			return dune.NewObject(Duration(d)), nil
 		},
 	},
@@ -1932,4 +1921,33 @@ func (t *tickerObj) GetMethod(name string) dune.NativeMethod {
 func (t *tickerObj) stop(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	t.ticker.Stop()
 	return dune.NullValue, nil
+}
+
+func parseTime(s string) (dune.Value, error) {
+	parts := strings.Split(s, ":")
+
+	switch len(parts) {
+	case 2, 3:
+	default:
+		return dune.NullValue, dune.NewTypeError("parse", "invalid duration: %s", s)
+	}
+
+	h, err := strconv.Atoi(parts[0])
+	if err != nil {
+		return dune.NullValue, dune.NewTypeError("parse", "invalid duration: %s", s)
+	}
+	m, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return dune.NullValue, dune.NewTypeError("parse", "invalid duration: %s", s)
+	}
+	d := time.Duration(h)*time.Hour + time.Duration(m)*time.Minute
+
+	if len(parts) == 3 {
+		s, err := strconv.Atoi(parts[2])
+		if err != nil {
+			return dune.NullValue, dune.NewTypeError("parse", "invalid duration: %s", s)
+		}
+		d += time.Duration(s) * time.Second
+	}
+	return dune.NewObject(Duration(d)), nil
 }

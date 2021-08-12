@@ -11,7 +11,6 @@ func TestParseDuration(t *testing.T) {
 			[ "2s", time.duration(2 * time.Second) ],
 			[ "2m", time.duration(2 * time.Minute) ],
 			[ "2h", time.duration(2 * time.Hour) ],
-			[ "2d", time.duration(2 * time.Hour * 24) ],
 		]
 
 		for(let v of values) {
