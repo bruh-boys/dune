@@ -357,7 +357,7 @@ var Time = []dune.NativeFunction{
 				if err != nil {
 					return dune.NullValue, err
 				}
-				return dune.NewObject(d), nil
+				return d, nil
 			}
 
 			d, err := time.ParseDuration(s)
