@@ -711,7 +711,9 @@ var Strings = []dune.NativeFunction{
 		Name:      "String.prototype.contains",
 		Arguments: 1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
-			if args[0].Type != dune.String {
+			switch args[0].Type {
+			case dune.String, dune.Rune:
+			default:
 				return dune.NullValue, fmt.Errorf("expected arg 1 to be string, got %s", args[0].TypeName())
 			}
 
