@@ -5,6 +5,38 @@ import (
 	"testing"
 )
 
+func TestParseNot(t *testing.T) {
+	q, err := Parse("UPDATE type SET foo = not foo")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, _, err := toSQL(false, q, "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if s != "UPDATE type SET foo = NOT foo" {
+		t.Fatal(s)
+	}
+}
+
+func TestParseNot2(t *testing.T) {
+	q, err := Parse("UPDATE type SET foo = !foo")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, _, err := toSQL(false, q, "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if s != "UPDATE type SET foo = !foo" {
+		t.Fatal(s)
+	}
+}
+
 func TestParseUpdateAND(t *testing.T) {
 	_, err := Parse("UPDATE type SET weekDays = 0 AND holiday = ? WHERE id = ?")
 	if err == nil {

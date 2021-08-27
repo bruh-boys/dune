@@ -1680,6 +1680,10 @@ func (p *writer) writeUnaryExpr(t *UnaryExpr) error {
 		p.buf.WriteRune('+')
 	case SUB:
 		p.buf.WriteRune('-')
+	case NT:
+		p.buf.WriteRune('!')
+	case NOT:
+		p.buf.WriteString("NOT ")
 	default:
 		return fmt.Errorf("invalid unary operator %v", t.Operator)
 	}

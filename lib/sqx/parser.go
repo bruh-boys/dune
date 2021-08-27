@@ -1955,6 +1955,14 @@ func (p *Parser) parseNotFactor() (Expr, error) {
 			return nil, err
 		}
 		return &UnaryExpr{Pos: t.Pos, Operator: t.Type, Operand: exp}, nil
+
+	case NOT:
+		p.next()
+		exp, err := p.parseRelation()
+		if err != nil {
+			return nil, err
+		}
+		return &UnaryExpr{Pos: t.Pos, Operator: t.Type, Operand: exp}, nil
 	}
 
 	return p.parseRelation()
