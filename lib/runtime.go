@@ -40,6 +40,7 @@ declare namespace runtime {
     export function panic(message: string): void
 
 	export function attribute(name: string): string
+    export function hasAttribute(name: string): boolean
 
     export type OSName = "linux" | "windows" | "darwin"
 	
@@ -216,6 +217,16 @@ var Runtime = []dune.NativeFunction{
 				return dune.NullValue, err
 			}
 			return programAttribute(vm.Program, args[0].String()), nil
+		},
+	},
+	{
+		Name:      "runtime.hasAttribute",
+		Arguments: 1,
+		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+			if err := ValidateArgs(args, dune.String); err != nil {
+				return dune.NullValue, err
+			}
+			return programHasAttribute(vm.Program, args[0].String()), nil
 		},
 	},
 	{
@@ -632,6 +643,19 @@ func (p *program) attribute(args []dune.Value, vm *dune.VM) (dune.Value, error) 
 		return dune.NullValue, err
 	}
 	return programAttribute(p.prog, args[0].String()), nil
+}
+
+func programHasAttribute(p *dune.Program, name string) dune.Value {
+	var found bool
+
+	for _, v := range p.Attributes {
+		if v == name {
+			found = true
+			break
+		}
+	}
+
+	return dune.NewBool(found)
 }
 
 func programAttribute(p *dune.Program, name string) dune.Value {
