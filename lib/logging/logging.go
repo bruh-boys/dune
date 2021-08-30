@@ -72,7 +72,11 @@ LOOP:
 			return false
 		}
 
-		d := s.Data()
+		d, ok := s.Data()
+		if !ok {
+			return false
+		}
+
 		// advance to start before sending data
 		if d.Time.Before(r.start) {
 			continue LOOP
@@ -103,22 +107,26 @@ func (s *Scanner) SetFilter(v string) {
 	s.reader.filter = v
 }
 
-func (s *Scanner) Data() DataPoint {
+func (s *Scanner) Data() (DataPoint, bool) {
 	line := s.scanner.Text()
 
 	err := s.scanner.Err()
 	if err != nil {
 		s.Error = err
-		return DataPoint{}
+		return DataPoint{}, false
+	}
+
+	if len(line) < LAYOUT_LEN+1 {
+		return DataPoint{}, false
 	}
 
 	d, err := time.Parse(DATE_LAYOUT, line[:LAYOUT_LEN])
 	if err != nil {
 		s.Error = fmt.Errorf("error parsing time in '%s': %w", line, err)
-		return DataPoint{}
+		return DataPoint{}, false
 	}
 
-	return DataPoint{Time: d, Text: line[LAYOUT_LEN+1:]}
+	return DataPoint{Time: d, Text: line[LAYOUT_LEN+1:]}, true
 }
 
 func (db *Logger) Query(table string, start, end time.Time, offset, size int) *Scanner {

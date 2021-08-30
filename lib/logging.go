@@ -199,11 +199,6 @@ func writeLog(table string, args []dune.Value) error {
 		return nil
 	}
 
-	// print system logs in the STD by default in debug mode
-	if defaultLogger.debug && table == "system" {
-		fmt.Println(line)
-	}
-
 	return defaultLogger.db.Save(table, line)
 }
 
@@ -370,7 +365,7 @@ func (s *logScanner) data(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 		return dune.NullValue, err
 	}
 
-	dp := s.s.Data()
+	dp, _ := s.s.Data()
 	return dune.NewObject(&dataPoint{dp}), nil
 }
 
