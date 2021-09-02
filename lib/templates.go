@@ -21,7 +21,7 @@ import (
 func init() {
 	dune.RegisterLib(Templates, `
 
-
+ 
 declare namespace templates {
     /**
      * Reads the file and processes includes
@@ -160,31 +160,48 @@ var Templates = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("error reading template '%s':_ %v", path, err)
 			}
 
-			includes := includesRegex.FindAllSubmatchIndex(buf, -1)
-			for i := len(includes) - 1; i >= 0; i-- {
-				loc := includes[i]
-				start := loc[0]
-				end := loc[1]
-				include := string(buf[loc[2]:loc[3]])
-				b, err := readFile(include, fs, vm)
-				if err != nil {
-					if os.IsNotExist(err) {
-						// try the path relative to the template dir
-						localPath := filepath.Join(filepath.Dir(path), include)
-						b, err = readFile(localPath, fs, vm)
-						if err != nil {
-							return dune.NullValue, fmt.Errorf("error reading include '%s':_ %v", include, err)
-						}
-					} else {
-						return dune.NullValue, fmt.Errorf("error reading include '%s':_ %v", include, err)
-					}
-				}
-				buf = append(buf[:start], append(b, buf[end:]...)...)
+			buf, err = processIncludes(path, buf, fs, vm)
+			if err != nil {
+				return dune.NullValue, err
 			}
 
 			return dune.NewString(string(buf)), nil
 		},
 	},
+}
+
+func processIncludes(path string, buf []byte, fs filesystem.FS, vm *dune.VM) ([]byte, error) {
+	includes := includesRegex.FindAllSubmatchIndex(buf, -1)
+
+	for i := len(includes) - 1; i >= 0; i-- {
+		loc := includes[i]
+		start := loc[0]
+		end := loc[1]
+		include := string(buf[loc[2]:loc[3]])
+		b, err := readFile(include, fs, vm)
+		if err != nil {
+			if os.IsNotExist(err) {
+				// try the path relative to the template dir
+				localPath := filepath.Join(filepath.Dir(path), include)
+				b, err = readFile(localPath, fs, vm)
+				if err != nil {
+					return nil, fmt.Errorf("error reading include '%s': %v", include, err)
+				}
+				include = localPath
+			} else {
+				return nil, fmt.Errorf("error reading include '%s': %v", include, err)
+			}
+		}
+
+		b, err = processIncludes(include, b, fs, vm)
+		if err != nil {
+			return nil, err
+		}
+
+		buf = append(buf[:start], append(b, buf[end:]...)...)
+	}
+
+	return buf, nil
 }
 
 func readFile(path string, fs filesystem.FS, vm *dune.VM) ([]byte, error) {
