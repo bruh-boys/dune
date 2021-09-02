@@ -12,7 +12,7 @@ func init() {
 	dune.RegisterLib(Convert, `
 
 declare namespace convert {
-    export function toInt(v: string | number | FunctionInfo): number
+    export function toInt(v: string | number | runtime.FunctionInfo): number
     export function toFloat(v: string | number): number
     export function toString(v: any): string
     export function toRune(v: any): string
