@@ -160,7 +160,7 @@ var Templates = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("error reading template '%s':_ %v", path, err)
 			}
 
-			buf, err = processIncludes(path, buf, fs, vm)
+			buf, err = processIncludes(path, buf, fs, vm, 0)
 			if err != nil {
 				return dune.NullValue, err
 			}
@@ -170,7 +170,11 @@ var Templates = []dune.NativeFunction{
 	},
 }
 
-func processIncludes(path string, buf []byte, fs filesystem.FS, vm *dune.VM) ([]byte, error) {
+func processIncludes(path string, buf []byte, fs filesystem.FS, vm *dune.VM, count int) ([]byte, error) {
+	if count > 100 {
+		return nil, fmt.Errorf("unbounded loop. Self reference includes?")
+	}
+
 	includes := includesRegex.FindAllSubmatchIndex(buf, -1)
 
 	for i := len(includes) - 1; i >= 0; i-- {
@@ -193,7 +197,7 @@ func processIncludes(path string, buf []byte, fs filesystem.FS, vm *dune.VM) ([]
 			}
 		}
 
-		b, err = processIncludes(include, b, fs, vm)
+		b, err = processIncludes(include, b, fs, vm, count+1)
 		if err != nil {
 			return nil, err
 		}
@@ -209,6 +213,8 @@ func readFile(path string, fs filesystem.FS, vm *dune.VM) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	defer f.Close()
 
 	b, err := ReadAll(f, vm)
 	if err != nil {
