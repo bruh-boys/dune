@@ -212,7 +212,14 @@ var Locale = []dune.NativeFunction{
 
 			var format string
 			if len(args) == 2 {
-				format = args[1].String()
+				switch args[1].Type {
+				case dune.Null, dune.Undefined:
+					format = ""
+					break
+				default:
+					format = args[1].String()
+					break
+				}
 			} else {
 				format = ""
 			}

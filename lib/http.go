@@ -2788,8 +2788,8 @@ func (r *responseWriter) writeFile(args []dune.Value, vm *dune.VM) (dune.Value, 
 			if err != nil {
 				return dune.NullValue, err
 			}
-			reader = f
 			defer f.Close()
+			reader = f
 		}
 	default:
 		return dune.NullValue, ErrInvalidType

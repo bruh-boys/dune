@@ -426,8 +426,12 @@ func (c *Culture) ParseDate(value, format string, loc *time.Location) (time.Time
 	}
 
 	// try the default ISO format just in case
-	t, err := time.ParseInLocation(time.RFC3339, value, loc)
-	if err == nil {
+	if t, err := time.ParseInLocation(time.RFC3339, value, loc); err == nil {
+		return checkLocation(t, loc), nil
+	}
+
+	// try the short version of ISO format just in case
+	if t, err := time.ParseInLocation("2006-01-02T15:04", value, loc); err == nil {
 		return checkLocation(t, loc), nil
 	}
 

@@ -304,6 +304,8 @@ func TestParseNumber2(t *testing.T) {
 func TestParseDate(t *testing.T) {
 	runTest(t, `
 	let tests = [
+		[time.date(2021,9, 10), "", "2021-09-10T00:00"],
+		[time.date(2021,9, 10), null, "2021-09-10T00:00"],
 		[time.date(2020, 12, 10), "yy-MM-dd", "20-12-10"],
 		[time.date(2020, 12, 10), "yyyy-MM-dd", "2020-12-10"],
 		[time.date(2021, 1, 1), "yyyy-M-d", "2021-1-1"],
