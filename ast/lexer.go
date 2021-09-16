@@ -234,7 +234,6 @@ func (l *Lexer) error(tok string, msg string) *lexError {
 }
 
 func (l *Lexer) Run() error {
-
 	for {
 		token := &Token{}
 
@@ -260,7 +259,7 @@ func (l *Lexer) Run() error {
 			}
 
 		case isDecimal(c):
-			if err := l.readNumber(c, &buf, token); err != nil {
+			if err := l.readNumber(c, &buf, token, false); err != nil {
 				return err
 			}
 
@@ -305,6 +304,11 @@ func (l *Lexer) Run() error {
 					token.Type = ADD_ASSIGN
 					token.Str = "+="
 					l.next()
+				} else if l.isSignPrefix() {
+					l.next()
+					if err := l.readNumber(c, &buf, token, true); err != nil {
+						return err
+					}
 				} else {
 					token.Type = ADD
 					token.Str = string(c)
@@ -318,6 +322,10 @@ func (l *Lexer) Run() error {
 					token.Type = SUB_ASSIGN
 					token.Str = "-="
 					l.next()
+				} else if l.isSignPrefix() {
+					if err := l.readNumber(c, &buf, token, true); err != nil {
+						return err
+					}
 				} else {
 					token.Type = SUB
 					token.Str = string(c)
@@ -524,8 +532,31 @@ func (l *Lexer) Run() error {
 	}
 }
 
-func (l *Lexer) readNumber(c byte, buf *bytes.Buffer, token *Token) error {
+func (l *Lexer) isSignPrefix() bool {
+	if !isDecimal(l.peek()) {
+		return false
+	}
+
+	ln := len(l.Tokens)
+	if ln == 0 {
+		return true
+	}
+
+	// check if it is an expresion: 1-1, a-1, 2.4-1, etc...
+	switch l.Tokens[ln-1].Type {
+	case IDENT, INT, FLOAT:
+		return false
+	}
+
+	return true
+}
+
+func (l *Lexer) readNumber(c byte, buf *bytes.Buffer, token *Token, hasSign bool) error {
 	if c == '0' && l.peek() == 'x' {
+		if hasSign {
+			return l.error(buf.String(), "Invalid hex number")
+		}
+
 		if err := l.readHexadecimal(buf); err != nil {
 			return l.error(buf.String(), "Invalid hex number")
 		}
@@ -540,6 +571,7 @@ func (l *Lexer) readNumber(c byte, buf *bytes.Buffer, token *Token) error {
 	if err != nil {
 		return err
 	}
+
 	c = l.peek()
 	if c == '.' {
 		buf.WriteByte(c)
@@ -555,6 +587,7 @@ func (l *Lexer) readNumber(c byte, buf *bytes.Buffer, token *Token) error {
 			return err
 		}
 	}
+
 	return nil
 }
 

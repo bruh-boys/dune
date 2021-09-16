@@ -15,6 +15,7 @@ func TestExpression1(t *testing.T) {
 		expression string
 		expected   interface{}
 	}{
+		{"return 3-1", int64(2)},
 		{"return 3", int64(3)},
 		{"return 3+3", int64(6)},
 		{"return -1 + 2", int64(1)},

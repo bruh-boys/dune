@@ -25,7 +25,6 @@ const (
 	op_rightShift                         // A := B >> C
 	op_inc                                // A = A++. B up
 	op_dec                                // A = A--. B up
-	op_unm                                // A := -RK(B)
 	op_not                                // A := !RK(B)
 	op_bitwiseNot                         // A := ~B  bitwise not
 	op_setRegister                        // Set register: A register 0, B register 1, C register 2
@@ -124,9 +123,6 @@ func exec(i *Instruction, vm *VM) int {
 
 	case op_dec:
 		return exec_dec(i, vm)
-
-	case op_unm:
-		return exec_unm(i, vm)
 
 	case op_not:
 		return exec_not(i, vm)
@@ -915,23 +911,6 @@ func exec_bitwiseNot(instr *Instruction, vm *VM) int {
 	switch lh.Type {
 	case Int:
 		vm.set(instr.A, NewInt64(^lh.ToInt()))
-	default:
-		if vm.handle((vm.NewError("Invalid operation on %v", lh.Type))) {
-			return vm_continue
-		} else {
-			return vm_exit
-		}
-	}
-	return vm_next
-}
-
-func exec_unm(instr *Instruction, vm *VM) int {
-	lh := vm.get(instr.B)
-	switch lh.Type {
-	case Int:
-		vm.set(instr.A, NewInt64(lh.ToInt()*-1))
-	case Float:
-		vm.set(instr.A, NewFloat(lh.ToFloat()*-1))
 	default:
 		if vm.handle((vm.NewError("Invalid operation on %v", lh.Type))) {
 			return vm_continue

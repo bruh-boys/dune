@@ -303,3 +303,15 @@ func TestParseLambdaNullableArg(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestParseEnumNegativeValue(t *testing.T) {
+	_, err := ParseStr(`
+		export enum Priority {
+			high = 2,
+			low = -1,
+		}
+	`)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

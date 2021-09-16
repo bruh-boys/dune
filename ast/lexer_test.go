@@ -6,11 +6,17 @@ import (
 	"testing"
 )
 
-func TestLex(t *testing.T) {
+func TestBasicLex(t *testing.T) {
 	data := []struct {
 		s string
 		t []Type
 	}{
+		{"+1", []Type{INT}},
+		{"-1", []Type{INT}},
+		{"-1.1", []Type{FLOAT}},
+		{"1-1", []Type{INT, SUB, INT}},
+		{"a-1", []Type{IDENT, SUB, INT}},
+		{"-1 // foo", []Type{INT, COMMENT}},
 		{"0x33FA3eEE", []Type{HEX}},
 		{"0xEE ^ 0xFF", []Type{HEX, XOR, HEX}},
 		{"^= 0xFF", []Type{XOR_ASSIGN, HEX}},
@@ -18,8 +24,6 @@ func TestLex(t *testing.T) {
 		{"<< 0xFF", []Type{LSH, HEX}},
 		{">> 0xFF", []Type{RSH, HEX}},
 		{"~a", []Type{BNT, IDENT}},
-		{"-1", []Type{SUB, INT}},
-		{"-1 // foo", []Type{SUB, INT, COMMENT}},
 		{`print "\""`, []Type{IDENT, STRING}},
 		{"test \\ test", []Type{IDENT, RUNE, IDENT}},
 		{`"qx\"aa"`, []Type{STRING}},

@@ -1813,8 +1813,6 @@ func (c *compiler) compileUnaryExpr(t *ast.UnaryExpr, dest *Address) (*Address, 
 	}
 
 	switch t.Operator {
-	case ast.SUB:
-		c.emit(op_unm, dest, i, Void, t.Pos)
 	case ast.NOT:
 		c.emit(op_not, dest, i, Void, t.Pos)
 	case ast.BNT:
@@ -1836,23 +1834,11 @@ func (c *compiler) compileUnaryConstantExpr(operator ast.Type, t *ast.ConstantEx
 			return Void, newError(t.Pos, "Invalid int value %s", t.Value)
 		}
 		switch operator {
-		case ast.SUB:
-			k = c.program.addConstant(NewInt64(n * -1))
 		case ast.BNT:
 			k = c.program.addConstant(NewInt64(^n))
 		default:
 			return Void, newError(t.Pos, "Invalid unary operator %s", operator)
 		}
-
-	case ast.FLOAT:
-		if operator != ast.SUB {
-			return Void, newError(t.Pos, "Invalid unary operator %s", operator)
-		}
-		n, err := strconv.ParseFloat(t.Value, 64)
-		if err != nil {
-			return Void, newError(t.Pos, "Invalid float value %s", t.Value)
-		}
-		k = c.program.addConstant(NewFloat(n * -1))
 
 	case ast.TRUE, ast.FALSE:
 		if operator != ast.NOT {

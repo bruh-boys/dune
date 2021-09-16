@@ -4,7 +4,7 @@ function testExpressions() {
         test1: { exp: 3, r: 3 },
         test2: { exp: 3 + 3, r: 6 },
         test3: { exp: -3 + 3, r: 0 },
-        test4: { exp: -3 + - 3, r: -6 },
+        test4: { exp: -3 + -3, r: -6 },
         test5: { exp: -3 - 3, r: -6 },
         test6: { exp: -3 - -3, r: 0 },
         test7: { exp: 3 - -3, r: 6 },
