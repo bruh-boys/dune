@@ -46,7 +46,7 @@ func TestErrorWrap(t *testing.T) {
 }
 
 func TestErrorWrap2(t *testing.T) {
-	v := runTest(t, `return fmt.typeErrorf("io", "ERROR %s", errors.newTypeError("io", "Snap!"))`)
+	v := runTest(t, `return fmt.codeErrorf(500, "ERROR %s", errors.newCodeError(900, "Snap!"))`)
 
 	err, ok := v.ToObjectOrNil().(*dune.VMError)
 	if !ok {
@@ -61,7 +61,11 @@ func TestErrorWrap2(t *testing.T) {
 		t.Fatal("wrap", err.Wrapped)
 	}
 
-	if !err.Is("io") {
-		t.Fatal("IS", err)
+	if err.Code != 500 {
+		t.Fatal("code", err.Code)
+	}
+
+	if err.Wrapped.Code != 900 {
+		t.Fatal("code", err.Wrapped.Code)
 	}
 }

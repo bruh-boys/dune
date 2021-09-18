@@ -17,7 +17,7 @@ declare namespace fmt {
 	export function fprintf(w: io.Writer, format: string, ...params: any[]): void
 	
     export function errorf(format: string, ...params: any[]): errors.Error
-    export function typeErrorf(type: string, format: string, ...params: any[]): errors.Error
+    export function codeErrorf(code: number, format: string, ...params: any[]): errors.Error
 }	
 	`)
 }
@@ -37,11 +37,11 @@ var libFmt = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected parameter 1 to be a string, got %s", msg.Type)
 			}
 
-			return typeErrorf("", msg.String(), args[1:], vm)
+			return codeErrorf(0, msg.String(), args[1:], vm)
 		},
 	},
 	{
-		Name:      "fmt.typeErrorf",
+		Name:      "fmt.codeErrorf",
 		Arguments: -1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			argsLen := len(args)
@@ -50,8 +50,8 @@ var libFmt = []dune.NativeFunction{
 			}
 
 			t := args[0]
-			if t.Type != dune.String {
-				return dune.NullValue, fmt.Errorf("expected parameter 1 to be a string, got %s", t.Type)
+			if t.Type != dune.Int {
+				return dune.NullValue, fmt.Errorf("expected parameter 1 to be a int, got %s", t.Type)
 			}
 
 			msg := args[1]
@@ -59,7 +59,7 @@ var libFmt = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected parameter 2 to be a string, got %s", msg.Type)
 			}
 
-			return typeErrorf(t.String(), msg.String(), args[2:], vm)
+			return codeErrorf(int(t.ToInt()), msg.String(), args[2:], vm)
 		},
 	},
 	{
@@ -160,7 +160,7 @@ var libFmt = []dune.NativeFunction{
 	},
 }
 
-func typeErrorf(errorType, msg string, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func codeErrorf(code int, msg string, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	argsLen := len(args)
 
 	var wrap *dune.VMError
@@ -182,7 +182,7 @@ func typeErrorf(errorType, msg string, args []dune.Value, vm *dune.VM) (dune.Val
 		key = fmt.Sprintf(key, values...)
 	}
 
-	err := dune.NewTypeError(errorType, key)
+	err := dune.NewCodeError(code, key)
 	if wrap != nil {
 		err.Wrapped = wrap
 	}

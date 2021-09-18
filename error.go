@@ -10,11 +10,11 @@ import (
 	"strings"
 )
 
-func NewTypeError(errorType, msg string, args ...interface{}) *VMError {
+func NewCodeError(code int, msg string, args ...interface{}) *VMError {
 	if len(args) > 0 {
 		msg = fmt.Sprintf(msg, args...)
 	}
-	return &VMError{ErrorType: errorType, Message: msg}
+	return &VMError{Code: code, Message: msg}
 }
 
 func Wrap(msg string, err error) error {
@@ -32,8 +32,8 @@ func Wrap(msg string, err error) error {
 }
 
 type VMError struct {
+	Code        int
 	Message     string
-	ErrorType   string
 	TraceLines  []TraceLine
 	Wrapped     *VMError
 	IsRethrow   bool
@@ -80,19 +80,12 @@ func (e *VMError) Error() string {
 }
 
 func (e *VMError) Is(msg string) bool {
-	if e.ErrorType == msg {
-		return true
-	}
-
 	if goErrorIs(e.goError, msg) {
 		return true
 	}
 
 	wrap := e.Wrapped
 	for wrap != nil {
-		if wrap.ErrorType == msg {
-			return true
-		}
 		if goErrorIs(wrap.goError, msg) {
 			return true
 		}
@@ -129,8 +122,8 @@ func (e *VMError) Stack() string {
 
 func (e *VMError) GetField(name string, vm *VM) (Value, error) {
 	switch name {
-	case "type":
-		return NewString(e.ErrorType), nil
+	case "code":
+		return NewInt(e.Code), nil
 	case "message":
 		return NewString(e.Message), nil
 	case "pc":
@@ -168,11 +161,11 @@ func (e *VMError) string(args []Value, vm *VM) (Value, error) {
 
 func (e *VMError) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
-		ErrorType  string
+		Code       int
 		Message    string
 		TraceLines []TraceLine
 	}{
-		ErrorType:  e.ErrorType,
+		Code:       e.Code,
 		Message:    e.Message,
 		TraceLines: e.TraceLines,
 	})

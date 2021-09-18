@@ -1350,7 +1350,7 @@ func (s *libDB) execRaw(args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	res, err := s.db.ExecRaw(query, params...)
 	if err != nil {
 		if errors.Is(err, dbx.ErrReadOnly) {
-			return dune.NullValue, dune.NewTypeError("sql", err.Error())
+			return dune.NullValue, err
 		}
 		return dune.NullValue, err
 	}

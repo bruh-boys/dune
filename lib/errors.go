@@ -21,13 +21,13 @@ func init() {
 declare namespace errors {
 	export function parse(err: string): Error
 	export function newError(msg: string, ...args: any[]): Error
-	export function newTypeError(type: string, msg: string, ...args: any[]): Error
+	export function newCodeError(code: number, msg: string, ...args: any[]): Error
 	export function unwrap(err: Error): Error
 	export function is(err: Error, type: string): Error
 	export function rethrow(err: Error): void
 
 	export interface Error {
-		type: string
+		code: number
 		message: string
 		pc: number
 		stackTrace: string
@@ -126,11 +126,11 @@ var Errors = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected parameter 1 to be a string, got %s", m.Type)
 			}
 
-			return newTypeError("", m.String(), args[1:], vm)
+			return newCodeError(0, m.String(), args[1:], vm)
 		},
 	},
 	{
-		Name:      "errors.newTypeError",
+		Name:      "errors.newCodeError",
 		Arguments: -1,
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			argsLen := len(args)
@@ -139,8 +139,8 @@ var Errors = []dune.NativeFunction{
 			}
 
 			t := args[0]
-			if t.Type != dune.String {
-				return dune.NullValue, fmt.Errorf("expected parameter 1 to be a string, got %s", t.Type)
+			if t.Type != dune.Int {
+				return dune.NullValue, fmt.Errorf("expected parameter 1 to be a int, got %s", t.Type)
 			}
 
 			m := args[1]
@@ -148,12 +148,12 @@ var Errors = []dune.NativeFunction{
 				return dune.NullValue, fmt.Errorf("expected parameter 2 to be a string, got %s", m.Type)
 			}
 
-			return newTypeError(t.String(), m.String(), args[2:], vm)
+			return newCodeError(int(t.ToInt()), m.String(), args[2:], vm)
 		},
 	},
 }
 
-func newTypeError(errorType, msg string, args []dune.Value, vm *dune.VM) (dune.Value, error) {
+func newCodeError(code int, msg string, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 	argsLen := len(args)
 
 	values := make([]interface{}, argsLen)
@@ -171,6 +171,6 @@ func newTypeError(errorType, msg string, args []dune.Value, vm *dune.VM) (dune.V
 	}
 
 	err := vm.NewError(msg)
-	err.ErrorType = errorType
+	err.Code = code
 	return dune.NewObject(err), nil
 }

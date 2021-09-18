@@ -1526,7 +1526,7 @@ func exec_throw(instr *Instruction, vm *VM) int {
 			if e.IsRethrow {
 				err = e
 			} else {
-				newError := vm.NewTypeError(e.ErrorType, e.Message)
+				newError := vm.NewCodeError(e.Code, e.Message)
 				newError.Wrapped = e.Wrapped
 				err = newError
 			}

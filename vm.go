@@ -623,9 +623,9 @@ func (vm *VM) WrapError(err error) *VMError {
 	}
 }
 
-func (vm *VM) NewTypeError(errorType, format string, a ...interface{}) *VMError {
+func (vm *VM) NewCodeError(code int, format string, a ...interface{}) *VMError {
 	err := vm.NewError(format, a...)
-	err.ErrorType = errorType
+	err.Code = code
 	return err
 }
 

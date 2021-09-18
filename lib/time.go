@@ -378,24 +378,24 @@ var Time = []dune.NativeFunction{
 			parts := Split(args[0].String(), ":")
 			ln := len(parts)
 			if ln < 2 || ln > 3 {
-				return dune.NullValue, dune.NewTypeError("parse", "invalid time. Format is for example 18:30")
+				return dune.NullValue, dune.NewCodeError(100005, "invalid time. Format is for example 18:30")
 			}
 
 			h, err := strconv.Atoi(parts[0])
 			if err != nil {
-				return dune.NullValue, dune.NewTypeError("parse", "invalid hour part %s. Expected an int", parts[0])
+				return dune.NullValue, dune.NewCodeError(100005, "invalid hour part %s. Expected an int", parts[0])
 			}
 
 			m, err := strconv.Atoi(parts[1])
 			if err != nil {
-				return dune.NullValue, dune.NewTypeError("parse", "invalid min part %s. Expected an int", parts[1])
+				return dune.NullValue, dune.NewCodeError(100005, "invalid min part %s. Expected an int", parts[1])
 			}
 
 			var s int
 			if ln > 2 {
 				s, err = strconv.Atoi(parts[2])
 				if err != nil {
-					return dune.NullValue, dune.NewTypeError("parse", "invalid sec part %s. Expected an int", parts[2])
+					return dune.NullValue, dune.NewCodeError(100005, "invalid sec part %s. Expected an int", parts[2])
 				}
 			}
 
@@ -921,7 +921,7 @@ func parseDate(value, format string, loc *time.Location) (time.Time, error) {
 		}
 	}
 
-	return time.Time{}, dune.NewTypeError("parse", "Error parsing date: %s", value)
+	return time.Time{}, dune.NewCodeError(100005, "Error parsing date: %s", value)
 }
 
 type TimeObj time.Time
@@ -1929,23 +1929,23 @@ func parseTime(s string) (dune.Value, error) {
 	switch len(parts) {
 	case 2, 3:
 	default:
-		return dune.NullValue, dune.NewTypeError("parse", "invalid duration: %s", s)
+		return dune.NullValue, dune.NewCodeError(100005, "invalid duration: %s", s)
 	}
 
 	h, err := strconv.Atoi(parts[0])
 	if err != nil {
-		return dune.NullValue, dune.NewTypeError("parse", "invalid duration: %s", s)
+		return dune.NullValue, dune.NewCodeError(100005, "invalid duration: %s", s)
 	}
 	m, err := strconv.Atoi(parts[1])
 	if err != nil {
-		return dune.NullValue, dune.NewTypeError("parse", "invalid duration: %s", s)
+		return dune.NullValue, dune.NewCodeError(100005, "invalid duration: %s", s)
 	}
 	d := time.Duration(h)*time.Hour + time.Duration(m)*time.Minute
 
 	if len(parts) == 3 {
 		s, err := strconv.Atoi(parts[2])
 		if err != nil {
-			return dune.NullValue, dune.NewTypeError("parse", "invalid duration: %s", s)
+			return dune.NullValue, dune.NewCodeError(100005, "invalid duration: %s", s)
 		}
 		d += time.Duration(s) * time.Second
 	}

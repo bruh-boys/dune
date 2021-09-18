@@ -435,7 +435,7 @@ func (c *Culture) ParseDate(value, format string, loc *time.Location) (time.Time
 		return checkLocation(t, loc), nil
 	}
 
-	return time.Time{}, dune.NewTypeError("parse", "Error parsing date: %s", value)
+	return time.Time{}, dune.NewCodeError(100005, "Error parsing date: %s", value)
 }
 
 func checkLocation(t time.Time, loc *time.Location) time.Time {
