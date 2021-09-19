@@ -297,3 +297,24 @@ func TestParseCreateMysql(t *testing.T) {
 		t.Fatal(s)
 	}
 }
+
+func TestParseCreateKeyNotNullMysql(t *testing.T) {
+	q, err := Parse("CREATE TABLE IF NOT EXISTS profile (id key not null)")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, _, err := toSQL(false, q, "", "mysql")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if s != "CREATE TABLE IF NOT EXISTS profile ("+
+		"id int UNSIGNED AUTO_INCREMENT NOT NULL, "+
+		"PRIMARY KEY(id))"+
+		" ENGINE=InnoDb"+
+		" DEFAULT CHARACTER SET = utf8"+
+		" DEFAULT COLLATE = utf8_general_ci" {
+		t.Fatal(s)
+	}
+}

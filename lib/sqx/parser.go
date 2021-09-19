@@ -1174,6 +1174,13 @@ func (p *Parser) parseCreateColumn() (*CreateColumn, error) {
 		c.Type = Int
 		c.Key = true
 		c.Unsigned = true
+
+		if p.peek().Type == NOT {
+			p.accept(NOT)
+			if _, err := p.accept(NULL); err != nil {
+				return nil, err
+			}
+		}
 		return c, nil
 	}
 
@@ -2473,6 +2480,12 @@ func (p *Parser) next() *Token {
 	t := p.lexer.Tokens[p.lexIdex]
 	p.lexIdex++
 	return t
+}
+
+func (p *Parser) ignore(k Type) {
+	if p.peek().Type == k {
+		p.next()
+	}
 }
 
 func (p *Parser) accept(k Type) (*Token, error) {
