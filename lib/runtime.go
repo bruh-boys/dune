@@ -68,7 +68,7 @@ declare namespace runtime {
 	export function runFunc(fn: Function, ...args: any[]): any
 
     export const hasResources: boolean
-    export function resources(name: string): string[]
+    export function resources(): string[]
     export function resource(name: string): byte[]
 
     export function stackTrace(): string
@@ -230,7 +230,7 @@ var Runtime = []dune.NativeFunction{
 		},
 	},
 	{
-		Name: "->runtime.resources",
+		Name: "runtime.resources",
 		Function: func(this dune.Value, args []dune.Value, vm *dune.VM) (dune.Value, error) {
 			res := vm.Program.Resources
 			if res == nil {
